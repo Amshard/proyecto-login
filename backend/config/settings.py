@@ -58,6 +58,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+CSRF_TRUESTED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIAL = True
+
 AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
@@ -70,6 +77,8 @@ from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=39),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True
 }
 
 ROOT_URLCONF = 'config.urls'
