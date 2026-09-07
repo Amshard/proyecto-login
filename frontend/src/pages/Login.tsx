@@ -34,7 +34,11 @@ export default function Login() {
         <div className="stc-login-page">
 
             <header className="stc-header">
+                <button type="button" className="stc-exit-btn">
+                    Salir
+                </button>
                 <div className="stc-header-accent" />
+                {/* TODO: image banner placeholder - <img className="stc-header-banner" src="..." alt="Banner" /> */}
                 <div className="stc-header-text">
                 </div>
             </header>
