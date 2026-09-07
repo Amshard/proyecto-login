@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import './Login.css';
 
 export default function Login() {
     const { login } = useAuth();
@@ -21,8 +22,8 @@ export default function Login() {
             navigate('/dashboard');
         } catch (err) {
             const message = axios.isAxiosError(err)
-                ? (err.response?.data?.detail ?? 'Invalid email or password')
-                : 'Something went wrong';
+                ? (err.response?.data?.detail ?? 'Cuenta o contraseña incorrecta')
+                : 'Ocurrió un error, intenta de nuevo';
             setError(message);
         } finally {
             setSubmitting(false);
@@ -30,36 +31,57 @@ export default function Login() {
     };
 
     return (
-        <section className="auth-form">
-            <h1>Log in</h1>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="email">Email</label>
-                <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
+        <div className="stc-login-page">
 
-                <label htmlFor="password">Password</label>
-                <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
+            <header className="stc-header">
+                <div className="stc-header-accent" />
+                <div className="stc-header-text">
+                </div>
+            </header>
 
-                {error && <p className="form-error">{error}</p>}
+            <div className="stc-body">
+                <main className="stc-content">
+                    <div className="stc-form-box">
+                        <h1 className="stc-role-title">Rol para el personal de taquillas</h1>
 
-                <button type="submit" disabled={submitting}>
-                    {submitting ? 'Logging in...' : 'Log in'}
-                </button>
-            </form>
-            <p>
-                No account? <Link to="/register">Register</Link>
-            </p>
-        </section>
+                        <form onSubmit={handleSubmit}>
+                            <div className="stc-field-row">
+                                <label className="stc-field-label" htmlFor="email">
+                                    Cuenta de acceso
+                                </label>
+                                <input
+                                    id="email"
+                                    className="stc-field-input"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="stc-field-row">
+                                <label className="stc-field-label" htmlFor="password">
+                                    Contraseña
+                                </label>
+                                <input
+                                    id="password"
+                                    className="stc-field-input"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            {error && <p className="stc-error">{error}</p>}
+
+                            <button type="submit" className="stc-submit-btn" disabled={submitting}>
+                                {submitting ? 'Ingresando...' : 'Ingresar'}
+                            </button>
+                        </form>
+                    </div>
+                </main>
+            </div>
+        </div>
     );
 }
