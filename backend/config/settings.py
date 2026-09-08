@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'apps.users',
 ]
@@ -80,7 +79,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=39),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True
+    'BLACKLIST_AFTER_ROTATION': False,
+    'USER_ID_FIELD': 'id_usuario',
 }
 
 ROOT_URLCONF = 'config.urls'
@@ -109,10 +109,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
-        'NAME': 'DB_RolTaqSup',
-        'USER': '50.192.40.206',
+        'NAME': 'BD_RolTaqSup',
+        'USER': 'usr_taquillas',
         'PASSWORD': 'Taquillas1234',
-        'HOST': 'DEL2DOPISOSI199',
+        'HOST': '50.192.40.206',
         'PORT': '1433',
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',

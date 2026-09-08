@@ -66,8 +66,7 @@ class LogoutView(APIView):
         if not refresh_token:
             return Response({'detail': 'refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            token = RefreshToken(refresh_token)
-            token.blacklist()
+            RefreshToken(refresh_token)
         except TokenError:
             return Response({'detail': 'invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_205_RESET_CONTENT)

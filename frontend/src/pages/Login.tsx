@@ -8,7 +8,7 @@ import './Login.css';
 export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
+    const [accessId, setAccessId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
@@ -18,7 +18,7 @@ export default function Login() {
         setError(null);
         setSubmitting(true);
         try {
-            await login({ email, password });
+            await login({ id_usuario: accessId, password });
             navigate('/dashboard');
         } catch (err) {
             const message = axios.isAxiosError(err)
@@ -50,15 +50,16 @@ export default function Login() {
 
                         <form onSubmit={handleSubmit}>
                             <div className="stc-field-row">
-                                <label className="stc-field-label" htmlFor="email">
+                                <label className="stc-field-label" htmlFor="id_usuario">
                                     Cuenta de acceso
                                 </label>
                                 <input
-                                    id="email"
+                                    id="id_usuario"
                                     className="stc-field-input"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    type="text"
+                                    maxLength={5}
+                                    value={accessId}
+                                    onChange={(e) => setAccessId(e.target.value)}
                                     required
                                 />
                             </div>

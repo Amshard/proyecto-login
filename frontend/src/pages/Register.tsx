@@ -7,8 +7,8 @@ import { useAuth } from '../context/AuthContext';
 export default function Register() {
     const { register } = useAuth();
     const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
+    const [idUsuario, setIdUsuario] = useState('');
+    const [nombre, setNombre] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
@@ -18,7 +18,7 @@ export default function Register() {
         setError(null);
         setSubmitting(true);
         try {
-            await register({ username, email, password });
+            await register({ id_usuario: idUsuario, nombre, password });
             navigate('/dashboard');
         } catch (err) {
             let message = 'Something went wrong';
@@ -36,21 +36,23 @@ export default function Register() {
         <section className="auth-form">
             <h1>Register</h1>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Username</label>
+                <label htmlFor="id_usuario">Cuenta de acceso</label>
                 <input
-                    id="username"
+                    id="id_usuario"
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    maxLength={5}
+                    value={idUsuario}
+                    onChange={(e) => setIdUsuario(e.target.value)}
                     required
                 />
 
-                <label htmlFor="email">Email</label>
+                <label htmlFor="nombre">Nombre</label>
                 <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="nombre"
+                    type="text"
+                    maxLength={60}
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
                     required
                 />
 
@@ -59,6 +61,7 @@ export default function Register() {
                     id="password"
                     type="password"
                     minLength={8}
+                    maxLength={16}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

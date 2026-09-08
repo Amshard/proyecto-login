@@ -12,8 +12,8 @@ export default function Dashboard() {
 
     return (
         <section className="dashboard">
-            <h1>Welcome, {user?.username}</h1>
-            <p>{user?.email}</p>
+            <h1>Welcome, {user?.nombre}</h1>
+            <p>{user?.id_usuario}</p>
             <button type="button" onClick={handleLogout}>
                 Log out
             </button>
