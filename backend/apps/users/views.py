@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,6 +14,22 @@ from apps.users.serializers import (
 
 User = get_user_model()
 
+class LegacyLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        username = request.data.get('nombre')
+        password = request.data.get('password')
+
+        user = authenticate(request, username=username, password=password)
+        if user is None:
+            return Response({'detail': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'access': str(refresh.acces_token),
+            'refresh': str(refresh),
+            })
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

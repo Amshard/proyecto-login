@@ -5,7 +5,6 @@
   display: flex;
   flex-direction: column;
 }
-
 .stc-exit-btn {
   color: black;
   background: #f37f49;
@@ -17,7 +16,7 @@
   cursor: pointer;
   position: relative;
   top: 250px;
-  z-index: 4;
+  z-index: 5;
   margin-left: -22px;
   box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.8);
 }
@@ -38,7 +37,7 @@
 .stc-header {
   display: flex;
   align-items: center;
-  background: #ffffff;
+  background: #f58220;
   padding: 16px 24px;
   border-bottom: 3px solid #f58220;
   position: relative;
@@ -57,7 +56,7 @@
   bottom: -100vh;
   width: 85px;
   background: #f58220;
-  z-index: 3
+  z-index: 4
 }
 
 .stc-header-text {
