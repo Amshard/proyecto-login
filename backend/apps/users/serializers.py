@@ -2,13 +2,28 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+from apps.users.models import RolVigente
+
 User = get_user_model()
 
 
+class RolVigenteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RolVigente
+        fields = ['nombre_rol', 'meses_q_califica', 'fecha_ini', 'fecha_fin']
+
+
 class UserSerializer(serializers.ModelSerializer):
+    must_change_password = serializers.BooleanField(read_only=True)
+    rol_vigente = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id_usuario', 'nombre']
+        fields = ['id_usuario', 'nombre', 'must_change_password', 'fecha_modif', 'rol_vigente']
+
+    def get_rol_vigente(self, obj):
+        rol_vigente = RolVigente.objects.order_by('-fecha_ini').first()
+        return RolVigenteSerializer(rol_vigente).data if rol_vigente else None
 
 
 class RegisterSerializer(serializers.ModelSerializer):

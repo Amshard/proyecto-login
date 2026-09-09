@@ -18,8 +18,13 @@ export default function Login() {
         setError(null);
         setSubmitting(true);
         try {
-            await login({ id_usuario: accessId, password });
-            navigate('/dashboard');
+            const loggedInUser = await login({ id_usuario: accessId, password });
+            if (loggedInUser.must_change_password) {
+                window.alert('Debe cambiar la contraseña');
+                navigate('/cambio-password');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             const message = axios.isAxiosError(err)
                 ? (err.response?.data?.detail ?? 'Cuenta o contraseña incorrecta')
@@ -59,7 +64,7 @@ export default function Login() {
                                     type="text"
                                     maxLength={5}
                                     value={accessId}
-                                    onChange={(e) => setAccessId(e.target.value)}
+                                    onChange={(e) => setAccessId(e.target.value.toUpperCase())}
                                     required
                                 />
                             </div>
@@ -73,7 +78,7 @@ export default function Login() {
                                     className="stc-field-input"
                                     type="password"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={(e) => setPassword(e.target.value.toUpperCase())}
                                     required
                                 />
                             </div>

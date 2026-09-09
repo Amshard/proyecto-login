@@ -6,7 +6,7 @@ import * as authApi from '../api/auth';
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (payload: LoginPayload) => Promise<void>;
+    login: (payload: LoginPayload) => Promise<User>;
     register: (payload: RegisterPayload) => Promise<void>;
     logout: () => Promise<void>;
 }
@@ -38,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('access', data.access);
         localStorage.setItem('refresh', data.refresh);
         setUser(data.user);
+        return data.user;
     };
 
     const register = async (payload: RegisterPayload) => {
