@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosRequestConfig } from 'axios';
 import type { LoginPayload, AuthTokens, User, RegisterPayload } from '../types/auth.types';
+import type { ChangePasswordPayload } from '../types/auth.types';
 
 const BASE_URL = 'http://localhost:8000/api/auth';
 
@@ -67,8 +68,10 @@ export const logout = async (): Promise<void> => {
     try {
         await api.post('/logout/', { refresh });
     } catch {
-        // token may already be expired/blacklisted; nothing to do
-    }
+    }}
+
+export const changePassword = async (payload: ChangePasswordPayload): Promise<void> => {
+    await api.post('/change-password/', payload);
 };
 
 export default api;

@@ -62,7 +62,7 @@ export default function Login() {
                                     id="id_usuario"
                                     className="stc-field-input"
                                     type="text"
-                                    maxLength={5}
+                                    maxLength={60}
                                     value={accessId}
                                     onChange={(e) => setAccessId(e.target.value.toUpperCase())}
                                     required
@@ -87,6 +87,13 @@ export default function Login() {
 
                             <button type="submit" className="stc-submit-btn" disabled={submitting}>
                                 {submitting ? 'Ingresando...' : 'Ingresar'}
+                            </button>
+                            <button
+                                type="button"
+                                className="stc-submit-btn"
+                                onClick={() => navigate('/cambio-password')}
+                            >
+                                Cambiar Password
                             </button>
                         </form>
                     </div>

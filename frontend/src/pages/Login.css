@@ -37,7 +37,6 @@
 .stc-navbar {
   display: flex;
   background: lightgray;
-  border-bottom: 1px solid lightgray;
   padding: 1px 8px;
   gap: 6px;
 }
@@ -48,7 +47,7 @@
   margin: 0px;
   padding: 1px 14px;
   color: black;
-  background: lightgray;
+  background: #d8581d00;
   border: none;
   outline: none;
   border-radius: 0px;
@@ -59,7 +58,7 @@
 }
 
 .stc-nav-btn:hover {
-  background: #c0c1c2;
+  background: rgb(156, 156, 156);
 }
 
 .stc-nav-item {
@@ -76,7 +75,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  background: lightgray;
+  background: orangered;
   border: 1px solid #828385;
   box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.3);
   z-index: 10;
@@ -92,7 +91,7 @@
   color: black;
   background: lightgray;
   border: none;
-  border-bottom: 1px solid #b9b2b2;
+  border-bottom: 0px solid #b9b2b2;
   outline: none;
   text-align: left;
   white-space: pre;
@@ -121,11 +120,11 @@
 }
 
 .stc-submenu-btn:hover {
-  background: #dfe0e1;
+  background: #bdbdbd;
 }
 
 .stc-nav-btn:active {
-  background: #c9cbcd;
+  background: #3b3b3b;
   box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.4);
 }
 
@@ -134,7 +133,7 @@
   align-items: center;
   background: #d45a09;
   padding: 16px 24px;
-  border-bottom: 3px solid #d45a09;
+  border-bottom: 3px solid #d8581d;
   position: relative;
 }
 
@@ -157,13 +156,23 @@
 .stc-header-text {
   display: flex;
   flex-direction: column;
-  margin-left: 16px;
-  font-weight: 800;
+  align-items: center;
+  margin-left: 300px;
+  font-weight: 500;
   font-size: 22px;
   letter-spacing: 1px;
-  color: #2b2b2b;
+  color: #500404;
   line-height: 1.15;
   text-transform: uppercase;
+  text-align: center;
+}
+
+.stc-header-text h1 {
+  margin: 4px 0 0;
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+  color: #500404;
 }
 
 .stc-body {
@@ -186,6 +195,115 @@
   border: 1px solid #9aa0a6;
   background: #f5f4f2;
   box-shadow: 15px 15px 15px rgba(0, 0, 0, 0.90);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stc-changepw-box {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  background: white;
+  overflow: hidden;
+}
+
+.stc-changepw-titlebar {
+  font-style: italic;
+  background: white;
+  color: blue;
+  font-weight: 520;
+  font-size: 20px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 14px 24px;
+}
+
+.stc-changepw-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.stc-tabs {
+  display: flex;
+  gap: 2px;
+  background: lightgray;
+  padding: 8px 24px 0;
+}
+
+.stc-tab-btn {
+  padding: 8px 22px;
+  color: black;
+  background: #e2e2e2;
+  border: 1px solid #9aa0a6;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stc-tab-btn:hover {
+  background: #d3d3d3;
+}
+
+.stc-tab-btn-active {
+  background: #fff;
+  color: #1a2fa0;
+}
+
+.stc-tab-panel {
+  align-items: flex-start;
+  justify-content: flex-start;
+  border-top: 1px solid #9aa0a6;
+}
+
+.stc-tab-form {
+  width: 100%;
+}
+
+.stc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+}
+
+.stc-table th {
+  text-align: left;
+  color: #fff;
+  background: #1a2fa0;
+  padding: 8px 12px;
+  border: 1px solid #9aa0a6;
+}
+
+.stc-table td {
+  padding: 8px 12px;
+  border: 1px solid #9aa0a6;
+}
+
+.stc-table-empty {
+  text-align: center;
+  color: #777;
+  font-style: italic;
+}
+
+.stc-changepw-body .stc-field-row:first-child {
+  margin-top: 32px;
+}
+
+.stc-changepw-submit-btn {
+  transition: transform 0.1s ease, background 0.1s ease, box-shadow 0.1s ease;
+}
+
+.stc-changepw-submit-btn:active {
+  background: #12206e;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  transform: translateY(1px) scale(0.97);
 }
 
 .stc-status-bar {
@@ -267,4 +385,8 @@ body:has(.stc-login-page) #root {
   font-weight: 700;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.stc-submit-btn + .stc-submit-btn {
+  margin-left: 16px;
 }

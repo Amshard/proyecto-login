@@ -29,3 +29,10 @@ export interface AuthTokens {
     refresh: string;
     user: User;
 }
+
+
+export interface ChangePasswordPayload {
+    current_password: string;
+    new_password: string;
+    confirm_password: string;
+}

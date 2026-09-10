@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
+import CatalogoPermanencias from './pages/CatalogoPermanencias';
 import ChangePassword from './pages/ChangePassword';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import SectionPage from './pages/SectionPage';
 import './App.css';
 
 function App() {
@@ -25,6 +27,30 @@ function App() {
         element={
           <ProtectedRoute>
             <ChangePassword />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/catalogos/permanencias"
+        element={
+          <ProtectedRoute>
+            <CatalogoPermanencias />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/:section/:item"
+        element={
+          <ProtectedRoute>
+            <SectionPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/:section/:group/:item"
+        element={
+          <ProtectedRoute>
+            <SectionPage />
           </ProtectedRoute>
         }
       />

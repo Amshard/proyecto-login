@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
+function slugify(text: string): string {
+    return text
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
 const NAV_ITEMS = [
     {
         label: 'Catálogos',
@@ -102,9 +112,11 @@ export default function Dashboard() {
                                                 type="button"
                                                 className="stc-submenu-btn"
                                                 onClick={() => {
-                                                    if (!hasSubMenu) {
-                                                        setOpenMenu(null);
-                                                    }
+                                                    if (hasSubMenu) return;
+                                                    setOpenMenu(null);
+                                                    navigate(`/dashboard/${slugify(navItem.label)}/${slugify(label)}`, {
+                                                        state: { title: label, section: navItem.label },
+                                                    });
                                                 }}
                                             >
                                                 {label}
@@ -120,6 +132,16 @@ export default function Dashboard() {
                                                                 onClick={() => {
                                                                     setOpenSubMenu(null);
                                                                     setOpenMenu(null);
+                                                                    navigate(
+                                                                        `/dashboard/${slugify(navItem.label)}/${slugify(item.label)}/${slugify(subItem)}`,
+                                                                        {
+                                                                            state: {
+                                                                                title: subItem,
+                                                                                section: navItem.label,
+                                                                                group: item.label,
+                                                                            },
+                                                                        },
+                                                                    );
                                                                 }}
                                                             >
                                                                 {subItem}
@@ -151,6 +173,7 @@ export default function Dashboard() {
             </div>
 
             <footer className="stc-status-bar">
+                <span className="stc-status-square">Página: Menú Principal</span>
                 <span className="stc-status-square">Usuario: {user?.nombre}</span>
                 <span className="stc-status-square">{user?.rol_vigente?.nombre_rol}</span>
                 <span className="stc-status-square">Vigencia: </span>

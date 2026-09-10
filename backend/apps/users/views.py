@@ -10,6 +10,7 @@ from apps.users.serializers import (
     CustomTokenObtainPairSerializer,
     RegisterSerializer,
     UserSerializer,
+    ChangePasswordSerializer,
 )
 
 User = get_user_model()
@@ -70,3 +71,12 @@ class LogoutView(APIView):
         except TokenError:
             return Response({'detail': 'invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_205_RESET_CONTENT)
+
+class ChangePasswordView(APIView):
+     permission_classes = [permissions.IsAuthenticated]
+
+     def post(self, request):
+         serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+         serializer.is_valid(raise_exception=True)
+         serializer.save()
+         return Response({'detail': 'Contraseña actualizada'}, status=status.HTTP_200_OK)
