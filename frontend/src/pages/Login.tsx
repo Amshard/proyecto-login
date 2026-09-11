@@ -35,6 +35,26 @@ export default function Login() {
         }
     };
 
+    const handleChangePasswordClick = async () => {
+        if (!accessId || !password) {
+            setError('Ingresa tu cuenta y contraseña para cambiar tu password');
+            return;
+        }
+        setError(null);
+        setSubmitting(true);
+        try {
+            await login({ id_usuario: accessId, password });
+            navigate('/cambio-password');
+        } catch (err) {
+            const message = axios.isAxiosError(err)
+                ? (err.response?.data?.detail ?? 'Cuenta o contraseña incorrecta')
+                : 'Ocurrió un error, intenta de nuevo';
+            setError(message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div className="stc-login-page">
 
@@ -91,7 +111,8 @@ export default function Login() {
                             <button
                                 type="button"
                                 className="stc-submit-btn"
-                                onClick={() => navigate('/cambio-password')}
+                                onClick={handleChangePasswordClick}
+                                disabled={submitting}
                             >
                                 Cambiar Password
                             </button>

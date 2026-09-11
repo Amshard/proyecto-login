@@ -14,10 +14,10 @@
   font-weight: 700;
   font-style: italic;
   cursor: pointer;
-  position: relative;
+  position: absolute;
+  left: 2px;
   top: 250px;
   z-index: 5;
-  margin-left: -22px;
   box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.8);
 }
 
@@ -128,53 +128,6 @@
   box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.4);
 }
 
-.stc-header {
-  display: flex;
-  align-items: center;
-  background: #d45a09;
-  padding: 16px 24px;
-  border-bottom: 3px solid #d8581d;
-  position: relative;
-}
-
-.stc-header-accent {
-  /*
-  background-image: url('/assets/header-accent.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  */
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: -100vh;
-  width: 85px;
-  background: #d45a09;
-  z-index: 4
-}
-
-.stc-header-text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-left: 300px;
-  font-weight: 500;
-  font-size: 22px;
-  letter-spacing: 1px;
-  color: #500404;
-  line-height: 1.15;
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.stc-header-text h1 {
-  margin: 4px 0 0;
-  font-size: 18px;
-  font-weight: 800;
-  text-align: center;
-  color: #500404;
-}
-
 .stc-body {
   display: flex;
   flex: 1;
@@ -225,71 +178,6 @@
   align-items: center;
   justify-content: center;
   padding: 32px;
-}
-
-.stc-tabs {
-  display: flex;
-  gap: 2px;
-  background: lightgray;
-  padding: 8px 24px 0;
-}
-
-.stc-tab-btn {
-  padding: 8px 22px;
-  color: black;
-  background: #e2e2e2;
-  border: 1px solid #9aa0a6;
-  border-bottom: none;
-  border-radius: 4px 4px 0 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.stc-tab-btn:hover {
-  background: #d3d3d3;
-}
-
-.stc-tab-btn-active {
-  background: #fff;
-  color: #1a2fa0;
-}
-
-.stc-tab-panel {
-  align-items: flex-start;
-  justify-content: flex-start;
-  border-top: 1px solid #9aa0a6;
-}
-
-.stc-tab-form {
-  width: 100%;
-}
-
-.stc-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 14px;
-}
-
-.stc-table th {
-  text-align: left;
-  color: #fff;
-  background: #1a2fa0;
-  padding: 8px 12px;
-  border: 1px solid #9aa0a6;
-}
-
-.stc-table td {
-  padding: 8px 12px;
-  border: 1px solid #9aa0a6;
-}
-
-.stc-table-empty {
-  text-align: center;
-  color: #777;
-  font-style: italic;
 }
 
 .stc-changepw-body .stc-field-row:first-child {

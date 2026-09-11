@@ -1,12 +1,12 @@
 :root {
-  --text: #6b6375;
+  --text: black;
   --text-h: #08060d;
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
+  --accent: #d45a09;
+  --accent-bg: rgba(212, 90, 9, 0.1);
+  --accent-border: rgba(212, 90, 9, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
@@ -37,9 +37,9 @@
     --bg: #16171d;
     --border: #2e303a;
     --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
+    --accent: #df6119;
+    --accent-bg: rgba(240, 138, 60, 0.15);
+    --accent-border: rgba(240, 138, 60, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
@@ -75,7 +75,7 @@ h2 {
 
 h1 {
   font-size: 56px;
-  letter-spacing: -1.68px;
+  letter-spacing: -1.40px;
   margin: 32px 0;
   @media (max-width: 1024px) {
     font-size: 36px;
@@ -108,4 +108,46 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+.stc-header {
+  display: flex;
+  align-items: center;
+  background: var(--accent);
+  padding: 16px 24px;
+  border-bottom: 3px solid var(--accent);
+  position: relative;
+}
+
+.stc-header-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: -100vh;
+  width: 105px;
+  background: var(--accent);
+  z-index: 4;
+}
+
+.stc-header-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 400px;
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: #470404;
+  line-height: 1.15;
+  text-transform: uppercase;
+  text-align: center;
+
+}
+
+.stc-header-text h1 {
+  margin: 4px 0 0;
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+  color: #470404;
 }
