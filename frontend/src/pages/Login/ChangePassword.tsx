@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Login.css';
-import { changePassword } from '../api/auth';
+import { changePassword } from '../../api/auth';
 
 export default function ChangePassword() {
     const navigate = useNavigate();

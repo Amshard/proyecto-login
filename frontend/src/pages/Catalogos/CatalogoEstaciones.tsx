@@ -1,27 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getPermanencias } from '../../api/catalogos';
+import { getEstaciones, type Estacion } from '../../api/catalogos';
 import '../Login/Login.css';
 import './Catalogos.css';
 
 type TabKey = 'catalogo' | 'nuevo';
 
-interface PermanenciaForm {
-    clave: string;
-    nombre: string;
-    descripcion: string;
-    siglas: string;
+interface EstacionForm {
+    id_linea: string;
+    id_estacion: string;
+    nombre_estacion: string;
 }
 
-const EMPTY_FORM: PermanenciaForm = { clave: '', nombre: '', descripcion: '', siglas: '' };
+const EMPTY_FORM: EstacionForm = { id_linea: '', id_estacion: '', nombre_estacion: '' };
 
-export default function CatalogoPermanencias() {
+export default function CatalogoEstaciones() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<TabKey>('catalogo');
-    const [form, setForm] = useState<PermanenciaForm>(EMPTY_FORM);
-    const [rows, setRows] = useState<PermanenciaForm[]>([]);
+    const [form, setForm] = useState<EstacionForm>(EMPTY_FORM);
+    const [rows, setRows] = useState<Estacion[]>([]);
     const [formError, setFormError] = useState(false);
     const today = new Date().toLocaleDateString('es-MX', {
         day: '2-digit',
@@ -31,17 +30,10 @@ export default function CatalogoPermanencias() {
 
     useEffect(() => {
         let active = true;
-        getPermanencias()
+        getEstaciones()
             .then((data) => {
                 if (!active) return;
-                setRows(
-                    data.map((p) => ({
-                        clave: p.id_permanencia,
-                        nombre: p.nombre_perma,
-                        descripcion: p.descripcion,
-                        siglas: p.siglas,
-                    }))
-                );
+                setRows(data);
             })
             .catch(() => {});
         return () => {
@@ -54,7 +46,7 @@ export default function CatalogoPermanencias() {
         setFormError(false);
     };
 
-    const updateField = (field: keyof PermanenciaForm, value: string) => {
+    const updateField = (field: keyof EstacionForm, value: string) => {
         setForm((prev) => ({ ...prev, [field]: value.toUpperCase() }));
         setFormError(false);
     };
@@ -136,22 +128,38 @@ export default function CatalogoPermanencias() {
                         {activeTab === 'catalogo' && (
                             <div className="stc-manual-fields">
                                 <div className="stc-manual-field" style={{ width: '56px' }}>
-                                    <label className="stc-field-label" htmlFor="filtro-clave">
-                                        Permanencia
+                                    <label className="stc-field-label" htmlFor="filtro-linea">
+                                        Línea
                                     </label>
                                     <input
-                                        id="filtro-clave"
+                                        id="filtro-linea"
                                         className="stc-field-input"
                                         type="text"
                                         inputMode="numeric"
                                         maxLength={2}
-                                        value={form.clave}
-                                        onChange={(e) => updateField('clave', e.target.value)}
+                                        value={form.id_linea}
+                                        onChange={(e) => updateField('id_linea', e.target.value)}
                                         style={{ width: '25px', height: '30px', textAlign: 'center', textTransform: 'uppercase' }}
                                     />
                                 </div>
 
-                                <div className="stc-manual-field" style={{ width: '220px' }}>
+                                <div className="stc-manual-field" style={{ width: '56px' }}>
+                                    <label className="stc-field-label" htmlFor="filtro-estacion">
+                                        Estación
+                                    </label>
+                                    <input
+                                        id="filtro-estacion"
+                                        className="stc-field-input"
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={2}
+                                        value={form.id_estacion}
+                                        onChange={(e) => updateField('id_estacion', e.target.value)}
+                                        style={{ width: '25px', height: '30px', textAlign: 'center', textTransform: 'uppercase' }}
+                                    />
+                                </div>
+
+                                <div className="stc-manual-field" style={{ width: '280px' }}>
                                     <label className="stc-field-label" htmlFor="filtro-nombre">
                                         Nombre
                                     </label>
@@ -159,38 +167,10 @@ export default function CatalogoPermanencias() {
                                         id="filtro-nombre"
                                         className="stc-field-input"
                                         type="text"
-                                        value={form.nombre}
-                                        onChange={(e) => updateField('nombre', e.target.value)}
-                                        style={{ width: '220px', height: '36px', textTransform: 'uppercase' }}
-                                    />
-                                </div>
-
-                                <div className="stc-manual-field" style={{ width: '280px' }}>
-                                    <label className="stc-field-label" htmlFor="filtro-descripcion">
-                                        Descripcion
-                                    </label>
-                                    <input
-                                        id="filtro-descripcion"
-                                        className="stc-field-input"
-                                        type="text"
-                                        value={form.descripcion}
-                                        onChange={(e) => updateField('descripcion', e.target.value)}
+                                        maxLength={25}
+                                        value={form.nombre_estacion}
+                                        onChange={(e) => updateField('nombre_estacion', e.target.value)}
                                         style={{ width: '280px', height: '36px', textTransform: 'uppercase' }}
-                                    />
-                                </div>
-
-                                <div className="stc-manual-field" style={{ width: '110px' }}>
-                                    <label className="stc-field-label" htmlFor="filtro-siglas">
-                                        Siglas
-                                    </label>
-                                    <input
-                                        id="filtro-siglas"
-                                        className="stc-field-input"
-                                        type="text"
-                                        maxLength={8}
-                                        value={form.siglas}
-                                        onChange={(e) => updateField('siglas', e.target.value)}
-                                        style={{ width: '110px', height: '36px', textTransform: 'uppercase' }}
                                     />
                                 </div>
                             </div>
@@ -206,16 +186,15 @@ export default function CatalogoPermanencias() {
                             {activeTab === 'catalogo' ? (
                                 <fieldset className="stc-table-frame">
                                     <legend className="stc-table-frame-title">
-                                        Permanencias de la red
+                                        Estaciones de la red
                                     </legend>
                                     <div className="stc-table-scroll">
                                         <table className="stc-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Permanencia</th>
+                                                    <th>Línea</th>
+                                                    <th>Estación</th>
                                                     <th>Nombre</th>
-                                                    <th>Descripcion</th>
-                                                    <th>Siglas</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -225,10 +204,9 @@ export default function CatalogoPermanencias() {
                                                 ) : (
                                                     rows.map((row, index) => (
                                                         <tr key={index}>
-                                                            <td>{row.clave}</td>
-                                                            <td>{row.nombre}</td>
-                                                            <td>{row.descripcion}</td>
-                                                            <td>{row.siglas}</td>
+                                                            <td>{row.id_linea}</td>
+                                                            <td>{row.id_estacion}</td>
+                                                            <td>{row.nombre_estacion}</td>
                                                         </tr>
                                                     ))
                                                 )}
@@ -250,7 +228,7 @@ export default function CatalogoPermanencias() {
             </div>
 
             <footer className="stc-status-bar">
-                <span className="stc-status-square">Catálogo de Permanencias</span>
+                <span className="stc-status-square">Catálogo de Estaciones</span>
                 <span className="stc-status-square">Usuario: {user?.nombre}</span>
                 <span className="stc-status-square">{user?.rol_vigente?.nombre_rol}</span>
                 <span className="stc-status-square">Vigencia: </span>

@@ -1,6 +1,7 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Login.css';
+import CatalogoGenerico from './Catalogos/CatalogoGenerico';
+import './Login/Login.css';
 
 function unslugify(slug: string): string {
     return slug
@@ -29,6 +30,10 @@ export default function SectionPage() {
         month: '2-digit',
         year: 'numeric',
     });
+
+    if (params.section === 'catalogos') {
+        return <CatalogoGenerico title={title} />;
+    }
 
     return (
         <div className="stc-login-page">

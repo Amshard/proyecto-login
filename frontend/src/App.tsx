@@ -1,10 +1,13 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
-import CatalogoPermanencias from './pages/CatalogoPermanencias';
-import ChangePassword from './pages/ChangePassword';
+import CatalogoDescansos from './pages/Catalogos/CatalogoDescansos';
+import CatalogoEstaciones from './pages/Catalogos/CatalogoEstaciones';
+import CatalogoPermanencias from './pages/Catalogos/CatalogoPermanencias';
+import CatalogoPersonal from './pages/Catalogos/CatalogoPersonal';
+import ChangePassword from './pages/Login/ChangePassword';
 import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Login from './pages/Login/Login';
+import Register from './pages/Login/Register';
 import SectionPage from './pages/SectionPage';
 import './App.css';
 
@@ -35,6 +38,30 @@ function App() {
         element={
           <ProtectedRoute>
             <CatalogoPermanencias />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/catalogos/estaciones"
+        element={
+          <ProtectedRoute>
+            <CatalogoEstaciones />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/catalogos/descansos"
+        element={
+          <ProtectedRoute>
+            <CatalogoDescansos />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/catalogos/personal-de-taquilla"
+        element={
+          <ProtectedRoute>
+            <CatalogoPersonal />
           </ProtectedRoute>
         }
       />

@@ -1,22 +1,23 @@
+
 .stc-clear-btn {
-  top: 140px;
+  top: 225px;
 }
 
 .stc-save-btn {
-  top: 195px;
+  top: 275px;
 }
 
 .stc-salir-btn {
-  top: 270px;
+  top: 450px;
 }
 
 .stc-registros-wrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
-  width: 92%;
-  height: 115%;
+  gap: 10px;
+  width: 90%;
+  height: 105%;
 }
 
 .stc-registros-wrapper .stc-content-square {
@@ -67,25 +68,16 @@
   flex: 1;
   padding: 8px 22px;
   text-align: center;
-  color: black;
-  background: #e2e2e2;
+  color: #1a2fa0;
+  background: #f5f4f2;
   border: 1px solid #9aa0a6;
   border-bottom: none;
   border-radius: 4px 4px 0 0;
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   border-color: black;
-}
-
-.stc-tab-btn:hover {
-  background: #d3d3d3;
-}
-
-.stc-tab-btn-active {
-  background: #fff;
-  color: #1a2fa0;
 }
 
 .stc-manual-fields {
@@ -111,6 +103,15 @@
   font-size: 14px;
 }
 
+.stc-form-error {
+  color: #c0392b;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 4px 24px 0;
+}
+
 .stc-tab-panel {
   align-items: flex-start;
   justify-content: flex-start;
@@ -118,10 +119,15 @@
   border-left: 1px solid black;
   border-right: 1px solid black;
   border-bottom: 1px solid black;
+  border-top: 1px solid black;
 }
 
-.stc-tab-form {
+.stc-report-viewer {
   width: 100%;
+  height: 900px;
+  border: none;
+  background: #fff;
+  border: 1px solid black
 }
 
 .stc-table-frame {
@@ -143,8 +149,15 @@
   letter-spacing: 0.5px;
 }
 
+.stc-table-scroll {
+  height: calc(11 * 2.6em);
+  overflow-y: auto;
+}
+
 .stc-table {
+  color: black;
   width: 100%;
+  background-color: rgb(187, 187, 187);
   table-layout: fixed;
   border-collapse: collapse;
   font-family: 'Segoe UI', Arial, sans-serif;
@@ -158,7 +171,9 @@
   background: #ce723d;
   padding: 8px 12px;
   border: 1px solid black;
-
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .stc-table th:nth-child(1) {
