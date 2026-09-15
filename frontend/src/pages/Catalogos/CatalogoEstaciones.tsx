@@ -186,7 +186,7 @@ export default function CatalogoEstaciones() {
                             {activeTab === 'catalogo' ? (
                                 <fieldset className="stc-table-frame">
                                     <legend className="stc-table-frame-title">
-                                        Estaciones de la red
+                                        Estaciones
                                     </legend>
                                     <div className="stc-table-scroll">
                                         <table className="stc-table">

@@ -205,27 +205,31 @@
 }
 
 .stc-table-taquillas th:nth-child(1) {
-  width: 18%;
-}
-
-.stc-table-taquillas th:nth-child(2) {
-  width: 17%;
-}
-
-.stc-table-taquillas th:nth-child(3) {
   width: 12%;
 }
 
+.stc-table-taquillas th:nth-child(2) {
+  width: 12%;
+}
+
+.stc-table-taquillas th:nth-child(3) {
+  width: 8%;
+}
+
 .stc-table-taquillas th:nth-child(4) {
-  width: 16%;
+  width: 10%;
 }
 
 .stc-table-taquillas th:nth-child(5) {
-  width: 20%;
+  width: 30%;
 }
 
 .stc-table-taquillas th:nth-child(6) {
-  width: 17%;
+  width: 14%;
+}
+
+.stc-table-taquillas th:nth-child(7) {
+  width: 14%;
 }
 
 .stc-table-lineas th:nth-child(1) {

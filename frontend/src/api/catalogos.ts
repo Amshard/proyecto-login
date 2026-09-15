@@ -110,6 +110,16 @@ export const getPersonalTaquilla = async (): Promise<PersonalTaquilla[]> => {
     return data;
 };
 
+export interface PersonalRespaldo {
+    id_expediente: number;
+    fecha_ingreso: string;
+}
+
+export const getPersonalRespaldo = async (): Promise<PersonalRespaldo[]> => {
+    const { data } = await api.get<PersonalRespaldo[]>('/personal-respaldo/');
+    return data;
+};
+
 export interface Taquilla {
     id_taquilla: string;
     turno: string;
@@ -117,6 +127,7 @@ export interface Taquilla {
     extension_tel: string | null;
     id_linea: string;
     id_estacion: string;
+    direccion?: string | null;
 }
 
 export const getTaquillas = async (): Promise<Taquilla[]> => {

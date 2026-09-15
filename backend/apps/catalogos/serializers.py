@@ -1,6 +1,14 @@
 from rest_framework import serializers
 
-from apps.catalogos.models import Descanso, Estacion, Linea, Permanencia, PersonalTaquilla, Taquilla
+from apps.catalogos.models import (
+    Descanso,
+    Estacion,
+    Linea,
+    Permanencia,
+    PersonalRespaldo,
+    PersonalTaquilla,
+    Taquilla,
+)
 
 
 class PermanenciaSerializer(serializers.ModelSerializer):
@@ -41,6 +49,12 @@ class PersonalTaquillaSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalTaquilla
         fields = ['id_expediente', 'nombre', 'fecha_ingreso', 'prejubilacion', 'sexo']
+
+
+class PersonalRespaldoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalRespaldo
+        fields = ['id_expediente', 'fecha_ingreso']
 
 
 class TaquillaSerializer(serializers.ModelSerializer):

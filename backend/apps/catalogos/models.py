@@ -94,3 +94,15 @@ class PersonalTaquilla(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class PersonalRespaldo(models.Model):
+    id_expediente = models.IntegerField(primary_key=True)
+    fecha_ingreso = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'cat_personal_respaldo'
+
+    def __str__(self):
+        return str(self.id_expediente)

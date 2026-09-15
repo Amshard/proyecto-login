@@ -1,11 +1,20 @@
 from rest_framework import generics, permissions
 
-from apps.catalogos.models import Descanso, Estacion, Linea, Permanencia, PersonalTaquilla, Taquilla
+from apps.catalogos.models import (
+    Descanso,
+    Estacion,
+    Linea,
+    Permanencia,
+    PersonalRespaldo,
+    PersonalTaquilla,
+    Taquilla,
+)
 from apps.catalogos.serializers import (
     DescansoSerializer,
     EstacionSerializer,
     LineaSerializer,
     PermanenciaSerializer,
+    PersonalRespaldoSerializer,
     PersonalTaquillaSerializer,
     TaquillaSerializer,
 )
@@ -38,6 +47,12 @@ class DescansoListView(generics.ListAPIView):
 class PersonalTaquillaListView(generics.ListAPIView):
     queryset = PersonalTaquilla.objects.all().order_by('nombre')
     serializer_class = PersonalTaquillaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class PersonalRespaldoListView(generics.ListAPIView):
+    queryset = PersonalRespaldo.objects.all().order_by('id_expediente')
+    serializer_class = PersonalRespaldoSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 

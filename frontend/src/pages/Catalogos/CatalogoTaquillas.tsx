@@ -263,8 +263,9 @@ export default function CatalogoTaquillas() {
                                                     <th>Taquilla</th>
                                                     <th>Estación</th>
                                                     <th>Turno</th>
-                                                    <th>Dir. Línea</th>
-                                                    <th>Extensión</th>
+                                                    <th>DirLin</th>
+                                                    <th>Dirección</th>
+                                                    <th>ExtTel</th>
                                                     <th>Línea</th>
                                                 </tr>
                                             </thead>
@@ -279,6 +280,7 @@ export default function CatalogoTaquillas() {
                                                             <td>{row.id_estacion}</td>
                                                             <td>{row.turno}</td>
                                                             <td>{row.dirdelinea}</td>
+                                                            <td>{row.direccion?.trim() ? row.direccion : 'SIN DIRECCION DE LINEA'}</td>
                                                             <td>{row.extension_tel}</td>
                                                             <td>{row.id_linea}</td>
                                                         </tr>

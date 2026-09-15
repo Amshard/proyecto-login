@@ -6,6 +6,7 @@ import CatalogoLineas from './pages/Catalogos/CatalogoLineas';
 import CatalogoPermanencias from './pages/Catalogos/CatalogoPermanencias';
 import CatalogoPersonal from './pages/Catalogos/CatalogoPersonal';
 import CatalogoTaquillas from './pages/Catalogos/CatalogoTaquillas';
+import PersonalProvisional from './pages/Catalogos/PersonalProvisional';
 import ChangePassword from './pages/Login/ChangePassword';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login/Login';
@@ -80,6 +81,14 @@ function App() {
         element={
           <ProtectedRoute>
             <CatalogoPersonal />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/catalogos/personal-provisional"
+        element={
+          <ProtectedRoute>
+            <PersonalProvisional />
           </ProtectedRoute>
         }
       />

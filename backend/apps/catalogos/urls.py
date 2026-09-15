@@ -5,6 +5,7 @@ from apps.catalogos.views import (
     EstacionListView,
     LineaListView,
     PermanenciaListView,
+    PersonalRespaldoListView,
     PersonalTaquillaListView,
     TaquillaListView,
 )
@@ -15,5 +16,6 @@ urlpatterns = [
     path('estaciones/', EstacionListView.as_view(), name='estaciones'),
     path('descansos/', DescansoListView.as_view(), name='descansos'),
     path('personal-taquilla/', PersonalTaquillaListView.as_view(), name='personal-taquilla'),
+    path('personal-respaldo/', PersonalRespaldoListView.as_view(), name='personal-respaldo'),
     path('taquillas/', TaquillaListView.as_view(), name='taquillas'),
 ]

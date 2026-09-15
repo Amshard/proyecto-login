@@ -21,9 +21,9 @@ interface LineaForm {
 
 const EMPTY_FORM: LineaForm = {
     id_linea: '',
-    dirdelinea1: '',
+    dirdelinea1: '1',
     nombre_dirlin1: '',
-    dirdelinea2: '',
+    dirdelinea2: '2',
     nombre_dirlin2: '',
     estaciones: '',
     taquillas: '',
@@ -326,7 +326,7 @@ export default function CatalogoLineas() {
                                                     <th>Dirección</th>
                                                     <th>Estación Inicial</th>
                                                     <th>Dirección</th>
-                                                    <th>NEstación Terminal</th>
+                                                    <th>Estación Terminal</th>
                                                     <th>Estaciones</th>
                                                     <th>Taquillas</th>
                                                     <th>Tramos</th>
