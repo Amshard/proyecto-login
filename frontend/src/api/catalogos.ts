@@ -102,6 +102,7 @@ export interface PersonalTaquilla {
     nombre: string;
     fecha_ingreso: string;
     prejubilacion: string;
+    sexo: string;
 }
 
 export const getPersonalTaquilla = async (): Promise<PersonalTaquilla[]> => {

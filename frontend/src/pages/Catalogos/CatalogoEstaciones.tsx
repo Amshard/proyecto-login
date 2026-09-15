@@ -114,7 +114,7 @@ export default function CatalogoEstaciones() {
                                 className={`stc-tab-btn${activeTab === 'catalogo' ? ' stc-tab-btn-active' : ''}`}
                                 onClick={() => setActiveTab('catalogo')}
                             >
-                                Catálogo
+                                Catálogo de Estaciones
                             </button>
                             <button
                                 type="button"

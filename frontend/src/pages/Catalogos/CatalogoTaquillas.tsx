@@ -136,7 +136,7 @@ export default function CatalogoTaquillas() {
                                 className={`stc-tab-btn${activeTab === 'catalogo' ? ' stc-tab-btn-active' : ''}`}
                                 onClick={() => setActiveTab('catalogo')}
                             >
-                                Catálogo
+                                Catálogo de Taquillas y sus Turnos
                             </button>
                             <button
                                 type="button"
@@ -261,11 +261,11 @@ export default function CatalogoTaquillas() {
                                             <thead>
                                                 <tr>
                                                     <th>Taquilla</th>
+                                                    <th>Estación</th>
                                                     <th>Turno</th>
                                                     <th>Dir. Línea</th>
                                                     <th>Extensión</th>
                                                     <th>Línea</th>
-                                                    <th>Estación</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -276,11 +276,11 @@ export default function CatalogoTaquillas() {
                                                     rows.map((row, index) => (
                                                         <tr key={index}>
                                                             <td>{row.id_taquilla}</td>
+                                                            <td>{row.id_estacion}</td>
                                                             <td>{row.turno}</td>
                                                             <td>{row.dirdelinea}</td>
                                                             <td>{row.extension_tel}</td>
                                                             <td>{row.id_linea}</td>
-                                                            <td>{row.id_estacion}</td>
                                                         </tr>
                                                     ))
                                                 )}

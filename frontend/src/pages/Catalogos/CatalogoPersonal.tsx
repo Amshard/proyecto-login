@@ -12,9 +12,10 @@ interface PersonalForm {
     nombre: string;
     fecha_ingreso: string;
     prejubilacion: string;
+    sexo: string;
 }
 
-const EMPTY_FORM: PersonalForm = { id_expediente: '', nombre: '', fecha_ingreso: '', prejubilacion: '' };
+const EMPTY_FORM: PersonalForm = { id_expediente: '', nombre: '', fecha_ingreso: '', prejubilacion: '', sexo: '' };
 
 export default function CatalogoPersonal() {
     const { user } = useAuth();
@@ -69,6 +70,7 @@ export default function CatalogoPersonal() {
                 nombre: form.nombre,
                 fecha_ingreso: form.fecha_ingreso,
                 prejubilacion: form.prejubilacion,
+                sexo: form.sexo,
             },
         ]);
     };
@@ -126,7 +128,7 @@ export default function CatalogoPersonal() {
                                 className={`stc-tab-btn${activeTab === 'catalogo' ? ' stc-tab-btn-active' : ''}`}
                                 onClick={() => setActiveTab('catalogo')}
                             >
-                                Catálogo
+                                Personal de Taquilla
                             </button>
                             <button
                                 type="button"
@@ -198,6 +200,21 @@ export default function CatalogoPersonal() {
                                         style={{ width: '25px', height: '30px', textAlign: 'center', textTransform: 'uppercase' }}
                                     />
                                 </div>
+
+                                <div className="stc-manual-field" style={{ width: '70px' }}>
+                                    <label className="stc-field-label" htmlFor="filtro-sexo">
+                                        Genero
+                                    </label>
+                                    <input
+                                        id="filtro-sexo"
+                                        className="stc-field-input"
+                                        type="text"
+                                        maxLength={1}
+                                        value={form.sexo}
+                                        onChange={(e) => updateField('sexo', e.target.value)}
+                                        style={{ width: '25px', height: '30px', textAlign: 'center', textTransform: 'uppercase' }}
+                                    />
+                                </div>
                             </div>
                         )}
 
@@ -214,13 +231,14 @@ export default function CatalogoPersonal() {
                                         Personal de Taquilla
                                     </legend>
                                     <div className="stc-table-scroll">
-                                        <table className="stc-table">
+                                        <table className="stc-table stc-table-personal">
                                             <thead>
                                                 <tr>
                                                     <th>Expediente</th>
                                                     <th>Nombre</th>
                                                     <th>Fecha de Ingreso</th>
                                                     <th>Prejubilación</th>
+                                                    <th>FoM</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -234,6 +252,7 @@ export default function CatalogoPersonal() {
                                                             <td>{row.nombre}</td>
                                                             <td>{row.fecha_ingreso}</td>
                                                             <td>{row.prejubilacion}</td>
+                                                            <td>{row.sexo}</td>
                                                         </tr>
                                                     ))
                                                 )}

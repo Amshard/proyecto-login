@@ -40,7 +40,7 @@ class DescansoSerializer(serializers.ModelSerializer):
 class PersonalTaquillaSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalTaquilla
-        fields = ['id_expediente', 'nombre', 'fecha_ingreso', 'prejubilacion']
+        fields = ['id_expediente', 'nombre', 'fecha_ingreso', 'prejubilacion', 'sexo']
 
 
 class TaquillaSerializer(serializers.ModelSerializer):

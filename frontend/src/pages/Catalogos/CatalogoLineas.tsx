@@ -150,7 +150,7 @@ export default function CatalogoLineas() {
                                 className={`stc-tab-btn${activeTab === 'catalogo' ? ' stc-tab-btn-active' : ''}`}
                                 onClick={() => setActiveTab('catalogo')}
                             >
-                                Catálogo
+                                Catálogo de Líneas
                             </button>
                             <button
                                 type="button"

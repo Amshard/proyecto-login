@@ -115,7 +115,7 @@ export default function CatalogoDescansos() {
                                 className={`stc-tab-btn${activeTab === 'catalogo' ? ' stc-tab-btn-active' : ''}`}
                                 onClick={() => setActiveTab('catalogo')}
                             >
-                                Catálogo
+                                Catálogo de Descansos
                             </button>
                             <button
                                 type="button"

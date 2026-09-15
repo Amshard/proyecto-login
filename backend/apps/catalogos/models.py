@@ -86,6 +86,7 @@ class PersonalTaquilla(models.Model):
     nombre = models.CharField(max_length=50)
     fecha_ingreso = models.DateField()
     prejubilacion = models.CharField(max_length=1)
+    sexo = models.CharField(max_length=1)
 
     class Meta:
         managed = False
