@@ -15,6 +15,25 @@ class Permanencia(models.Model):
         return self.nombre_perma
 
 
+class Linea(models.Model):
+    id_linea = models.CharField(max_length=2, primary_key=True)
+    dirdelinea1 = models.SmallIntegerField()
+    nombre_dirlin1 = models.CharField(max_length=20)
+    dirdelinea2 = models.SmallIntegerField()
+    nombre_dirlin2 = models.CharField(max_length=20)
+    estaciones = models.SmallIntegerField(null=True, blank=True)
+    taquillas = models.SmallIntegerField(null=True, blank=True)
+    tramos = models.SmallIntegerField(null=True, blank=True)
+    id_permanencia = models.CharField(max_length=2, null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = 'cat_lineas'
+
+    def __str__(self):
+        return self.id_linea
+
+
 class Estacion(models.Model):
     id_linea = models.CharField(max_length=2)
     id_estacion = models.CharField(max_length=2)
@@ -42,6 +61,24 @@ class Descanso(models.Model):
 
     def __str__(self):
         return self.iniciales
+
+
+class Taquilla(models.Model):
+    id_taquilla = models.CharField(max_length=5, db_column='Id_taquilla')
+    turno = models.CharField(max_length=1)
+    dirdelinea = models.SmallIntegerField()
+    extension_tel = models.CharField(max_length=10, null=True, blank=True)
+    id_linea = models.CharField(max_length=2)
+    id_estacion = models.CharField(max_length=2)
+
+    pk = models.CompositePrimaryKey('id_taquilla', 'turno')
+
+    class Meta:
+        managed = False
+        db_table = 'cat_taquillas'
+
+    def __str__(self):
+        return f'{self.id_taquilla}-{self.turno}'
 
 
 class PersonalTaquilla(models.Model):

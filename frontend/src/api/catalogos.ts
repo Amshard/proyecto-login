@@ -57,6 +57,23 @@ export const getPermanencias = async (): Promise<Permanencia[]> => {
     return data;
 };
 
+export interface Linea {
+    id_linea: string;
+    dirdelinea1: number;
+    nombre_dirlin1: string;
+    dirdelinea2: number;
+    nombre_dirlin2: string;
+    estaciones: number | null;
+    taquillas: number | null;
+    tramos: number | null;
+    id_permanencia: string | null;
+}
+
+export const getLineas = async (): Promise<Linea[]> => {
+    const { data } = await api.get<Linea[]>('/lineas/');
+    return data;
+};
+
 export interface Estacion {
     id_linea: string;
     id_estacion: string;
@@ -89,6 +106,20 @@ export interface PersonalTaquilla {
 
 export const getPersonalTaquilla = async (): Promise<PersonalTaquilla[]> => {
     const { data } = await api.get<PersonalTaquilla[]>('/personal-taquilla/');
+    return data;
+};
+
+export interface Taquilla {
+    id_taquilla: string;
+    turno: string;
+    dirdelinea: number;
+    extension_tel: string | null;
+    id_linea: string;
+    id_estacion: string;
+}
+
+export const getTaquillas = async (): Promise<Taquilla[]> => {
+    const { data } = await api.get<Taquilla[]>('/taquillas/');
     return data;
 };
 

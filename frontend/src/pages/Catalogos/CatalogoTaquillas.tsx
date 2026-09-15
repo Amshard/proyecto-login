@@ -1,26 +1,36 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getEstaciones, type Estacion } from '../../api/catalogos';
+import { getTaquillas, type Taquilla } from '../../api/catalogos';
 import '../Login/Login.css';
 import './Catalogos.css';
 
 type TabKey = 'catalogo' | 'nuevo';
 
-interface EstacionForm {
+interface TaquillaForm {
+    id_taquilla: string;
+    turno: string;
+    dirdelinea: string;
+    extension_tel: string;
     id_linea: string;
     id_estacion: string;
-    nombre_estacion: string;
 }
 
-const EMPTY_FORM: EstacionForm = { id_linea: '', id_estacion: '', nombre_estacion: '' };
+const EMPTY_FORM: TaquillaForm = {
+    id_taquilla: '',
+    turno: '',
+    dirdelinea: '',
+    extension_tel: '',
+    id_linea: '',
+    id_estacion: '',
+};
 
-export default function CatalogoEstaciones() {
+export default function CatalogoTaquillas() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<TabKey>('catalogo');
-    const [form, setForm] = useState<EstacionForm>(EMPTY_FORM);
-    const [rows, setRows] = useState<Estacion[]>([]);
+    const [form, setForm] = useState<TaquillaForm>(EMPTY_FORM);
+    const [rows, setRows] = useState<Taquilla[]>([]);
     const [formError, setFormError] = useState(false);
     const today = new Date().toLocaleDateString('es-MX', {
         day: '2-digit',
@@ -30,7 +40,7 @@ export default function CatalogoEstaciones() {
 
     useEffect(() => {
         let active = true;
-        getEstaciones()
+        getTaquillas()
             .then((data) => {
                 if (!active) return;
                 setRows(data);
@@ -46,19 +56,31 @@ export default function CatalogoEstaciones() {
         setFormError(false);
     };
 
-    const updateField = (field: keyof EstacionForm, value: string) => {
+    const updateField = (field: keyof TaquillaForm, value: string) => {
         setForm((prev) => ({ ...prev, [field]: value.toUpperCase() }));
         setFormError(false);
     };
 
     const handleSave = () => {
-        const hasEmptyField = Object.values(form).some((value) => value.trim() === '');
+        const hasEmptyField = Object.entries(form).some(
+            ([field, value]) => field !== 'extension_tel' && value.trim() === ''
+        );
         if (hasEmptyField) {
             setFormError(true);
             return;
         }
         setFormError(false);
-        setRows((prev) => [...prev, form]);
+        setRows((prev) => [
+            ...prev,
+            {
+                id_taquilla: form.id_taquilla,
+                turno: form.turno,
+                dirdelinea: Number(form.dirdelinea) || 0,
+                extension_tel: form.extension_tel || null,
+                id_linea: form.id_linea,
+                id_estacion: form.id_estacion,
+            },
+        ]);
     };
 
     return (
@@ -127,6 +149,67 @@ export default function CatalogoEstaciones() {
 
                         {activeTab === 'catalogo' && (
                             <div className="stc-manual-fields">
+                                <div className="stc-manual-field" style={{ width: '80px' }}>
+                                    <label className="stc-field-label" htmlFor="filtro-id-taquilla">
+                                        Taquilla
+                                    </label>
+                                    <input
+                                        id="filtro-id-taquilla"
+                                        className="stc-field-input"
+                                        type="text"
+                                        maxLength={5}
+                                        value={form.id_taquilla}
+                                        onChange={(e) => updateField('id_taquilla', e.target.value)}
+                                        style={{ width: '60px', height: '30px', textAlign: 'center', textTransform: 'uppercase' }}
+                                    />
+                                </div>
+
+                                <div className="stc-manual-field" style={{ width: '56px' }}>
+                                    <label className="stc-field-label" htmlFor="filtro-turno">
+                                        Turno
+                                    </label>
+                                    <input
+                                        id="filtro-turno"
+                                        className="stc-field-input"
+                                        type="text"
+                                        maxLength={1}
+                                        value={form.turno}
+                                        onChange={(e) => updateField('turno', e.target.value)}
+                                        style={{ width: '25px', height: '30px', textAlign: 'center', textTransform: 'uppercase' }}
+                                    />
+                                </div>
+
+                                <div className="stc-manual-field" style={{ width: '90px' }}>
+                                    <label className="stc-field-label" htmlFor="filtro-dirdelinea">
+                                        Dir. Línea
+                                    </label>
+                                    <input
+                                        id="filtro-dirdelinea"
+                                        className="stc-field-input"
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={5}
+                                        value={form.dirdelinea}
+                                        onChange={(e) => updateField('dirdelinea', e.target.value)}
+                                        style={{ width: '60px', height: '30px', textAlign: 'center', textTransform: 'uppercase' }}
+                                    />
+                                </div>
+
+                                <div className="stc-manual-field" style={{ width: '130px' }}>
+                                    <label className="stc-field-label" htmlFor="filtro-extension">
+                                        Extensión
+                                    </label>
+                                    <input
+                                        id="filtro-extension"
+                                        className="stc-field-input"
+                                        type="text"
+                                        maxLength={10}
+                                        value={form.extension_tel}
+                                        onChange={(e) => updateField('extension_tel', e.target.value)}
+                                        style={{ width: '110px', height: '36px', textTransform: 'uppercase' }}
+                                    />
+                                </div>
+
                                 <div className="stc-manual-field" style={{ width: '56px' }}>
                                     <label className="stc-field-label" htmlFor="filtro-linea">
                                         Línea
@@ -158,21 +241,6 @@ export default function CatalogoEstaciones() {
                                         style={{ width: '25px', height: '30px', textAlign: 'center', textTransform: 'uppercase' }}
                                     />
                                 </div>
-
-                                <div className="stc-manual-field" style={{ width: '280px' }}>
-                                    <label className="stc-field-label" htmlFor="filtro-nombre">
-                                        Nombre
-                                    </label>
-                                    <input
-                                        id="filtro-nombre"
-                                        className="stc-field-input"
-                                        type="text"
-                                        maxLength={25}
-                                        value={form.nombre_estacion}
-                                        onChange={(e) => updateField('nombre_estacion', e.target.value)}
-                                        style={{ width: '280px', height: '36px', textTransform: 'uppercase' }}
-                                    />
-                                </div>
                             </div>
                         )}
 
@@ -186,15 +254,18 @@ export default function CatalogoEstaciones() {
                             {activeTab === 'catalogo' ? (
                                 <fieldset className="stc-table-frame">
                                     <legend className="stc-table-frame-title">
-                                        Estaciones de la red
+                                        Taquillas de la red
                                     </legend>
                                     <div className="stc-table-scroll">
-                                        <table className="stc-table">
+                                        <table className="stc-table stc-table-taquillas">
                                             <thead>
                                                 <tr>
+                                                    <th>Taquilla</th>
+                                                    <th>Turno</th>
+                                                    <th>Dir. Línea</th>
+                                                    <th>Extensión</th>
                                                     <th>Línea</th>
                                                     <th>Estación</th>
-                                                    <th>Nombre de Estación</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -204,9 +275,12 @@ export default function CatalogoEstaciones() {
                                                 ) : (
                                                     rows.map((row, index) => (
                                                         <tr key={index}>
+                                                            <td>{row.id_taquilla}</td>
+                                                            <td>{row.turno}</td>
+                                                            <td>{row.dirdelinea}</td>
+                                                            <td>{row.extension_tel}</td>
                                                             <td>{row.id_linea}</td>
                                                             <td>{row.id_estacion}</td>
-                                                            <td>{row.nombre_estacion}</td>
                                                         </tr>
                                                     ))
                                                 )}
@@ -228,7 +302,7 @@ export default function CatalogoEstaciones() {
             </div>
 
             <footer className="stc-status-bar">
-                <span className="stc-status-square">Catálogo de Estaciones</span>
+                <span className="stc-status-square">Catálogo de Taquillas</span>
                 <span className="stc-status-square">Usuario: {user?.nombre}</span>
                 <span className="stc-status-square">{user?.rol_vigente?.nombre_rol}</span>
                 <span className="stc-status-square">Vigencia: </span>

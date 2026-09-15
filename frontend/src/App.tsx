@@ -2,8 +2,10 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import CatalogoDescansos from './pages/Catalogos/CatalogoDescansos';
 import CatalogoEstaciones from './pages/Catalogos/CatalogoEstaciones';
+import CatalogoLineas from './pages/Catalogos/CatalogoLineas';
 import CatalogoPermanencias from './pages/Catalogos/CatalogoPermanencias';
 import CatalogoPersonal from './pages/Catalogos/CatalogoPersonal';
+import CatalogoTaquillas from './pages/Catalogos/CatalogoTaquillas';
 import ChangePassword from './pages/Login/ChangePassword';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login/Login';
@@ -42,6 +44,14 @@ function App() {
         }
       />
       <Route
+        path="/dashboard/catalogos/lineas"
+        element={
+          <ProtectedRoute>
+            <CatalogoLineas />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/dashboard/catalogos/estaciones"
         element={
           <ProtectedRoute>
@@ -54,6 +64,14 @@ function App() {
         element={
           <ProtectedRoute>
             <CatalogoDescansos />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/catalogos/taquillas"
+        element={
+          <ProtectedRoute>
+            <CatalogoTaquillas />
           </ProtectedRoute>
         }
       />

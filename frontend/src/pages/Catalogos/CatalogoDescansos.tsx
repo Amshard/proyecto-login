@@ -204,7 +204,7 @@ export default function CatalogoDescansos() {
                                         Descansos de la red
                                     </legend>
                                     <div className="stc-table-scroll">
-                                        <table className="stc-table">
+                                        <table className="stc-table stc-table-descansos">
                                             <thead>
                                                 <tr>
                                                     <th>Clave</th>

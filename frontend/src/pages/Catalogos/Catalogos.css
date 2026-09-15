@@ -38,7 +38,6 @@
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: black;
 }
 
 .stc-registros-box {
@@ -54,7 +53,6 @@
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: black;
 }
 
 .stc-tabs {
@@ -155,7 +153,6 @@
 }
 
 .stc-table {
-  color: black;
   width: 100%;
   background-color: rgb(187, 187, 187);
   table-layout: fixed;
@@ -195,5 +192,63 @@
 .stc-table td {
   padding: 8px 12px;
   border: 1px solid black;
+}
+
+.stc-table-descansos th:nth-child(1) {
+  width: 10%;
+}
+
+.stc-table-descansos th:nth-child(2),
+.stc-table-descansos th:nth-child(3),
+.stc-table-descansos th:nth-child(4) {
+  width: 30%;
+}
+
+.stc-table-taquillas th:nth-child(1) {
+  width: 18%;
+}
+
+.stc-table-taquillas th:nth-child(2) {
+  width: 12%;
+}
+
+.stc-table-taquillas th:nth-child(3) {
+  width: 16%;
+}
+
+.stc-table-taquillas th:nth-child(4) {
+  width: 20%;
+}
+
+.stc-table-taquillas th:nth-child(5) {
+  width: 17%;
+}
+
+.stc-table-taquillas th:nth-child(6) {
+  width: 17%;
+}
+
+.stc-table-lineas th:nth-child(1) {
+  width: 8%;
+}
+
+.stc-table-lineas th:nth-child(2),
+.stc-table-lineas th:nth-child(4) {
+  width: 8%;
+}
+
+.stc-table-lineas th:nth-child(3),
+.stc-table-lineas th:nth-child(5) {
+  width: 16%;
+}
+
+.stc-table-lineas th:nth-child(6),
+.stc-table-lineas th:nth-child(7),
+.stc-table-lineas th:nth-child(8) {
+  width: 11%;
+}
+
+.stc-table-lineas th:nth-child(9) {
+  width: 11%;
 }
 
