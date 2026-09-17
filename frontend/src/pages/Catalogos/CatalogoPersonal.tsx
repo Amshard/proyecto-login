@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getPersonalTaquilla, type PersonalTaquilla } from '../../api/catalogos';
+import ManualField, { type ManualFieldConfig } from '../../components/ManualField';
 import '../Login/Login.css';
 import './Catalogos.css';
 
@@ -17,6 +18,50 @@ interface PersonalForm {
 
 const EMPTY_FORM: PersonalForm = { id_expediente: '', nombre: '', fecha_ingreso: '', prejubilacion: '', sexo: '' };
 
+const FIELDS: ManualFieldConfig<keyof PersonalForm>[] = [
+    {
+        id: 'filtro-expediente',
+        key: 'id_expediente',
+        label: 'Expediente',
+        maxLength: 6,
+        inputMode: 'numeric',
+        wrapStyle: { width: '110px' },
+        inputStyle: { width: '90px', height: '36px', textAlign: 'center' },
+    },
+    {
+        id: 'filtro-nombre',
+        key: 'nombre',
+        label: 'Nombre',
+        maxLength: 50,
+        wrapStyle: { width: '280px' },
+        inputStyle: { width: '280px', height: '36px', textTransform: 'uppercase' },
+    },
+    {
+        id: 'filtro-fecha-ingreso',
+        key: 'fecha_ingreso',
+        label: 'Fecha de Ingreso',
+        type: 'date',
+        wrapStyle: { width: '150px' },
+        inputStyle: { width: '150px', height: '36px' },
+    },
+    {
+        id: 'filtro-prejubilacion',
+        key: 'prejubilacion',
+        label: 'Prejubilación',
+        maxLength: 1,
+        wrapStyle: { width: '90px' },
+        inputStyle: { width: '25px', height: '30px', textAlign: 'center', textTransform: 'uppercase' },
+    },
+    {
+        id: 'filtro-sexo',
+        key: 'sexo',
+        label: 'Genero',
+        maxLength: 1,
+        wrapStyle: { width: '70px' },
+        inputStyle: { width: '25px', height: '30px', textAlign: 'center', textTransform: 'uppercase' },
+    },
+];
+
 export default function CatalogoPersonal() {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -24,6 +69,9 @@ export default function CatalogoPersonal() {
     const [form, setForm] = useState<PersonalForm>(EMPTY_FORM);
     const [rows, setRows] = useState<PersonalTaquilla[]>([]);
     const [formError, setFormError] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [appliedSearch, setAppliedSearch] = useState('');
     const today = new Date().toLocaleDateString('es-MX', {
         year: 'numeric',
         month: '2-digit',
@@ -47,6 +95,37 @@ export default function CatalogoPersonal() {
         setForm(EMPTY_FORM);
         setFormError(false);
     };
+
+    const handleOpenSearch = () => {
+        setSearchTerm(appliedSearch);
+        setSearchOpen(true);
+    };
+
+    const handleCloseSearch = () => {
+        setSearchOpen(false);
+    };
+
+    const handleSearchSubmit = () => {
+        setAppliedSearch(searchTerm.trim());
+        setSearchOpen(false);
+    };
+
+    const handleSearchClear = () => {
+        setSearchTerm('');
+        setAppliedSearch('');
+        setSearchOpen(false);
+    };
+
+    const displayedRows = appliedSearch
+        ? (() => {
+              const term = appliedSearch.toUpperCase();
+              return rows.filter((row) =>
+                  [row.id_expediente, row.nombre, row.fecha_ingreso, row.prejubilacion, row.sexo].some((value) =>
+                      String(value).toUpperCase().includes(term)
+                  )
+              );
+          })()
+        : rows;
 
     const updateField = (field: keyof PersonalForm, value: string) => {
         setForm((prev) => ({
@@ -94,6 +173,13 @@ export default function CatalogoPersonal() {
                             onClick={handleSave}
                         >
                             Guardar
+                        </button>
+                        <button
+                            type="button"
+                            className="stc-exit-btn stc-search-btn"
+                            onClick={handleOpenSearch}
+                        >
+                            Buscar
                         </button>
                     </>
                 )}
@@ -242,11 +328,11 @@ export default function CatalogoPersonal() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {rows.length === 0 ? (
+                                                {displayedRows.length === 0 ? (
                                                     <tr>
                                                     </tr>
                                                 ) : (
-                                                    rows.map((row, index) => (
+                                                    displayedRows.map((row, index) => (
                                                         <tr key={index}>
                                                             <td>{row.id_expediente}</td>
                                                             <td>{row.nombre}</td>
@@ -283,6 +369,36 @@ export default function CatalogoPersonal() {
                 <span className="stc-status-square">{user?.rol_vigente?.meses_q_califica}</span>
                 <span className="stc-status-square">{today}</span>
             </footer>
+
+            {searchOpen && (
+                <div className="stc-search-overlay" onClick={handleCloseSearch}>
+                    <div className="stc-search-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="stc-search-modal-title" >Buscar</div>
+                        <input
+                            type="text"
+                            className="stc-field-input stc-search-input"
+                            value={searchTerm}
+                            autoFocus
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSearchSubmit();
+                                if (e.key === 'Escape') handleCloseSearch();
+                            }}
+                        />
+                        <div className="stc-search-modal-actions">
+                            <button type="button" className="stc-search-modal-btn" onClick={handleSearchSubmit}>
+                                Buscar
+                            </button>
+                            <button type="button" className="stc-search-modal-btn" onClick={handleSearchClear}>
+                                Limpiar
+                            </button>
+                            <button type="button" className="stc-search-modal-btn" onClick={handleCloseSearch}>
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

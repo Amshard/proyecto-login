@@ -107,6 +107,13 @@ export default function CatalogoTaquillas() {
                 )}
                 <button
                     type="button"
+                    className="stc-exit-btn stc-report-ops-btn"
+                    onClick={() => setActiveTab('nuevo')}
+                >
+                    Reporte Taquillas en Operaciones
+                </button>
+                <button
+                    type="button"
                     className="stc-exit-btn stc-salir-btn"
                     onClick={() => navigate('/dashboard')}
                 >

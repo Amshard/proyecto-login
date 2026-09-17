@@ -160,10 +160,12 @@ code {
 }
 
 .stc-navbar {
+  position: fixed;
   display: flex;
-  background: lightgray;
+  background: rgb(224, 139, 89);
   padding: 1px 8px;
   gap: 6px;
+  z-index: 10;
 }
 
 .stc-nav-btn {
@@ -183,7 +185,7 @@ code {
 }
 
 .stc-nav-btn:hover {
-  background: rgb(156, 156, 156);
+  background: rgb(134, 83, 40);
 }
 
 .stc-nav-item {

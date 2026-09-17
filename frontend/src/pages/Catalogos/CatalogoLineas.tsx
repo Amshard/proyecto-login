@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getLineas, type Linea } from '../../api/catalogos';
+import { getLineas, getPermanencias, type Linea } from '../../api/catalogos';
 import '../Login/Login.css';
 import './Catalogos.css';
 
 type TabKey = 'catalogo' | 'nuevo';
+
+interface LineaConPermanencia extends Linea {
+    nombre_perma: string | null;
+    descripcion: string | null;
+}
 
 interface LineaForm {
     id_linea: string;
@@ -17,6 +22,8 @@ interface LineaForm {
     taquillas: string;
     tramos: string;
     id_permanencia: string;
+    nombre_perma: string;
+    descripcion: string;
 }
 
 const EMPTY_FORM: LineaForm = {
@@ -29,6 +36,8 @@ const EMPTY_FORM: LineaForm = {
     taquillas: '',
     tramos: '',
     id_permanencia: '',
+    nombre_perma: '',
+    descripcion: '',
 };
 
 export default function CatalogoLineas() {
@@ -36,7 +45,7 @@ export default function CatalogoLineas() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<TabKey>('catalogo');
     const [form, setForm] = useState<LineaForm>(EMPTY_FORM);
-    const [rows, setRows] = useState<Linea[]>([]);
+    const [rows, setRows] = useState<LineaConPermanencia[]>([]);
     const [formError, setFormError] = useState(false);
     const today = new Date().toLocaleDateString('es-MX', {
         day: '2-digit',
@@ -46,10 +55,24 @@ export default function CatalogoLineas() {
 
     useEffect(() => {
         let active = true;
-        getLineas()
-            .then((data) => {
+        Promise.all([getLineas(), getPermanencias()])
+            .then(([lineas, permanencias]) => {
                 if (!active) return;
-                setRows(data);
+                const permanenciaPorId = new Map(
+                    permanencias.map((p) => [p.id_permanencia, p])
+                );
+                setRows(
+                    lineas.map((linea) => {
+                        const permanencia = linea.id_permanencia
+                            ? permanenciaPorId.get(linea.id_permanencia)
+                            : undefined;
+                        return {
+                            ...linea,
+                            nombre_perma: permanencia?.nombre_perma ?? null,
+                            descripcion: permanencia?.descripcion ?? null,
+                        };
+                    })
+                );
             })
             .catch(() => {});
         return () => {
@@ -93,6 +116,8 @@ export default function CatalogoLineas() {
                 taquillas: form.taquillas ? Number(form.taquillas) : null,
                 tramos: form.tramos ? Number(form.tramos) : null,
                 id_permanencia: form.id_permanencia || null,
+                nombre_perma: form.nombre_perma || null,
+                descripcion: form.descripcion || null,
             },
         ]);
     };
@@ -331,6 +356,8 @@ export default function CatalogoLineas() {
                                                     <th>Taquillas</th>
                                                     <th>Tramos</th>
                                                     <th>Permanencia</th>
+                                                    <th>Nombre</th>
+                                                    <th>Descripcion</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -349,6 +376,8 @@ export default function CatalogoLineas() {
                                                             <td>{row.taquillas}</td>
                                                             <td>{row.tramos}</td>
                                                             <td>{row.id_permanencia}</td>
+                                                            <td>{row.nombre_perma}</td>
+                                                            <td>{row.descripcion}</td>
                                                         </tr>
                                                     ))
                                                 )}
