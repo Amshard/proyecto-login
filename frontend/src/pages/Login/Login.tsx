@@ -25,6 +25,7 @@ export default function Login() {
             } else {
                 navigate('/dashboard');
             }
+
         } catch (err) {
             const message = axios.isAxiosError(err)
                 ? (err.response?.data?.detail ?? 'Cuenta o contraseña incorrecta')

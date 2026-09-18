@@ -113,8 +113,8 @@ DATABASES = {
         'NAME': 'BD_RolTaqSup',
         'USER': 'usr_taquillas',
         'PASSWORD': 'Taquillas1234',
-        'HOST': '50.192.40.206',
-        'PORT': '1433',
+        'HOST': r'localhost\SQLEXPRESS',
+        'PORT': '',
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',
             'extra_params': 'TrustServerCertificate=yes'
