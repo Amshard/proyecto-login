@@ -1,7 +1,6 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import CatalogoGenerico from './Catalogos/CatalogoGenerico';
 import './Login/Login.css';
+import StatusBar from '../components/StatusBar';
 
 function unslugify(slug: string): string {
     return slug
@@ -18,22 +17,12 @@ interface SectionPageState {
 }
 
 export default function SectionPage() {
-    const { user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const params = useParams<{ section: string; group?: string; item: string }>();
     const state = (location.state ?? {}) as SectionPageState;
 
     const title = state.title ?? unslugify(params.item ?? '');
-    const today = new Date().toLocaleDateString('es-MX', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    });
-
-    if (params.section === 'catalogos') {
-        return <CatalogoGenerico title={title} />;
-    }
 
     return (
         <div className="stc-login-page">
@@ -66,16 +55,7 @@ export default function SectionPage() {
                 </main>
             </div>
 
-            <footer className="stc-status-bar">
-                <span className="stc-status-square">Página: {title}</span>
-                <span className="stc-status-square">Usuario: {user?.nombre}</span>
-                <span className="stc-status-square">{user?.rol_vigente?.nombre_rol}</span>
-                <span className="stc-status-square">Vigencia: </span>
-                <span className="stc-status-square">{user?.rol_vigente?.fecha_ini}</span>
-                <span className="stc-status-square">{user?.rol_vigente?.fecha_fin}</span>
-                <span className="stc-status-square">{user?.rol_vigente?.meses_q_califica}</span>
-                <span className="stc-status-square">{today}</span>
-            </footer>
+            <StatusBar label={`${title}`} />
         </div>
     );
 }

@@ -98,7 +98,7 @@ code {
   display: flex;
   align-items: center;
   background: var(--accent);
-  padding: 16px 24px;
+  padding: 25px 24px;
   border-bottom: 3px solid var(--accent);
   position: relative;
 }
@@ -162,9 +162,10 @@ code {
 .stc-navbar {
   position: fixed;
   display: flex;
-  background: rgb(224, 139, 89);
+  background: rgb(224, 124, 66);
   padding: 1px 8px;
   gap: 6px;
+  width: 100%;
   z-index: 10;
 }
 
@@ -185,7 +186,7 @@ code {
 }
 
 .stc-nav-btn:hover {
-  background: rgb(134, 83, 40);
+  background: rgb(136, 80, 33);
 }
 
 .stc-nav-item {
@@ -266,6 +267,6 @@ code {
   border-top: 1px solid #9aa0a6;
   padding: 6px 20px;
   font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   z-index: 10;
 }

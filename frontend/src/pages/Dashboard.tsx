@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import './Login/Login.css';
+import StatusBar from '../components/StatusBar';
 
 function slugify(text: string): string {
     return text
@@ -53,18 +53,11 @@ const NAV_ITEMS = [
 ];
 
 export default function Dashboard() {
-    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [openMenu, setOpenMenu] = useState<string | null>(null);
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
-    const today = new Date().toLocaleDateString('es-MX', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    });
 
     const handleLogout = async () => {
-        await logout();
         navigate('/login', { replace: true });
     };
 
@@ -171,17 +164,7 @@ export default function Dashboard() {
                     <div className="stc-content-square" />
                 </main>
             </div>
-
-            <footer className="stc-status-bar">
-                <span className="stc-status-square">Página: Menú Principal</span>
-                <span className="stc-status-square">Usuario: {user?.nombre}</span>
-                <span className="stc-status-square">{user?.rol_vigente?.nombre_rol}</span>
-                <span className="stc-status-square">Vigencia: </span>
-                <span className="stc-status-square">{user?.rol_vigente?.fecha_ini}</span>
-                <span className="stc-status-square">{user?.rol_vigente?.fecha_fin}</span>
-                <span className="stc-status-square">{user?.rol_vigente?.meses_q_califica}</span>
-                <span className="stc-status-square">{today}</span>
-            </footer>
+            <StatusBar label="Menú Principal" />
         </div>
     );
 }

@@ -36,3 +36,25 @@ export default function ManualField<T extends string>({ config, value, onChange 
         </div>
     );
 }
+
+interface ManualFieldsProps<T extends string> {
+    fields: ManualFieldConfig<T>[];
+    form: Record<T, string>;
+    onChange: (key: T, value: string) => void;
+    className?: string;
+}
+
+export function ManualFields<T extends string>({ fields, form, onChange, className }: ManualFieldsProps<T>) {
+    return (
+        <div className={className ?? 'stc-manual-fields'}>
+            {fields.map((config) => (
+                <ManualField
+                    key={config.key}
+                    config={config}
+                    value={form[config.key]}
+                    onChange={(value) => onChange(config.key, value)}
+                />
+            ))}
+        </div>
+    );
+}

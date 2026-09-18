@@ -13,60 +13,47 @@ export default function Login() {
     const [error, setError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
+    const authenticate = async (onSuccess: (mustChangePassword: boolean) => void) => {
         setError(null);
         setSubmitting(true);
         try {
-            const loggedInUser = await login({ id_usuario: accessId, password });
-            if (loggedInUser.must_change_password) {
-                window.alert('Debe cambiar la contraseña');
-                navigate('/cambio-password');
-            } else {
-                navigate('/dashboard');
-            }
-
+            const user = await login({ id_usuario: accessId, password });
+            onSuccess(user.must_change_password);
         } catch (err) {
-            const message = axios.isAxiosError(err)
-                ? (err.response?.data?.detail ?? 'Cuenta o contraseña incorrecta')
-                : 'Ocurrió un error, intenta de nuevo';
-            setError(message);
+            setError(
+                axios.isAxiosError(err)
+                    ? (err.response?.data?.detail ?? 'Cuenta o contraseña incorrecta')
+                    : 'Ocurrió un error, intenta de nuevo'
+            );
         } finally {
             setSubmitting(false);
         }
     };
 
-    const handleChangePasswordClick = async () => {
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        authenticate((mustChange) => {
+            if (mustChange) window.alert('Debe cambiar la contraseña');
+            navigate(mustChange ? '/cambio-password' : '/dashboard');
+        });
+    };
+
+    const handleChangePasswordClick = () => {
         if (!accessId || !password) {
             setError('Ingresa tu cuenta y contraseña para cambiar tu password');
             return;
         }
-        setError(null);
-        setSubmitting(true);
-        try {
-            await login({ id_usuario: accessId, password });
-            navigate('/cambio-password');
-        } catch (err) {
-            const message = axios.isAxiosError(err)
-                ? (err.response?.data?.detail ?? 'Cuenta o contraseña incorrecta')
-                : 'Ocurrió un error, intenta de nuevo';
-            setError(message);
-        } finally {
-            setSubmitting(false);
-        }
+        authenticate(() => navigate('/cambio-password'));
     };
 
     return (
         <div className="stc-login-page">
-
             <header className="stc-header">
                 <button type="button" className="stc-exit-btn">
                     Salir
                 </button>
                 <div className="stc-header-accent" />
-                {/*<img className="stc-header-banner" src="..." alt="Banner" /> */}
-                <div className="stc-header-text">
-                </div>
+                <div className="stc-header-text" />
             </header>
 
             <div className="stc-body">
@@ -75,34 +62,23 @@ export default function Login() {
                         <h1 className="stc-role-title">Rol para el personal de taquillas</h1>
 
                         <form onSubmit={handleSubmit}>
-                            <div className="stc-field-row">
-                                <label className="stc-field-label" htmlFor="id_usuario">
-                                    Cuenta de acceso
-                                </label>
-                                <input
-                                    id="id_usuario"
-                                    className="stc-field-input"
-                                    type="text"
-                                    maxLength={60}
-                                    value={accessId}
-                                    onChange={(e) => setAccessId(e.target.value.toUpperCase())}
-                                    required
-                                />
-                            </div>
-
-                            <div className="stc-field-row">
-                                <label className="stc-field-label" htmlFor="password">
-                                    Contraseña
-                                </label>
-                                <input
-                                    id="password"
-                                    className="stc-field-input"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value.toUpperCase())}
-                                    required
-                                />
-                            </div>
+                            {[
+                                { id: 'id_usuario', label: 'Cuenta de acceso', type: 'text', value: accessId, set: setAccessId, maxLength: 60 },
+                                { id: 'password', label: 'Contraseña', type: 'password', value: password, set: setPassword },
+                            ].map(({ id, label, set, ...input }) => (
+                                <div className="stc-field-row" key={id}>
+                                    <label className="stc-field-label" htmlFor={id}>
+                                        {label}
+                                    </label>
+                                    <input
+                                        id={id}
+                                        className="stc-field-input"
+                                        onChange={(e) => set(e.target.value.toUpperCase())}
+                                        required
+                                        {...input}
+                                    />
+                                </div>
+                            ))}
 
                             {error && <p className="stc-error">{error}</p>}
 
