@@ -30,7 +30,7 @@ const REQUIRED: (keyof LineaForm)[] = ['id_linea', 'dirdelinea1', 'nombre_dirlin
 const COUNT = { width: 60, wrap: 80, numeric: true };
 
 const FIELDS = [
-    codeField('id_linea', 'Línea', 2, { numeric: true }),
+    codeField('id_linea', 'Línea', 2, { numeric: true, padTo: 2 }),
     codeField('dirdelinea1', 'DirIni', 5, { width: 50, wrap: 70, numeric: true }),
     textField('nombre_dirlin1', 'Nombre Dirdelinea1', 150, { maxLength: 20 }),
     codeField('dirdelinea2', 'DirFin', 5, { width: 50, wrap: 70, numeric: true }),
@@ -38,7 +38,7 @@ const FIELDS = [
     codeField('estaciones', 'Estaciones', 5, COUNT),
     codeField('taquillas', 'Taquillas', 5, COUNT),
     codeField('tramos', 'Tramos', 5, { ...COUNT, wrap: 70 }),
-    codeField('id_permanencia', 'Permanencia', 2, { wrap: 80 }),
+    codeField('id_permanencia', 'Permanencia', 2, { wrap: 80, numeric: true }),
 ];
 
 const COLUMNS: Column<LineaConPermanencia>[] = [

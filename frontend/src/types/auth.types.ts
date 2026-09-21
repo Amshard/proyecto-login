@@ -30,7 +30,6 @@ export interface AuthTokens {
     user: User;
 }
 
-
 export interface ChangePasswordPayload {
     current_password: string;
     new_password: string;

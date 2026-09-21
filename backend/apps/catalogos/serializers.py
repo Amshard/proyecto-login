@@ -1,63 +1,17 @@
 from rest_framework import serializers
 
-from apps.catalogos.models import (
-    Descanso,
-    Estacion,
-    Linea,
-    Permanencia,
-    PersonalRespaldo,
-    PersonalTaquilla,
-    Taquilla,
-)
+from apps.catalogos import models
 
 
-class PermanenciaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Permanencia
-        fields = ['id_permanencia', 'nombre_perma', 'descripcion', 'siglas']
+def _serializer(model):
+    meta = type('Meta', (), {'model': model, 'fields': '__all__'})
+    return type(f'{model.__name__}Serializer', (serializers.ModelSerializer,), {'Meta': meta})
 
 
-class LineaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Linea
-        fields = [
-            'id_linea',
-            'dirdelinea1',
-            'nombre_dirlin1',
-            'dirdelinea2',
-            'nombre_dirlin2',
-            'estaciones',
-            'taquillas',
-            'tramos',
-            'id_permanencia',
-        ]
-
-
-class EstacionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Estacion
-        fields = ['id_linea', 'id_estacion', 'nombre_estacion']
-
-
-class DescansoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Descanso
-        fields = ['id_descansos', 'iniciales', 'descanso1', 'descanso2']
-
-
-class PersonalTaquillaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PersonalTaquilla
-        fields = ['id_expediente', 'nombre', 'fecha_ingreso', 'prejubilacion', 'sexo']
-
-
-class PersonalRespaldoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PersonalRespaldo
-        fields = ['id_expediente', 'fecha_ingreso']
-
-
-class TaquillaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Taquilla
-        fields = ['id_taquilla', 'turno', 'dirdelinea', 'extension_tel', 'id_linea', 'id_estacion']
+PermanenciaSerializer = _serializer(models.Permanencia)
+LineaSerializer = _serializer(models.Linea)
+EstacionSerializer = _serializer(models.Estacion)
+DescansoSerializer = _serializer(models.Descanso)
+PersonalTaquillaSerializer = _serializer(models.PersonalTaquilla)
+PersonalRespaldoSerializer = _serializer(models.PersonalRespaldo)
+TaquillaSerializer = _serializer(models.Taquilla)

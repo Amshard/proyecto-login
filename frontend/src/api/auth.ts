@@ -1,7 +1,6 @@
 import axios from 'axios';
 import type { AxiosRequestConfig } from 'axios';
-import type { LoginPayload, AuthTokens, User, RegisterPayload } from '../types/auth.types';
-import type { ChangePasswordPayload } from '../types/auth.types';
+import type { AuthTokens, ChangePasswordPayload, LoginPayload, RegisterPayload, User } from '../types/auth.types';
 
 const BASE_URL = 'http://localhost:8000/api/auth';
 
@@ -14,6 +13,11 @@ api.interceptors.request.use((config) => {
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
 });
+
+export const clearTokens = () => {
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+};
 
 let refreshPromise: Promise<string> | null = null;
 
@@ -39,8 +43,7 @@ api.interceptors.response.use(
                 originalRequest.headers = { ...originalRequest.headers, Authorization: `Bearer ${access}` };
                 return api(originalRequest);
             } catch {
-                localStorage.removeItem('access');
-                localStorage.removeItem('refresh');
+                clearTokens();
             }
         }
         return Promise.reject(error);
@@ -68,7 +71,9 @@ export const logout = async (): Promise<void> => {
     try {
         await api.post('/logout/', { refresh });
     } catch {
-    }}
+        // Local logout proceeds even if the server call fails.
+    }
+};
 
 export const changePassword = async (payload: ChangePasswordPayload): Promise<void> => {
     await api.post('/change-password/', payload);

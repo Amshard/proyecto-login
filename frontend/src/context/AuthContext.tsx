@@ -26,10 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authApi
             .getMe()
             .then(setUser)
-            .catch(() => {
-                localStorage.removeItem('access');
-                localStorage.removeItem('refresh');
-            })
+            .catch(authApi.clearTokens)
             .finally(() => setLoading(false));
     }, []);
 
@@ -48,8 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = async () => {
         await authApi.logout();
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
+        authApi.clearTokens();
         setUser(null);
     };
 

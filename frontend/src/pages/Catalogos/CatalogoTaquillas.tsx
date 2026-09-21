@@ -21,12 +21,12 @@ const EMPTY_FORM: TaquillaForm = {
 const REQUIRED: (keyof TaquillaForm)[] = ['id_taquilla', 'turno', 'dirdelinea', 'id_linea', 'id_estacion'];
 
 const FIELDS = [
-    codeField('id_taquilla', 'Taquilla', 5, { width: 60, wrap: 80 }),
-    codeField('turno', 'Turno', 1),
+    codeField('id_taquilla', 'Taquilla', 5, { width: 60, wrap: 80, numeric: true }),
+    codeField('turno', 'Turno', 1, { numeric: true }),
     codeField('dirdelinea', 'Dir. Línea', 5, { width: 60, wrap: 90, numeric: true }),
     textField('extension_tel', 'Extensión', 110, { maxLength: 10, wrap: 130 }),
-    codeField('id_linea', 'Línea', 2, { numeric: true }),
-    codeField('id_estacion', 'Estación', 2, { numeric: true }),
+    codeField('id_linea', 'Línea', 2, { numeric: true, padTo: 2 }),
+    codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 }),
 ];
 
 const COLUMNS: Column<Taquilla>[] = [

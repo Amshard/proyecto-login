@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import CatalogoDescansos from './pages/Catalogos/CatalogoDescansos';
@@ -14,100 +15,29 @@ import Register from './pages/Login/Register';
 import SectionPage from './pages/SectionPage';
 import './App.css';
 
+const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
+  ['/dashboard', <Dashboard />],
+  ['/cambio-password', <ChangePassword />],
+  ['/dashboard/catalogos/permanencias', <CatalogoPermanencias />],
+  ['/dashboard/catalogos/lineas', <CatalogoLineas />],
+  ['/dashboard/catalogos/estaciones', <CatalogoEstaciones />],
+  ['/dashboard/catalogos/descansos', <CatalogoDescansos />],
+  ['/dashboard/catalogos/taquillas', <CatalogoTaquillas />],
+  ['/dashboard/catalogos/personal-de-taquilla', <CatalogoPersonal />],
+  ['/dashboard/catalogos/personal-provisional', <PersonalProvisional />],
+  ['/dashboard/:section/:item', <SectionPage />],
+  ['/dashboard/:section/:group/:item', <SectionPage />],
+];
+
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/cambio-password"
-        element={
-          <ProtectedRoute>
-            <ChangePassword />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/catalogos/permanencias"
-        element={
-          <ProtectedRoute>
-            <CatalogoPermanencias />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/catalogos/lineas"
-        element={
-          <ProtectedRoute>
-            <CatalogoLineas />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/catalogos/estaciones"
-        element={
-          <ProtectedRoute>
-            <CatalogoEstaciones />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/catalogos/descansos"
-        element={
-          <ProtectedRoute>
-            <CatalogoDescansos />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/catalogos/taquillas"
-        element={
-          <ProtectedRoute>
-            <CatalogoTaquillas />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/catalogos/personal-de-taquilla"
-        element={
-          <ProtectedRoute>
-            <CatalogoPersonal />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/catalogos/personal-provisional"
-        element={
-          <ProtectedRoute>
-            <PersonalProvisional />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/:section/:item"
-        element={
-          <ProtectedRoute>
-            <SectionPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard/:section/:group/:item"
-        element={
-          <ProtectedRoute>
-            <SectionPage />
-          </ProtectedRoute>
-        }
-      />
+      {PROTECTED_ROUTES.map(([path, element]) => (
+        <Route key={path} path={path} element={<ProtectedRoute>{element}</ProtectedRoute>} />
+      ))}
     </Routes>
   );
 }

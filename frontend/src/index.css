@@ -7,9 +7,6 @@
   --accent: #e05f09;
   --accent-bg: rgba(212, 90, 9, 0.1);
   --accent-border: rgba(212, 90, 9, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -29,9 +26,6 @@
     font-size: 16px;
   }
 }
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
 
 
 #root {
@@ -79,8 +73,7 @@ p {
   margin: 0;
 }
 
-code,
-.counter {
+code {
   font-family: var(--mono);
   display: inline-flex;
   border-radius: 4px;
@@ -155,7 +148,7 @@ code {
 }
 
 .stc-exit-btn:active {
-  background: hsl(28, 72%, 66%);
+  background: #804327;
   color: black;
 }
 

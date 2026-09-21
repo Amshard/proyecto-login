@@ -10,11 +10,8 @@ interface CatalogoLayoutProps {
     count: number;
     onClear: () => void;
     onSave: () => void;
-    /** Botones extra del encabezado (solo visibles en la pestaña de catálogo). */
     actions?: ReactNode;
-    /** Botón que abre la pestaña de reporte. */
     reportButton?: string;
-    /** Campos del formulario, mostrados sobre el panel principal. */
     fields?: ReactNode;
     formError?: boolean;
     overlay?: ReactNode;

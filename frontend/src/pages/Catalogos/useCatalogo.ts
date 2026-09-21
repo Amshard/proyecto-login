@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ManualFieldConfig } from '../../components/ManualField';
 
-/** Carga las filas una sola vez; `load` debe ser una referencia estable. */
 export function useCatalogoRows<R>(load?: () => Promise<R[]>) {
     const [rows, setRows] = useState<R[]>([]);
 
@@ -22,9 +21,7 @@ export function useCatalogoRows<R>(load?: () => Promise<R[]>) {
 }
 
 interface FormOptions<T> {
-    /** Campos obligatorios al guardar (por defecto, todos). */
     required?: (keyof T)[];
-    /** Campos que no se convierten a mayúsculas. */
     noUpper?: (keyof T)[];
 }
 
@@ -44,7 +41,6 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
         setFormError(false);
     };
 
-    /** Devuelve true si el formulario es válido; si no, muestra el error. */
     const validate = () => {
         const invalid = required.some((field) => form[field].trim() === '');
         setFormError(invalid);
@@ -56,12 +52,16 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
 
 type FieldStyle = { maxLength?: number; wrap?: number };
 
-/** Campo corto y centrado (claves, códigos, números). */
 export function codeField<T extends string>(
     key: T,
     label: string,
     maxLength: number,
-    { width = 25, wrap = 56, numeric = false }: { width?: number; wrap?: number; numeric?: boolean } = {}
+    {
+        width = 25,
+        wrap = 56,
+        numeric = false,
+        padTo,
+    }: { width?: number; wrap?: number; numeric?: boolean; padTo?: number } = {}
 ): ManualFieldConfig<T> {
     return {
         id: `filtro-${key}`,
@@ -69,12 +69,12 @@ export function codeField<T extends string>(
         label,
         maxLength,
         inputMode: numeric ? 'numeric' : undefined,
+        padTo,
         wrapStyle: { width: wrap },
         inputStyle: { width, height: 30, textAlign: 'center', textTransform: 'uppercase' },
     };
 }
 
-/** Campo de texto ancho. */
 export function textField<T extends string>(
     key: T,
     label: string,

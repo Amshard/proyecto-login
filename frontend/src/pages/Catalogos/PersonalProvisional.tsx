@@ -86,7 +86,7 @@ export default function PersonalProvisional() {
             count={rows.length}
             onClear={clear}
             onSave={handleSave}
-            reportButton="Calificacion"
+            reportButton="Califica X rango por cambio de linea-y turno"
         >
             <div className="stc-provisional-form">
                 <ManualFields fields={MAIN_FIELDS} form={form} onChange={updateField} />

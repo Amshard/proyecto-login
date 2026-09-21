@@ -9,8 +9,8 @@ type EstacionForm = Record<keyof Estacion, string>;
 const EMPTY_FORM: EstacionForm = { id_linea: '', id_estacion: '', nombre_estacion: '' };
 
 const FIELDS = [
-    codeField('id_linea', 'Línea', 2, { numeric: true }),
-    codeField('id_estacion', 'Estación', 2, { numeric: true }),
+    codeField('id_linea', 'Línea', 2, { numeric: true, padTo: 2 }),
+    codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 }),
     textField('nombre_estacion', 'Nombre', 280, { maxLength: 25 }),
 ];
 

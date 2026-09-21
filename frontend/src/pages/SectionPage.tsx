@@ -1,5 +1,6 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import './Login/Login.css';
+import PageHeader from '../components/PageHeader';
 import StatusBar from '../components/StatusBar';
 
 function unslugify(slug: string): string {
@@ -10,52 +11,27 @@ function unslugify(slug: string): string {
         .join(' ');
 }
 
-interface SectionPageState {
-    title?: string;
-    section?: string;
-    group?: string;
-}
-
 export default function SectionPage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const params = useParams<{ section: string; group?: string; item: string }>();
-    const state = (location.state ?? {}) as SectionPageState;
+    const { item } = useParams<{ item: string }>();
 
-    const title = state.title ?? unslugify(params.item ?? '');
+    const title = (location.state as { title?: string } | null)?.title ?? unslugify(item ?? '');
 
     return (
         <div className="stc-login-page">
-
-            <header className="stc-header">
-                <button
-                    type="button"
-                    className="stc-exit-btn"
-                    onClick={() => navigate('/dashboard')}
-                >
-                    Salir
-                </button>
-                <div className="stc-header-accent" />
-                <div className="stc-header-text">
-                    COORDINACIÓN DE TAQUILLA
-                    <h1>SUBDIRECCION GENERAL DE ADMINISTRACION Y FINANZAS</h1>
-                </div>
-            </header>
+            <PageHeader onExit={() => navigate('/dashboard')} />
 
             <div className="stc-body">
                 <main className="stc-content">
                     <div className="stc-content-square stc-changepw-box">
-                        <div className="stc-changepw-titlebar">
-                            {title}
-                        </div>
-
-                        <div className="stc-changepw-body">
-                        </div>
+                        <div className="stc-changepw-titlebar">{title}</div>
+                        <div className="stc-changepw-body" />
                     </div>
                 </main>
             </div>
 
-            <StatusBar label={`${title}`} />
+            <StatusBar label={title} />
         </div>
     );
 }

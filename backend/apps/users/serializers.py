@@ -1,7 +1,8 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from datetime import datetime
 
 from apps.users.models import RolVigente
 
@@ -25,17 +26,6 @@ class UserSerializer(serializers.ModelSerializer):
     def get_rol_vigente(self, obj):
         rol_vigente = RolVigente.objects.order_by('-fecha_ini').first()
         return RolVigenteSerializer(rol_vigente).data if rol_vigente else None
-
-
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8, max_length=16)
-
-    class Meta:
-        model = User
-        fields = ['id_usuario', 'nombre', 'password']
-
-    def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):

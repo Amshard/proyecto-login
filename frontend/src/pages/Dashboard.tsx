@@ -57,8 +57,14 @@ export default function Dashboard() {
     const [openMenu, setOpenMenu] = useState<string | null>(null);
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
-    const handleLogout = async () => {
-        navigate('/login', { replace: true });
+    const closeMenus = () => {
+        setOpenMenu(null);
+        setOpenSubMenu(null);
+    };
+
+    const go = (path: string, state: Record<string, string>) => {
+        closeMenus();
+        navigate(`/dashboard/${path}`, { state });
     };
 
     return (
@@ -66,76 +72,55 @@ export default function Dashboard() {
 
             <nav className="stc-navbar">
                 {NAV_ITEMS.map((navItem) => (
-                    <div
-                        key={navItem.label}
-                        className="stc-nav-item"
-                        onMouseLeave={() => {
-                            setOpenMenu(null);
-                            setOpenSubMenu(null);
-                        }}
-                    >
+                    <div key={navItem.label} className="stc-nav-item" onMouseLeave={closeMenus}>
                         <button
                             type="button"
                             className="stc-nav-btn"
-                            onClick={() =>
-                                setOpenMenu((prev) => (prev === navItem.label ? null : navItem.label))
-                            }
+                            onClick={() => setOpenMenu((prev) => (prev === navItem.label ? null : navItem.label))}
                         >
                             {navItem.label}
                         </button>
                         {openMenu === navItem.label && (
                             <ul className="stc-submenu">
                                 {navItem.items.map((item, index) => {
-                                    const hasSubMenu = typeof item !== 'string';
-                                    const label = hasSubMenu ? item.label : item;
+                                    const group = typeof item === 'string' ? null : item;
+                                    const label = typeof item === 'string' ? item : item.label;
                                     const subMenuKey = `${navItem.label}-${index}`;
 
                                     return (
                                         <li
                                             key={index}
                                             className="stc-submenu-item"
-                                            onMouseEnter={
-                                                hasSubMenu ? () => setOpenSubMenu(subMenuKey) : undefined
-                                            }
-                                            onMouseLeave={
-                                                hasSubMenu ? () => setOpenSubMenu(null) : undefined
-                                            }
+                                            onMouseEnter={group ? () => setOpenSubMenu(subMenuKey) : undefined}
+                                            onMouseLeave={group ? () => setOpenSubMenu(null) : undefined}
                                         >
                                             <button
                                                 type="button"
                                                 className="stc-submenu-btn"
-                                                onClick={() => {
-                                                    if (hasSubMenu) return;
-                                                    setOpenMenu(null);
-                                                    navigate(`/dashboard/${slugify(navItem.label)}/${slugify(label)}`, {
-                                                        state: { title: label, section: navItem.label },
-                                                    });
-                                                }}
+                                                onClick={() =>
+                                                    !group &&
+                                                    go(`${slugify(navItem.label)}/${slugify(label)}`, {
+                                                        title: label,
+                                                        section: navItem.label,
+                                                    })
+                                                }
                                             >
                                                 {label}
-                                                {hasSubMenu && <span className="stc-submenu-arrow">›</span>}
+                                                {group && <span className="stc-submenu-arrow">›</span>}
                                             </button>
-                                            {hasSubMenu && openSubMenu === subMenuKey && (
+                                            {group && openSubMenu === subMenuKey && (
                                                 <ul className="stc-submenu stc-submenu-flyout">
-                                                    {item.items.map((subItem, subIndex) => (
-                                                        <li key={subIndex}>
+                                                    {group.items.map((subItem) => (
+                                                        <li key={subItem}>
                                                             <button
                                                                 type="button"
                                                                 className="stc-submenu-btn"
-                                                                onClick={() => {
-                                                                    setOpenSubMenu(null);
-                                                                    setOpenMenu(null);
-                                                                    navigate(
-                                                                        `/dashboard/${slugify(navItem.label)}/${slugify(item.label)}/${slugify(subItem)}`,
-                                                                        {
-                                                                            state: {
-                                                                                title: subItem,
-                                                                                section: navItem.label,
-                                                                                group: item.label,
-                                                                            },
-                                                                        },
-                                                                    );
-                                                                }}
+                                                                onClick={() =>
+                                                                    go(
+                                                                        `${slugify(navItem.label)}/${slugify(group.label)}/${slugify(subItem)}`,
+                                                                        { title: subItem, section: navItem.label, group: group.label },
+                                                                    )
+                                                                }
                                                             >
                                                                 {subItem}
                                                             </button>
@@ -150,13 +135,14 @@ export default function Dashboard() {
                         )}
                     </div>
                 ))}
-                <button type="button" className="stc-nav-btn" onClick={handleLogout}>Salir</button>
+                <button type="button" className="stc-nav-btn" onClick={() => navigate('/login', { replace: true })}>
+                    Salir
+                </button>
             </nav>
 
             <header className="stc-header">
                 <div className="stc-header-accent" />
-                <div className="stc-header-text">
-                </div>
+                <div className="stc-header-text" />
             </header>
 
             <div className="stc-body">

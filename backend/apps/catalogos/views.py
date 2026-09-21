@@ -1,62 +1,23 @@
 from rest_framework import generics, permissions
 
-from apps.catalogos.models import (
-    Descanso,
-    Estacion,
-    Linea,
-    Permanencia,
-    PersonalRespaldo,
-    PersonalTaquilla,
-    Taquilla,
-)
-from apps.catalogos.serializers import (
-    DescansoSerializer,
-    EstacionSerializer,
-    LineaSerializer,
-    PermanenciaSerializer,
-    PersonalRespaldoSerializer,
-    PersonalTaquillaSerializer,
-    TaquillaSerializer,
-)
+from apps.catalogos import models, serializers
 
 
-class PermanenciaListView(generics.ListAPIView):
-    queryset = Permanencia.objects.all()
-    serializer_class = PermanenciaSerializer
+class CatalogoListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class LineaListView(generics.ListAPIView):
-    queryset = Linea.objects.all().order_by('id_linea')
-    serializer_class = LineaSerializer
-    permission_classes = [permissions.IsAuthenticated]
+def _list_view(model, serializer, *ordering):
+    return type(f'{model.__name__}ListView', (CatalogoListView,), {
+        'queryset': model.objects.order_by(*ordering) if ordering else model.objects.all(),
+        'serializer_class': serializer,
+    })
 
 
-class EstacionListView(generics.ListAPIView):
-    queryset = Estacion.objects.all().order_by('id_linea', 'id_estacion')
-    serializer_class = EstacionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class DescansoListView(generics.ListAPIView):
-    queryset = Descanso.objects.all().order_by('id_descansos')
-    serializer_class = DescansoSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class PersonalTaquillaListView(generics.ListAPIView):
-    queryset = PersonalTaquilla.objects.all().order_by('nombre')
-    serializer_class = PersonalTaquillaSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class PersonalRespaldoListView(generics.ListAPIView):
-    queryset = PersonalRespaldo.objects.all().order_by('id_expediente')
-    serializer_class = PersonalRespaldoSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class TaquillaListView(generics.ListAPIView):
-    queryset = Taquilla.objects.all().order_by('id_taquilla', 'turno')
-    serializer_class = TaquillaSerializer
-    permission_classes = [permissions.IsAuthenticated]
+PermanenciaListView = _list_view(models.Permanencia, serializers.PermanenciaSerializer)
+LineaListView = _list_view(models.Linea, serializers.LineaSerializer, 'id_linea')
+EstacionListView = _list_view(models.Estacion, serializers.EstacionSerializer, 'id_linea', 'id_estacion')
+DescansoListView = _list_view(models.Descanso, serializers.DescansoSerializer, 'id_descansos')
+PersonalTaquillaListView = _list_view(models.PersonalTaquilla, serializers.PersonalTaquillaSerializer, 'nombre')
+PersonalRespaldoListView = _list_view(models.PersonalRespaldo, serializers.PersonalRespaldoSerializer, 'id_expediente')
+TaquillaListView = _list_view(models.Taquilla, serializers.TaquillaSerializer, 'id_taquilla', 'turno')
