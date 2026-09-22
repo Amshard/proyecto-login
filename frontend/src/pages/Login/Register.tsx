@@ -19,7 +19,7 @@ export default function Register() {
         setSubmitting(true);
         try {
             await register({ id_usuario: idUsuario, nombre, password });
-            navigate('/dashboard');
+            navigate('/dashboard/catalogos/permanencias');
         } catch (err) {
             let message = 'Something went wrong';
             if (axios.isAxiosError(err) && err.response?.data) {

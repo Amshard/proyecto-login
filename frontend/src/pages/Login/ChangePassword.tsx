@@ -23,7 +23,7 @@ export default function ChangePassword() {
         e.preventDefault();
         setError(null);
         changePassword(values)
-            .then(() => navigate('/dashboard'))
+            .then(() => navigate('/dashboard/catalogos/permanencias'))
             .catch((err) => {
                 const data = axios.isAxiosError(err) ? err.response?.data : undefined;
                 setError(

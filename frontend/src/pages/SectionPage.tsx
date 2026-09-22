@@ -1,6 +1,6 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import './Login/Login.css';
-import PageHeader from '../components/PageHeader';
+import Navbar from '../components/Navbar';
 import StatusBar from '../components/StatusBar';
 
 function unslugify(slug: string): string {
@@ -12,7 +12,6 @@ function unslugify(slug: string): string {
 }
 
 export default function SectionPage() {
-    const navigate = useNavigate();
     const location = useLocation();
     const { item } = useParams<{ item: string }>();
 
@@ -20,7 +19,15 @@ export default function SectionPage() {
 
     return (
         <div className="stc-login-page">
-            <PageHeader onExit={() => navigate('/dashboard')} />
+            <Navbar />
+
+            <header className="stc-header">
+                <div className="stc-header-accent" />
+                <div className="stc-header-text">
+                    COORDINACIÓN DE TAQUILLA
+                    <h1>SUBDIRECCION GENERAL DE ADMINISTRACION Y FINANZAS</h1>
+                </div>
+            </header>
 
             <div className="stc-body">
                 <main className="stc-content">

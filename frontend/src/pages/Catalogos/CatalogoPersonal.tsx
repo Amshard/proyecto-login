@@ -13,8 +13,8 @@ const FIELDS = [
     expedienteField('id_expediente'),
     textField('nombre', 'Nombre', 280, { maxLength: 50 }),
     dateField('fecha_ingreso', 'Fecha de Ingreso'),
-    codeField('prejubilacion', 'Prejubilación', 1, { wrap: 90 }),
-    codeField('sexo', 'Genero', 1, { wrap: 70 }),
+    codeField('prejubilacion', 'Prejubilación', 1, { wrap: 90, allowedChars: 'SN' }),
+    codeField('sexo', 'Genero', 1, { wrap: 70, allowedChars: 'FM' }),
 ];
 
 const COLUMNS: Column<PersonalTaquilla>[] = [
@@ -27,7 +27,7 @@ const COLUMNS: Column<PersonalTaquilla>[] = [
 
 export default function CatalogoPersonal() {
     const [rows, setRows] = useCatalogoRows(getPersonalTaquilla);
-    const { form, formError, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM, {
+    const { form, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM, {
         noUpper: ['fecha_ingreso'],
     });
     const [searchOpen, setSearchOpen] = useState(false);
@@ -73,13 +73,17 @@ export default function CatalogoPersonal() {
                     }}
                 />
                 <div className="stc-search-modal-actions">
-                    <button type="button" className="stc-search-modal-btn" onClick={() => applySearch(searchTerm.trim())}>
+                    <button
+                        type="button"
+                        className="stc-btn stc-search-modal-btn"
+                        onClick={() => applySearch(searchTerm.trim())}
+                    >
                         Buscar
                     </button>
-                    <button type="button" className="stc-search-modal-btn" onClick={() => applySearch('')}>
+                    <button type="button" className="stc-btn stc-search-modal-btn" onClick={() => applySearch('')}>
                         Limpiar
                     </button>
-                    <button type="button" className="stc-search-modal-btn" onClick={closeSearch}>
+                    <button type="button" className="stc-btn stc-search-modal-btn" onClick={closeSearch}>
                         Cancelar
                     </button>
                 </div>
@@ -95,13 +99,16 @@ export default function CatalogoPersonal() {
             onClear={clear}
             onSave={handleSave}
             actions={
-                <button type="button" className="stc-exit-btn stc-search-btn" onClick={openSearch}>
+                <button type="button" className="stc-btn stc-exit-btn stc-search-btn" onClick={openSearch}>
                     Buscar
                 </button>
             }
-            formError={formError}
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} />}
             overlay={searchModal}
+            pdfTitle="Catálogo de Personal de Taquilla"
+            pdfColumns={COLUMNS}
+            pdfRows={displayedRows}
+            pdfCountLabel="Personal"
         >
             <DataTable title="Personal de Taquilla" className="stc-table-personal" columns={COLUMNS} rows={displayedRows} />
         </CatalogoLayout>

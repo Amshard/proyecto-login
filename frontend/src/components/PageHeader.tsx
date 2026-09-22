@@ -5,7 +5,7 @@ interface PageHeaderProps {
 export default function PageHeader({ onExit }: PageHeaderProps) {
     return (
         <header className="stc-header">
-            <button type="button" className="stc-exit-btn" onClick={onExit}>
+            <button type="button" className="stc-btn stc-exit-btn" onClick={onExit}>
                 Salir
             </button>
             <div className="stc-header-accent" />

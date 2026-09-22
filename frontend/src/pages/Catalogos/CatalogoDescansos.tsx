@@ -24,7 +24,7 @@ const COLUMNS: Column<Descanso>[] = [
 
 export default function CatalogoDescansos() {
     const [rows, setRows] = useCatalogoRows(getDescansos);
-    const { form, formError, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM);
+    const { form, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM);
 
     const handleSave = () => {
         if (validate()) setRows((prev) => [...prev, form]);
@@ -37,8 +37,11 @@ export default function CatalogoDescansos() {
             count={rows.length}
             onClear={clear}
             onSave={handleSave}
-            formError={formError}
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} />}
+            pdfTitle="Catálogo de Descansos"
+            pdfColumns={COLUMNS}
+            pdfRows={rows}
+            pdfCountLabel="Descansos"
         >
             <DataTable title="Descansos de la red" className="stc-table-descansos" columns={COLUMNS} rows={rows} />
         </CatalogoLayout>

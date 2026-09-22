@@ -72,7 +72,7 @@ async function loadLineas(): Promise<LineaConPermanencia[]> {
 
 export default function CatalogoLineas() {
     const [rows, setRows] = useCatalogoRows(loadLineas);
-    const { form, formError, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
+    const { form, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
 
     const handleSave = () => {
         if (!validate()) return;
@@ -101,8 +101,11 @@ export default function CatalogoLineas() {
             count={rows.length}
             onClear={clear}
             onSave={handleSave}
-            formError={formError}
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} />}
+            pdfTitle="Catálogo de Líneas"
+            pdfColumns={COLUMNS}
+            pdfRows={rows}
+            pdfCountLabel="Líneas"
         >
             <DataTable title="Líneas de la red" className="stc-table-lineas" columns={COLUMNS} rows={rows} />
         </CatalogoLayout>

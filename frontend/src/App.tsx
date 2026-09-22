@@ -9,14 +9,12 @@ import CatalogoPersonal from './pages/Catalogos/CatalogoPersonal';
 import CatalogoTaquillas from './pages/Catalogos/CatalogoTaquillas';
 import PersonalProvisional from './pages/Catalogos/PersonalProvisional';
 import ChangePassword from './pages/Login/ChangePassword';
-import Dashboard from './pages/Dashboard';
 import Login from './pages/Login/Login';
 import Register from './pages/Login/Register';
 import SectionPage from './pages/SectionPage';
 import './App.css';
 
 const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
-  ['/dashboard', <Dashboard />],
   ['/cambio-password', <ChangePassword />],
   ['/dashboard/catalogos/permanencias', <CatalogoPermanencias />],
   ['/dashboard/catalogos/lineas', <CatalogoLineas />],

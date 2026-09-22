@@ -34,7 +34,7 @@ export default function Login() {
         e.preventDefault();
         authenticate((mustChange) => {
             if (mustChange) window.alert('Debe cambiar la contraseña');
-            navigate(mustChange ? '/cambio-password' : '/dashboard');
+            navigate(mustChange ? '/cambio-password' : '/dashboard/catalogos/permanencias');
         });
     };
 
@@ -49,9 +49,6 @@ export default function Login() {
     return (
         <div className="stc-login-page">
             <header className="stc-header">
-                <button type="button" className="stc-exit-btn">
-                    Salir
-                </button>
                 <div className="stc-header-accent" />
                 <div className="stc-header-text" />
             </header>

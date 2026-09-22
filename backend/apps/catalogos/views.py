@@ -20,4 +20,5 @@ EstacionListView = _list_view(models.Estacion, serializers.EstacionSerializer, '
 DescansoListView = _list_view(models.Descanso, serializers.DescansoSerializer, 'id_descansos')
 PersonalTaquillaListView = _list_view(models.PersonalTaquilla, serializers.PersonalTaquillaSerializer, 'nombre')
 PersonalRespaldoListView = _list_view(models.PersonalRespaldo, serializers.PersonalRespaldoSerializer, 'id_expediente')
+PersonalGacetaListView = _list_view(models.PersonalGaceta, serializers.PersonalGacetaSerializer, 'exp')
 TaquillaListView = _list_view(models.Taquilla, serializers.TaquillaSerializer, 'id_taquilla', 'turno')

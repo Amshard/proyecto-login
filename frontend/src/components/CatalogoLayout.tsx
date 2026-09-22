@@ -1,10 +1,12 @@
-import { useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, type ReactNode } from 'react';
 import '../pages/Login/Login.css';
 import '../pages/Catalogos/Catalogos.css';
+import Navbar from './Navbar';
 import StatusBar from './StatusBar';
+import type { Column } from './DataTable';
+import { buildCatalogoPdfBlob } from '../utils/pdf';
 
-interface CatalogoLayoutProps {
+interface CatalogoLayoutProps<R> {
     tabLabel: string;
     statusLabel: string;
     count: number;
@@ -13,12 +15,15 @@ interface CatalogoLayoutProps {
     actions?: ReactNode;
     reportButton?: string;
     fields?: ReactNode;
-    formError?: boolean;
     overlay?: ReactNode;
     children: ReactNode;
+    pdfTitle?: string;
+    pdfColumns?: Column<R>[];
+    pdfRows?: R[];
+    pdfCountLabel?: string;
 }
 
-export default function CatalogoLayout({
+export default function CatalogoLayout<R>({
     tabLabel,
     statusLabel,
     count,
@@ -27,13 +32,31 @@ export default function CatalogoLayout({
     actions,
     reportButton,
     fields,
-    formError,
     overlay,
     children,
-}: CatalogoLayoutProps) {
-    const navigate = useNavigate();
+    pdfTitle,
+    pdfColumns,
+    pdfRows,
+    pdfCountLabel,
+}: CatalogoLayoutProps<R>) {
     const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo'>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (isCatalogo || !pdfColumns || !pdfRows) return;
+        const blob = buildCatalogoPdfBlob(
+            pdfTitle ?? reportButton ?? statusLabel,
+            pdfColumns,
+            pdfRows,
+            pdfCountLabel
+        );
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+        return () => {
+            URL.revokeObjectURL(url);
+        };
+    }, [isCatalogo, pdfColumns, pdfRows, pdfTitle, reportButton, statusLabel, pdfCountLabel]);
 
     const tabs = [
         { key: 'catalogo', label: tabLabel },
@@ -42,20 +65,22 @@ export default function CatalogoLayout({
 
     return (
         <div className="stc-login-page">
+            <Navbar />
+
             <header className="stc-header">
                 {isCatalogo && (
                     <>
-                        <button type="button" className="stc-exit-btn stc-clear-btn" onClick={onClear}>
+                        <button type="button" className="stc-btn stc-exit-btn stc-clear-btn" onClick={onClear}>
                             Limpiar
                         </button>
-                        <button type="button" className="stc-exit-btn stc-save-btn" onClick={onSave}>
+                        <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onSave}>
                             Guardar
                         </button>
                         {actions}
                         {reportButton && (
                             <button
                                 type="button"
-                                className="stc-exit-btn stc-report-ops-btn"
+                                className="stc-btn stc-exit-btn stc-report-ops-btn"
                                 onClick={() => setActiveTab('nuevo')}
                             >
                                 {reportButton}
@@ -63,13 +88,6 @@ export default function CatalogoLayout({
                         )}
                     </>
                 )}
-                <button
-                    type="button"
-                    className="stc-exit-btn stc-salir-btn"
-                    onClick={() => navigate('/dashboard')}
-                >
-                    Salir
-                </button>
                 <div className="stc-header-accent" />
                 <div className="stc-header-text">
                     COORDINACIÓN DE TAQUILLA
@@ -103,17 +121,23 @@ export default function CatalogoLayout({
 
                             {isCatalogo && fields}
 
-                            {isCatalogo && formError && (
-                                <div className="stc-form-error">
-                                    Por favor llene todos los campos antes de guardar.
-                                </div>
-                            )}
-
                             <div className="stc-changepw-body stc-tab-panel">
                                 {isCatalogo ? (
                                     children
                                 ) : (
-                                    <iframe className="stc-report-viewer" src="/blank.pdf" title="Reporte" />
+                                    <div className="stc-report-panel">
+                                        <button
+                                            type="button"
+                                            className="stc-btn stc-generar-reporte-btn"
+                                            disabled={!pdfUrl}
+                                            onClick={() => {
+                                                if (pdfUrl) window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+                                            }}
+                                        >
+                                            Generar reporte
+                                        </button>
+                                        <iframe className="stc-report-viewer" src={pdfUrl ?? '/blank.pdf'} title="Reporte" />
+                                    </div>
                                 )}
                             </div>
                         </div>

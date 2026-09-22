@@ -27,27 +27,24 @@ interface FormOptions<T> {
 
 export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, options: FormOptions<T> = {}) {
     const [form, setForm] = useState<T>(empty);
-    const [formError, setFormError] = useState(false);
     const required = options.required ?? (Object.keys(empty) as (keyof T)[]);
 
     const updateField = (field: keyof T, value: string) => {
         const keep = options.noUpper?.includes(field);
         setForm((prev) => ({ ...prev, [field]: keep ? value : value.toUpperCase() }));
-        setFormError(false);
     };
 
     const clear = () => {
         setForm(empty);
-        setFormError(false);
     };
 
     const validate = () => {
         const invalid = required.some((field) => form[field].trim() === '');
-        setFormError(invalid);
+        if (invalid) window.alert('Por favor llene todos los campos antes de guardar.');
         return !invalid;
     };
 
-    return { form, formError, updateField, clear, validate };
+    return { form, updateField, clear, validate };
 }
 
 type FieldStyle = { maxLength?: number; wrap?: number };
@@ -61,7 +58,8 @@ export function codeField<T extends string>(
         wrap = 56,
         numeric = false,
         padTo,
-    }: { width?: number; wrap?: number; numeric?: boolean; padTo?: number } = {}
+        allowedChars,
+    }: { width?: number; wrap?: number; numeric?: boolean; padTo?: number; allowedChars?: string } = {}
 ): ManualFieldConfig<T> {
     return {
         id: `filtro-${key}`,
@@ -70,6 +68,7 @@ export function codeField<T extends string>(
         maxLength,
         inputMode: numeric ? 'numeric' : undefined,
         padTo,
+        allowedChars,
         wrapStyle: { width: wrap },
         inputStyle: { width, height: 30, textAlign: 'center', textTransform: 'uppercase' },
     };

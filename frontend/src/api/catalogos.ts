@@ -120,6 +120,17 @@ export const getPersonalRespaldo = async (): Promise<PersonalRespaldo[]> => {
     return data;
 };
 
+export interface PersonalGaceta {
+    exp: number;
+    permiso: string;
+    fecha: string;
+}
+
+export const getPersonalGaceta = async (): Promise<PersonalGaceta[]> => {
+    const { data } = await api.get<PersonalGaceta[]>('/personal-gaceta/');
+    return data;
+};
+
 export interface Taquilla {
     id_taquilla: string;
     turno: string;

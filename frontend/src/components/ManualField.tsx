@@ -7,8 +7,8 @@ export interface ManualFieldConfig<T extends string = string> {
     maxLength?: number;
     type?: string;
     inputMode?: 'numeric';
-    /** Rellena con ceros a la izquierda al salir del campo (ej. 1 → 01). */
     padTo?: number;
+    allowedChars?: string;
     wrapStyle?: CSSProperties;
     inputStyle?: CSSProperties;
 }
@@ -32,9 +32,15 @@ export default function ManualField<T extends string>({ config, value, onChange 
                 inputMode={config.inputMode}
                 maxLength={config.maxLength}
                 value={value}
-                onChange={(e) =>
-                    onChange(config.inputMode === 'numeric' ? e.target.value.replace(/\D/g, '') : e.target.value)
-                }
+                onChange={(e) => {
+                    let next = e.target.value;
+                    if (config.inputMode === 'numeric') next = next.replace(/\D/g, '');
+                    const { allowedChars } = config;
+                    if (allowedChars) {
+                        next = [...next].filter((c) => allowedChars.includes(c.toUpperCase())).join('');
+                    }
+                    onChange(next);
+                }}
                 onBlur={() => {
                     if (config.padTo && value) onChange(value.padStart(config.padTo, '0'));
                 }}

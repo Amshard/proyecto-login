@@ -4,7 +4,7 @@
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
-  --accent: #e05f09;
+  --accent: #ec6911;
   --accent-bg: rgba(212, 90, 9, 0.1);
   --accent-border: rgba(212, 90, 9, 0.5);
 
@@ -107,6 +107,7 @@ code {
 }
 
 .stc-header-text {
+  margin: 30px 0 0;
   display: flex;
   text-align: center;
   width: 100%;
@@ -121,14 +122,14 @@ code {
 }
 
 .stc-header-text h1 {
-  margin: 4px 0 0;
+  margin: 10px 0 0;
   font-size: 18px;
   font-weight: 800;
   text-align: center;
   color: #470404;
 }
 
-.stc-exit-btn {
+.stc-btn {
   color: black;
   background: #f37f49;
   border: 1px solid #96421b;
@@ -137,19 +138,22 @@ code {
   font-weight: 700;
   font-style: italic;
   cursor: pointer;
+  box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.8);
+}
+
+.stc-btn:active {
+  background: #804327;
+  color: black;
+}
+
+.stc-exit-btn {
   display: grid;
   place-items: center;
   position: absolute;
   left: 2px;
-  top: 50vh;
+  top: 50px;
   transform: translateY(-50%);
-  z-index: 10;
-  box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.8);
-}
-
-.stc-exit-btn:active {
-  background: #804327;
-  color: black;
+  z-index: 9;
 }
 
 .stc-navbar {
@@ -253,6 +257,7 @@ code {
   position: fixed;
   bottom: 0;
   display: flex;
+  flex-direction: column;
   gap: 3px;
   width: 100%;
   background: lightgray;
@@ -262,4 +267,9 @@ code {
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 15px;
   z-index: 10;
+}
+
+.stc-status-row {
+  display: flex;
+  gap: 3px;
 }

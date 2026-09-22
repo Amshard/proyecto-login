@@ -22,7 +22,7 @@ const COLUMNS: Column<Estacion>[] = [
 
 export default function CatalogoEstaciones() {
     const [rows, setRows] = useCatalogoRows(getEstaciones);
-    const { form, formError, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM);
+    const { form, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM);
 
     const handleSave = () => {
         if (validate()) setRows((prev) => [...prev, form]);
@@ -35,8 +35,11 @@ export default function CatalogoEstaciones() {
             count={rows.length}
             onClear={clear}
             onSave={handleSave}
-            formError={formError}
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} />}
+            pdfTitle="Catálogo de Estaciones"
+            pdfColumns={COLUMNS}
+            pdfRows={rows}
+            pdfCountLabel="Estaciones"
         >
             <DataTable title="Estaciones" columns={COLUMNS} rows={rows} />
         </CatalogoLayout>

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { getPersonalGaceta, type PersonalGaceta } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
-import { codeField, dateField, expedienteField, textField, useCatalogoForm } from './useCatalogo';
+import { codeField, dateField, expedienteField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 type ProvisionalKey =
     | 'expediente' | 'permiso' | 'nombre' | 'jub' | 'genero' | 'ingreso'
@@ -57,6 +57,17 @@ const SMALL_FIELDS = [
     codeField('perm', 'Perm', 4, SMALL),
 ];
 
+function gacetaToForm(g: PersonalGaceta): ProvisionalForm {
+    return {
+        ...EMPTY_FORM,
+        expediente: g.exp != null ? String(g.exp) : '',
+        permiso: g.permiso ?? '',
+        ingreso: g.fecha ?? '',
+    };
+}
+
+const loadGaceta = async () => (await getPersonalGaceta()).map(gacetaToForm);
+
 function formatFecha(value: string): string {
     if (!value) return '';
     const fecha = new Date(value);
@@ -71,7 +82,7 @@ const COLUMNS: Column<ProvisionalForm>[] = [
 ];
 
 export default function PersonalProvisional() {
-    const [rows, setRows] = useState<ProvisionalForm[]>([]);
+    const [rows, setRows] = useCatalogoRows(loadGaceta);
     const { form, updateField, clear } = useCatalogoForm(EMPTY_FORM, { noUpper: ['ingreso'] });
 
     const handleSave = () => {
@@ -87,6 +98,10 @@ export default function PersonalProvisional() {
             onClear={clear}
             onSave={handleSave}
             reportButton="Califica X rango por cambio de linea-y turno"
+            pdfTitle="Catálogo de Personal Provisional"
+            pdfColumns={COLUMNS}
+            pdfRows={rows}
+            pdfCountLabel="Personal Provisional"
         >
             <div className="stc-provisional-form">
                 <ManualFields fields={MAIN_FIELDS} form={form} onChange={updateField} />

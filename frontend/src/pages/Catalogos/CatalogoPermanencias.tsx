@@ -37,7 +37,7 @@ const loadPermanencias = async (): Promise<PermanenciaForm[]> =>
 
 export default function CatalogoPermanencias() {
     const [rows, setRows] = useCatalogoRows(loadPermanencias);
-    const { form, formError, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM);
+    const { form, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM);
 
     const handleSave = () => {
         if (validate()) setRows((prev) => [...prev, form]);
@@ -50,8 +50,11 @@ export default function CatalogoPermanencias() {
             count={rows.length}
             onClear={clear}
             onSave={handleSave}
-            formError={formError}
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} />}
+            pdfTitle="Catálogo de Permanencias"
+            pdfColumns={COLUMNS}
+            pdfRows={rows}
+            pdfCountLabel="Permanencias"
         >
             <DataTable title="Permanencias de la red" columns={COLUMNS} rows={rows} />
         </CatalogoLayout>

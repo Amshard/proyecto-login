@@ -106,3 +106,16 @@ class PersonalRespaldo(models.Model):
 
     def __str__(self):
         return str(self.id_expediente)
+
+
+class PersonalGaceta(models.Model):
+    exp = models.IntegerField(primary_key=True, db_column='Exp')
+    permiso = models.CharField(max_length=4, db_column='Permiso', blank=True, null=True)
+    fecha = models.DateField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'PersonalGaceta'
+
+    def __str__(self):
+        return str(self.exp)

@@ -1,10 +1,10 @@
 
 .stc-clear-btn {
-  top: 245px;
+  top: 275px;
 }
 
 .stc-save-btn {
-  top: 300px;
+  top: 330px;
 }
 
 .stc-search-btn {
@@ -19,10 +19,6 @@
   text-align: center;
   line-height: 1.2;
   width: 100px;
-}
-
-.stc-salir-btn {
-  top: 450px;
 }
 
 .stc-search-overlay {
@@ -69,13 +65,6 @@
 
 .stc-search-modal-btn {
   padding: 8px 18px;
-  color: black;
-  background: #f37f49;
-  border: 1px solid #96421b;
-  border-radius: 0px;
-  font-weight: 700;
-  font-style: italic;
-  cursor: pointer;
   box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.5);
 }
 
@@ -89,7 +78,7 @@
   align-items: flex-end;
   gap: 10px;
   width: 90%;
-  height: 105%;
+  height: 107%;
 }
 
 .stc-registros-wrapper .stc-content-square {
@@ -157,7 +146,6 @@
   gap: 90px;
   padding: 16px 24px;
   border-top: 1px solid black;
-  border-bottom: 1px solid black;
   border-right: 1px solid black;
   border-left: 1px solid black;
 }
@@ -196,15 +184,6 @@
   font-size: 12px;
 }
 
-.stc-form-error {
-  color: #c0392b;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
-  padding: 4px 24px 0;
-}
-
 .stc-tab-panel {
   align-items: flex-start;
   justify-content: flex-start;
@@ -213,6 +192,20 @@
   border-right: 1px solid black;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
+}
+
+.stc-report-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.stc-generar-reporte-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
 }
 
 .stc-report-viewer {
@@ -269,6 +262,11 @@
   z-index: 1;
 }
 
+.stc-table tbody tr {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 37px;
+}
+
 .stc-table th:nth-child(1) {
   width: 18%;
 }
@@ -288,6 +286,16 @@
 .stc-table td {
   padding: 8px 12px;
   border: 1px solid black;
+  cursor: default;
+}
+
+.stc-table td:focus {
+  outline: 2px solid #1a2fa0;
+  outline-offset: -2px;
+}
+
+.stc-table-cell-selected {
+  background: #dbe4ff;
 }
 
 .stc-table-descansos th:nth-child(1) {

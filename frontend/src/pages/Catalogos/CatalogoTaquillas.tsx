@@ -41,7 +41,7 @@ const COLUMNS: Column<Taquilla>[] = [
 
 export default function CatalogoTaquillas() {
     const [rows, setRows] = useCatalogoRows(getTaquillas);
-    const { form, formError, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
+    const { form, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
 
     const handleSave = () => {
         if (!validate()) return;
@@ -63,8 +63,11 @@ export default function CatalogoTaquillas() {
             onClear={clear}
             onSave={handleSave}
             reportButton="Reporte Taquillas en Operaciones"
-            formError={formError}
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} />}
+            pdfTitle="Catálogo de Taquillas"
+            pdfColumns={COLUMNS}
+            pdfRows={rows}
+            pdfCountLabel="Taquillas"
         >
             <DataTable title="Taquillas de la red" className="stc-table-taquillas" columns={COLUMNS} rows={rows} />
         </CatalogoLayout>
