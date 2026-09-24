@@ -3,6 +3,8 @@ import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 export interface Column<R> {
     header: string;
     cell: (row: R) => ReactNode;
+    // PDF only: sum this column's numbers in a totals row under the table.
+    total?: boolean;
 }
 
 interface DataTableProps<R> {
@@ -10,27 +12,23 @@ interface DataTableProps<R> {
     columns: Column<R>[];
     rows: R[];
     className?: string;
+    onRowSelect?: (row: R) => void;
+    selectedRow?: unknown;
 }
 
-function selectCellText(cell: HTMLTableCellElement | null) {
-    if (!cell) return;
-    const range = document.createRange();
-    range.selectNodeContents(cell);
-    const selection = window.getSelection();
-    selection?.removeAllRanges();
-    selection?.addRange(range);
-}
-
-export default function DataTable<R>({ title, columns, rows, className }: DataTableProps<R>) {
+export default function DataTable<R>({ title, columns, rows, className, onRowSelect, selectedRow }: DataTableProps<R>) {
     const [selected, setSelected] = useState({ row: 0, col: 0 });
     const cellRefs = useRef<(HTMLTableCellElement | null)[][]>([]);
+
+    const selectCell = (row: number, col: number) => {
+        setSelected({ row, col });
+        if (rows[row] !== undefined && rows[row] !== selectedRow) onRowSelect?.(rows[row]);
+    };
 
     const focusCell = (row: number, col: number) => {
         const cell = cellRefs.current[row]?.[col];
         if (!cell) return;
         cell.focus();
-        setSelected({ row, col });
-        selectCellText(cell);
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLTableCellElement>, row: number, col: number) => {
@@ -83,10 +81,7 @@ export default function DataTable<R>({ title, columns, rows, className }: DataTa
                                                 ? 'stc-table-cell-selected'
                                                 : undefined
                                         }
-                                        onFocus={(e) => {
-                                            setSelected({ row: rowIndex, col: colIndex });
-                                            selectCellText(e.currentTarget);
-                                        }}
+                                        onFocus={() => selectCell(rowIndex, colIndex)}
                                         onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
                                     >
                                         {col.cell(row)}

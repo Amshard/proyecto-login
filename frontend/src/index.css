@@ -101,7 +101,7 @@ code {
   left: 0;
   top: 0;
   bottom: -100vh;
-  width: 110px;
+  width: 115px;
   background: var(--accent);
   z-index: 4;
 }

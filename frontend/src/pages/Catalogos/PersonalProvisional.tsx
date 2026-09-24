@@ -1,8 +1,14 @@
-import { getPersonalGaceta, type PersonalGaceta } from '../../api/catalogos';
+import {
+    createPersonalGaceta,
+    deletePersonalGaceta,
+    getPersonalGaceta,
+    type PersonalGaceta,
+    updatePersonalGaceta,
+} from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
-import { codeField, dateField, expedienteField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { catalogoActions, codeField, dateField, expedienteField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 type ProvisionalKey =
     | 'expediente' | 'permiso' | 'nombre' | 'jub' | 'genero' | 'ingreso'
@@ -33,7 +39,7 @@ const EMPTY_FORM: ProvisionalForm = {
 const SMALL = { width: 60, wrap: 70 };
 
 const MAIN_FIELDS = [
-    expedienteField('expediente'),
+    { ...expedienteField('expediente'), isKey: true },
     codeField('permiso', 'Permiso', 1, { wrap: 70 }),
     textField('nombre', 'Nombre', 280, { maxLength: 50 }),
     codeField('jub', 'Jub', 1, { wrap: 70 }),
@@ -41,11 +47,10 @@ const MAIN_FIELDS = [
     dateField('ingreso', 'Ingreso'),
 ];
 
+const POSICION_ROL = codeField('posicionRol', 'Posición en el ROL', 4, { width: 100, wrap: 104 });
+
 const SMALL_FIELDS = [
-    {
-        ...codeField('posicionRol', 'Posición en el ROL', 4, { width: 100, wrap: 104 }),
-        wrapStyle: { width: 104, textAlign: 'left' as const },
-    },
+    { ...POSICION_ROL, wrapStyle: { ...POSICION_ROL.wrapStyle, textAlign: 'left' as const } },
     codeField('tramo', 'Tramo', 4, SMALL),
     codeField('faltas', 'Faltas', 4, SMALL),
     codeField('taquilla', 'Taquilla', 4, SMALL),
@@ -66,6 +71,12 @@ function gacetaToForm(g: PersonalGaceta): ProvisionalForm {
     };
 }
 
+const formToGaceta = (f: ProvisionalForm): PersonalGaceta => ({
+    exp: Number(f.expediente),
+    permiso: f.permiso || null,
+    fecha: f.ingreso || null,
+});
+
 const loadGaceta = async () => (await getPersonalGaceta()).map(gacetaToForm);
 
 function formatFecha(value: string): string {
@@ -83,12 +94,18 @@ const COLUMNS: Column<ProvisionalForm>[] = [
 
 export default function PersonalProvisional() {
     const [rows, setRows] = useCatalogoRows(loadGaceta);
-    const { form, updateField, clear } = useCatalogoForm(EMPTY_FORM, { noUpper: ['ingreso'] });
-
-    const handleSave = () => {
-        setRows((prev) => [...prev, form]);
-        clear();
-    };
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['ingreso'] });
+    const { form, selected, updateField, clear, fill } = catalogoForm;
+    const { onSave, onModify, onDelete } = catalogoActions(
+        setRows,
+        catalogoForm,
+        (f) => ({ ...f }),
+        {
+            create: (r) => createPersonalGaceta(formToGaceta(r)),
+            update: (r) => updatePersonalGaceta(formToGaceta(r)),
+            remove: (r) => deletePersonalGaceta(Number(r.expediente)),
+        },
+    );
 
     return (
         <CatalogoLayout
@@ -96,7 +113,12 @@ export default function PersonalProvisional() {
             statusLabel="Catálogo de Personal Provisional"
             count={rows.length}
             onClear={clear}
-            onSave={handleSave}
+            onSave={async () => {
+                if (await onSave()) clear();
+            }}
+            onModify={onModify}
+            onDelete={onDelete}
+            editing={selected !== null}
             reportButton="Califica X rango por cambio de linea-y turno"
             pdfTitle="Catálogo de Personal Provisional"
             pdfColumns={COLUMNS}
@@ -104,14 +126,21 @@ export default function PersonalProvisional() {
             pdfCountLabel="Personal Provisional"
         >
             <div className="stc-provisional-form">
-                <ManualFields fields={MAIN_FIELDS} form={form} onChange={updateField} />
+                <ManualFields fields={MAIN_FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />
                 <ManualFields
                     fields={SMALL_FIELDS}
                     form={form}
                     onChange={updateField}
                     className="stc-manual-fields stc-manual-fields-small"
                 />
-                <DataTable title="Personal Provisional" className="stc-table-provisional" columns={COLUMNS} rows={rows} />
+                <DataTable
+                    title="Personal Provisional"
+                    className="stc-table-provisional"
+                    columns={COLUMNS}
+                    rows={rows}
+                    onRowSelect={fill}
+                    selectedRow={selected}
+                />
             </div>
         </CatalogoLayout>
     );

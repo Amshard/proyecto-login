@@ -1,8 +1,14 @@
-import { getPermanencias } from '../../api/catalogos';
+import {
+    createPermanencia,
+    deletePermanencia,
+    getPermanencias,
+    type Permanencia,
+    updatePermanencia,
+} from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
-import { codeField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { catalogoActions, codeField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 interface PermanenciaForm {
     clave: string;
@@ -14,9 +20,9 @@ interface PermanenciaForm {
 const EMPTY_FORM: PermanenciaForm = { clave: '', nombre: '', descripcion: '', siglas: '' };
 
 const FIELDS = [
-    codeField('clave', 'Permanencia', 2, { numeric: true }),
-    textField('nombre', 'Nombre', 220),
-    textField('descripcion', 'Descripcion', 280),
+    { ...codeField('clave', 'Permanencia', 1, { numeric: true }), isKey: true },
+    textField('nombre', 'Nombre', 220, { maxLength: 15 }),
+    textField('descripcion', 'Descripcion', 280, { maxLength: 30 }),
     textField('siglas', 'Siglas', 110, { maxLength: 8 }),
 ];
 
@@ -35,13 +41,27 @@ const loadPermanencias = async (): Promise<PermanenciaForm[]> =>
         siglas: p.siglas,
     }));
 
+const toPermanencia = (r: PermanenciaForm): Permanencia => ({
+    id_permanencia: r.clave,
+    nombre_perma: r.nombre,
+    descripcion: r.descripcion,
+    siglas: r.siglas,
+});
+
 export default function CatalogoPermanencias() {
     const [rows, setRows] = useCatalogoRows(loadPermanencias);
-    const { form, updateField, clear, validate } = useCatalogoForm(EMPTY_FORM);
-
-    const handleSave = () => {
-        if (validate()) setRows((prev) => [...prev, form]);
-    };
+    const catalogoForm = useCatalogoForm(EMPTY_FORM);
+    const { form, selected, updateField, clear, fill } = catalogoForm;
+    const { onSave, onModify, onDelete } = catalogoActions(
+        setRows,
+        catalogoForm,
+        (f) => ({ ...f }),
+        {
+            create: (r) => createPermanencia(toPermanencia(r)),
+            update: (r) => updatePermanencia(toPermanencia(r)),
+            remove: (r) => deletePermanencia(r.clave),
+        },
+    );
 
     return (
         <CatalogoLayout
@@ -49,14 +69,23 @@ export default function CatalogoPermanencias() {
             statusLabel="Catálogo de Permanencias"
             count={rows.length}
             onClear={clear}
-            onSave={handleSave}
-            fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} />}
+            onSave={onSave}
+            onModify={onModify}
+            onDelete={onDelete}
+            editing={selected !== null}
+            fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />}
             pdfTitle="Catálogo de Permanencias"
             pdfColumns={COLUMNS}
             pdfRows={rows}
             pdfCountLabel="Permanencias"
         >
-            <DataTable title="Permanencias de la red" columns={COLUMNS} rows={rows} />
+            <DataTable
+                title="Permanencias de la red"
+                columns={COLUMNS}
+                rows={rows}
+                onRowSelect={fill}
+                selectedRow={selected}
+            />
         </CatalogoLayout>
     );
 }

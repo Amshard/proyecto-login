@@ -122,8 +122,8 @@ export const getPersonalRespaldo = async (): Promise<PersonalRespaldo[]> => {
 
 export interface PersonalGaceta {
     exp: number;
-    permiso: string;
-    fecha: string;
+    permiso: string | null;
+    fecha: string | null;
 }
 
 export const getPersonalGaceta = async (): Promise<PersonalGaceta[]> => {
@@ -147,3 +147,58 @@ export const getTaquillas = async (): Promise<Taquilla[]> => {
 };
 
 export default api;
+
+const itemUrl = (path: (string | number)[]) => `/${path.map((part) => encodeURIComponent(String(part))).join('/')}/`;
+
+// Inserts a catalog row; the backend stamps usuario_alta / fecha_alta and leaves the modif columns NULL.
+const createRow = async (collection: string, data: object): Promise<void> => {
+    await api.post(`/${collection}/`, data);
+};
+
+export const createPermanencia = (data: Permanencia) => createRow('permanencias', data);
+export const createLinea = (data: Linea) => createRow('lineas', data);
+export const createEstacion = (data: Estacion) => createRow('estaciones', data);
+export const createDescanso = (data: Descanso) => createRow('descansos', data);
+export const createTaquilla = (data: Taquilla) => createRow('taquillas', data);
+export const createPersonalTaquilla = (data: PersonalTaquilla) => createRow('personal-taquilla', data);
+export const createPersonalGaceta = (data: PersonalGaceta) => createRow('personal-gaceta', data);
+
+// Updates a catalog row by its key; the backend stamps usuario_modif / fecha_modif.
+const updateRow = async (path: (string | number)[], data: object): Promise<void> => {
+    await api.put(itemUrl(path), data);
+};
+
+// Deletes a catalog row by its key; the backend refuses (409) when the id is still referenced.
+const deleteRow = async (...path: (string | number)[]): Promise<void> => {
+    await api.delete(itemUrl(path));
+};
+
+export const updatePermanencia = (data: Permanencia) => updateRow(['permanencias', data.id_permanencia], data);
+export const updateLinea = (data: Linea) => updateRow(['lineas', data.id_linea], data);
+export const updateEstacion = (data: Estacion) => updateRow(['estaciones', data.id_linea, data.id_estacion], data);
+export const updateDescanso = (data: Descanso) => updateRow(['descansos', data.id_descansos], data);
+export const updateTaquilla = (data: Taquilla) => updateRow(['taquillas', data.id_taquilla, data.turno], data);
+export const updatePersonalTaquilla = (data: PersonalTaquilla) =>
+    updateRow(['personal-taquilla', data.id_expediente], data);
+export const updatePersonalGaceta = (data: PersonalGaceta) => updateRow(['personal-gaceta', data.exp], data);
+
+export const deletePermanencia = (id: string) => deleteRow('permanencias', id);
+export const deleteLinea = (id: string) => deleteRow('lineas', id);
+export const deleteEstacion = (idLinea: string, idEstacion: string) => deleteRow('estaciones', idLinea, idEstacion);
+export const deleteDescanso = (id: string) => deleteRow('descansos', id);
+export const deleteTaquilla = (id: string, turno: string) => deleteRow('taquillas', id, turno);
+export const deletePersonalTaquilla = (expediente: number) => deleteRow('personal-taquilla', expediente);
+export const deletePersonalGaceta = (exp: number) => deleteRow('personal-gaceta', exp);
+
+export const isNotFound = (error: unknown) => axios.isAxiosError(error) && error.response?.status === 404;
+
+export function apiErrorMessage(error: unknown, fallback: string): string {
+    if (axios.isAxiosError(error)) {
+        const data = error.response?.data as Record<string, unknown> | undefined;
+        if (typeof data?.detail === 'string') return data.detail;
+        // Field validation errors: { campo: ['mensaje', ...] }
+        const [field, messages] = Object.entries(data ?? {})[0] ?? [];
+        if (field && Array.isArray(messages)) return `${field}: ${messages.join(' ')}`;
+    }
+    return fallback;
+}

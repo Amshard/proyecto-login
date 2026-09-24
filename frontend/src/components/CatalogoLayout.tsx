@@ -12,6 +12,10 @@ interface CatalogoLayoutProps<R> {
     count: number;
     onClear: () => void;
     onSave: () => void;
+    onModify?: () => void;
+    onDelete?: () => void;
+    // A table row is loaded: Modificar/Eliminar replace Guardar.
+    editing?: boolean;
     actions?: ReactNode;
     reportButton?: string;
     fields?: ReactNode;
@@ -21,6 +25,7 @@ interface CatalogoLayoutProps<R> {
     pdfColumns?: Column<R>[];
     pdfRows?: R[];
     pdfCountLabel?: string;
+    pdfCountTitle?: string;
 }
 
 export default function CatalogoLayout<R>({
@@ -29,6 +34,9 @@ export default function CatalogoLayout<R>({
     count,
     onClear,
     onSave,
+    onModify,
+    onDelete,
+    editing = false,
     actions,
     reportButton,
     fields,
@@ -38,6 +46,7 @@ export default function CatalogoLayout<R>({
     pdfColumns,
     pdfRows,
     pdfCountLabel,
+    pdfCountTitle,
 }: CatalogoLayoutProps<R>) {
     const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo'>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
@@ -49,14 +58,15 @@ export default function CatalogoLayout<R>({
             pdfTitle ?? reportButton ?? statusLabel,
             pdfColumns,
             pdfRows,
-            pdfCountLabel
+            pdfCountLabel,
+            pdfCountTitle
         );
         const url = URL.createObjectURL(blob);
         setPdfUrl(url);
         return () => {
             URL.revokeObjectURL(url);
         };
-    }, [isCatalogo, pdfColumns, pdfRows, pdfTitle, reportButton, statusLabel, pdfCountLabel]);
+    }, [isCatalogo, pdfColumns, pdfRows, pdfTitle, reportButton, statusLabel, pdfCountLabel, pdfCountTitle]);
 
     const tabs = [
         { key: 'catalogo', label: tabLabel },
@@ -73,9 +83,20 @@ export default function CatalogoLayout<R>({
                         <button type="button" className="stc-btn stc-exit-btn stc-clear-btn" onClick={onClear}>
                             Limpiar
                         </button>
-                        <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onSave}>
-                            Guardar
-                        </button>
+                        {editing ? (
+                            <>
+                                <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onModify}>
+                                    Modificar
+                                </button>
+                                <button type="button" className="stc-btn stc-exit-btn stc-delete-btn" onClick={onDelete}>
+                                    Eliminar
+                                </button>
+                            </>
+                        ) : (
+                            <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onSave}>
+                                Guardar
+                            </button>
+                        )}
                         {actions}
                         {reportButton && (
                             <button
@@ -136,7 +157,6 @@ export default function CatalogoLayout<R>({
                                         >
                                             Generar reporte
                                         </button>
-                                        <iframe className="stc-report-viewer" src={pdfUrl ?? '/blank.pdf'} title="Reporte" />
                                     </div>
                                 )}
                             </div>
