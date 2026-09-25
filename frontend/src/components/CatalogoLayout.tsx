@@ -4,7 +4,7 @@ import '../pages/Catalogos/Catalogos.css';
 import Navbar from './Navbar';
 import StatusBar from './StatusBar';
 import type { Column } from './DataTable';
-import { buildCatalogoPdfBlob } from '../utils/pdf';
+import { buildCatalogoPdfBlob, type PdfGroup } from '../utils/pdf';
 
 interface CatalogoLayoutProps<R> {
     tabLabel: string;
@@ -26,6 +26,8 @@ interface CatalogoLayoutProps<R> {
     pdfRows?: R[];
     pdfCountLabel?: string;
     pdfCountTitle?: string;
+    pdfGroup?: PdfGroup<R>;
+    pdfUnofficialNotes?: boolean;
 }
 
 export default function CatalogoLayout<R>({
@@ -47,6 +49,8 @@ export default function CatalogoLayout<R>({
     pdfRows,
     pdfCountLabel,
     pdfCountTitle,
+    pdfGroup,
+    pdfUnofficialNotes,
 }: CatalogoLayoutProps<R>) {
     const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo'>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
@@ -54,19 +58,18 @@ export default function CatalogoLayout<R>({
 
     useEffect(() => {
         if (isCatalogo || !pdfColumns || !pdfRows) return;
-        const blob = buildCatalogoPdfBlob(
-            pdfTitle ?? reportButton ?? statusLabel,
-            pdfColumns,
-            pdfRows,
-            pdfCountLabel,
-            pdfCountTitle
-        );
+        const blob = buildCatalogoPdfBlob(pdfTitle ?? reportButton ?? statusLabel, pdfColumns, pdfRows, {
+            countLabel: pdfCountLabel,
+            countTitle: pdfCountTitle,
+            group: pdfGroup,
+            unofficialNotes: pdfUnofficialNotes,
+        });
         const url = URL.createObjectURL(blob);
         setPdfUrl(url);
         return () => {
             URL.revokeObjectURL(url);
         };
-    }, [isCatalogo, pdfColumns, pdfRows, pdfTitle, reportButton, statusLabel, pdfCountLabel, pdfCountTitle]);
+    }, [isCatalogo, pdfColumns, pdfRows, pdfTitle, reportButton, statusLabel, pdfCountLabel, pdfCountTitle, pdfGroup, pdfUnofficialNotes]);
 
     const tabs = [
         { key: 'catalogo', label: tabLabel },

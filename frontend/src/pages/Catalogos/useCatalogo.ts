@@ -113,12 +113,14 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
             if (!(await persisted(update?.(updated), 'No se pudo modificar el registro.'))) return;
             setRows((prev) => prev.map((row) => (row === selected ? updated : row)));
             setSelected(updated as object);
+            window.alert('Registro modificado correctamente.');
         },
         onDelete: async () => {
             if (!selected || !window.confirm('¿Desea eliminar el registro seleccionado?')) return;
             if (!(await persisted(remove?.(selected as R).catch(ignoreNotFound), 'No se pudo eliminar el registro.'))) return;
             setRows((prev) => prev.filter((row) => row !== selected));
             clear();
+            window.alert('Registro eliminado correctamente.');
         },
     };
 }
@@ -147,7 +149,15 @@ export function codeField<T extends string>(
         numeric = false,
         padTo,
         allowedChars,
-    }: { width?: number; wrap?: number; numeric?: boolean; padTo?: number; allowedChars?: string } = {}
+        nonZero,
+    }: {
+        width?: number;
+        wrap?: number;
+        numeric?: boolean;
+        padTo?: number;
+        allowedChars?: string;
+        nonZero?: boolean;
+    } = {}
 ): ManualFieldConfig<T> {
     return {
         id: `filtro-${key}`,
@@ -157,6 +167,7 @@ export function codeField<T extends string>(
         inputMode: numeric ? 'numeric' : undefined,
         padTo,
         allowedChars,
+        nonZero,
         ...fluidStyles(width, wrap, { height: 30, textAlign: 'center', textTransform: 'uppercase' }),
     };
 }

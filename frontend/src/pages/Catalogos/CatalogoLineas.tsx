@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { createLinea, deleteLinea, getLineas, getPermanencias, type Linea, updateLinea } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
@@ -29,22 +30,26 @@ const EMPTY_FORM: LineaForm = {
     descripcion: '',
 };
 
-const COUNT = { width: 60, wrap: 80, numeric: true };
+const COUNT = { width: 60, wrap: 80, numeric: true, nonZero: true };
 
 const FIELDS = [
     { ...codeField('id_linea', 'Línea', 2, { numeric: true, padTo: 2 }), isKey: true },
-    codeField('dirdelinea1', 'DirIni', 5, { width: 50, wrap: 70, numeric: true }),
+    { ...codeField('dirdelinea1', 'DirIni', 5, { width: 50, wrap: 70, numeric: true }), readOnly: true },
     textField('nombre_dirlin1', 'Nombre Dirdelinea1', 150, { maxLength: 20 }),
-    codeField('dirdelinea2', 'DirFin', 5, { width: 50, wrap: 70, numeric: true }),
+    { ...codeField('dirdelinea2', 'DirFin', 5, { width: 50, wrap: 70, numeric: true }), readOnly: true },
     { ...textField('nombre_dirlin2', 'Nombre Dirdelinea2', 150, { maxLength: 20 }), breakAfter: true },
     codeField('estaciones', 'Estaciones', 5, COUNT),
     codeField('taquillas', 'Taquillas', 5, COUNT),
     codeField('tramos', 'Tramos', 5, { ...COUNT, wrap: 70 }),
-    codeField('id_permanencia', 'Permanencia', 2, { wrap: 80, numeric: true }),
+    // A single digit, 0-9.
+    codeField('id_permanencia', 'Permanencia', 1, { width: 45, wrap: 80, numeric: true }),
 ];
 
-// Every visible field; nombre_perma / descripcion only come from the table.
+// Every editable field; nombre_perma / descripcion follow the chosen permanencia.
 const REQUIRED = FIELDS.map((field) => field.key);
+
+// Shows the nombre_perma of the id typed in Permanencia; hidden while Permanencia is empty.
+const NOMBRE_PERMA_FIELD = { ...textField('nombre_perma', 'Nombre Permanencia', 150), readOnly: true };
 
 const COLUMNS: Column<LineaConPermanencia>[] = [
     { header: 'Línea', cell: (r) => r.id_linea },
@@ -69,7 +74,7 @@ const PDF_COLUMNS: Column<LineaConPermanencia>[] = [
     { header: 'Estaciones', cell: (r) => r.estaciones, total: true },
     { header: 'Taquillas', cell: (r) => r.taquillas, total: true },
     { header: 'Tramos', cell: (r) => r.tramos },
-    { header: 'Permanencia', cell: (r) => joinParts(' ', r.id_permanencia, r.nombre_perma) },
+    { header: 'Permanencia', cell: (r) => joinParts('         ', r.id_permanencia, r.nombre_perma) },
 ];
 
 const toNumberOrNull = (value: string) => (value ? Number(value) : null);
@@ -107,6 +112,26 @@ export default function CatalogoLineas() {
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
     const { form, selected, updateField, clear, fill } = catalogoForm;
 
+    // Permanencia offers every entry of cat_permanencias as a dropdown.
+    const fields = useMemo(() => {
+        const options = permanencias.map((p) => ({ value: p.id_permanencia, label: p.nombre_perma }));
+        const withOptions = FIELDS.map((field) => (field.key === 'id_permanencia' ? { ...field, options } : field));
+        // Hidden rather than removed, so the other fields keep their place.
+        const nombrePerma = form.id_permanencia
+            ? NOMBRE_PERMA_FIELD
+            : { ...NOMBRE_PERMA_FIELD, wrapStyle: { ...NOMBRE_PERMA_FIELD.wrapStyle, visibility: 'hidden' as const } };
+        return [...withOptions, nombrePerma];
+    }, [permanencias, form.id_permanencia]);
+
+    // Keeps the table-only Nombre / Descripcion in step with the chosen permanencia.
+    const onFieldChange = (key: keyof LineaForm, value: string) => {
+        updateField(key, value);
+        if (key !== 'id_permanencia') return;
+        const permanencia = permanencias.find((p) => p.id_permanencia === value);
+        updateField('nombre_perma', permanencia?.nombre_perma ?? '');
+        updateField('descripcion', permanencia?.descripcion ?? '');
+    };
+
     // Permanencia is optional, but when given it must exist in the catálogo de permanencias.
     const validate = () => {
         if (!catalogoForm.validate()) return false;
@@ -136,9 +161,9 @@ export default function CatalogoLineas() {
             editing={selected !== null}
             fields={
                 <ManualFields
-                    fields={FIELDS}
+                    fields={fields}
                     form={{ ...form, dirdelinea1: DIR_INI, dirdelinea2: DIR_FIN }}
-                    onChange={updateField}
+                    onChange={onFieldChange}
                     lockKeys={selected !== null}
                 />
             }

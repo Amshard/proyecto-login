@@ -20,8 +20,8 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
     const [selected, setSelected] = useState({ row: 0, col: 0 });
     const cellRefs = useRef<(HTMLTableCellElement | null)[][]>([]);
 
-    const selectCell = (row: number, col: number) => {
-        setSelected({ row, col });
+    // Only a double click or Enter loads the row into the form; clicks and arrow keys just move the highlight.
+    const loadRow = (row: number) => {
         if (rows[row] !== undefined && rows[row] !== selectedRow) onRowSelect?.(rows[row]);
     };
 
@@ -32,6 +32,11 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLTableCellElement>, row: number, col: number) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            loadRow(row);
+            return;
+        }
         let nextRow = row;
         let nextCol = col;
         switch (e.key) {
@@ -81,7 +86,8 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
                                                 ? 'stc-table-cell-selected'
                                                 : undefined
                                         }
-                                        onFocus={() => selectCell(rowIndex, colIndex)}
+                                        onFocus={() => setSelected({ row: rowIndex, col: colIndex })}
+                                        onDoubleClick={() => loadRow(rowIndex)}
                                         onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
                                     >
                                         {col.cell(row)}
