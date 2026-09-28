@@ -110,6 +110,16 @@ export const getPersonalTaquilla = async (): Promise<PersonalTaquilla[]> => {
     return data;
 };
 
+export interface PersonalRespaldo {
+    id_expediente: number;
+    fecha_ingreso: string;
+}
+
+export const getPersonalRespaldo = async (): Promise<PersonalRespaldo[]> => {
+    const { data } = await api.get<PersonalRespaldo[]>('/personal-respaldo/');
+    return data;
+};
+
 export interface PersonalGaceta {
     exp: number;
     permiso: string | null;
@@ -136,10 +146,10 @@ export const getTaquillas = async (): Promise<Taquilla[]> => {
     return data;
 };
 
+export default api;
 
 const itemUrl = (path: (string | number)[]) => `/${path.map((part) => encodeURIComponent(String(part))).join('/')}/`;
 
-// Inserts a catalog row; the backend stamps usuario_alta / fecha_alta and leaves the modif columns NULL.
 const createRow = async (collection: string, data: object): Promise<void> => {
     await api.post(`/${collection}/`, data);
 };
@@ -152,12 +162,10 @@ export const createTaquilla = (data: Taquilla) => createRow('taquillas', data);
 export const createPersonalTaquilla = (data: PersonalTaquilla) => createRow('personal-taquilla', data);
 export const createPersonalGaceta = (data: PersonalGaceta) => createRow('personal-gaceta', data);
 
-// Updates a catalog row by its key; the backend stamps usuario_modif / fecha_modif.
 const updateRow = async (path: (string | number)[], data: object): Promise<void> => {
     await api.put(itemUrl(path), data);
 };
 
-// Deletes a catalog row by its key; the backend refuses (409) when the id is still referenced.
 const deleteRow = async (...path: (string | number)[]): Promise<void> => {
     await api.delete(itemUrl(path));
 };
@@ -185,7 +193,6 @@ export function apiErrorMessage(error: unknown, fallback: string): string {
     if (axios.isAxiosError(error)) {
         const data = error.response?.data as Record<string, unknown> | undefined;
         if (typeof data?.detail === 'string') return data.detail;
-        // Field validation errors: { campo: ['mensaje', ...] }
         const [field, messages] = Object.entries(data ?? {})[0] ?? [];
         if (field && Array.isArray(messages)) return `${field}: ${messages.join(' ')}`;
     }
