@@ -37,7 +37,6 @@ const COLUMNS: Column<Taquilla>[] = [
     { header: 'Línea', cell: (r) => r.id_linea },
 ];
 
-// Keeps fields the form doesn't edit (e.g. direccion) from the original row.
 const formToTaquilla = (form: TaquillaForm, previous?: Taquilla): Taquilla => ({
     ...previous,
     ...form,

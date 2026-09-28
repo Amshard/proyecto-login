@@ -9,15 +9,14 @@ export interface ManualFieldConfig<T extends string = string> {
     inputMode?: 'numeric';
     padTo?: number;
     allowedChars?: string;
-    // Numeric fields that reject 0: leading zeros are dropped while typing.
     nonZero?: boolean;
+    // Numeric fields only: accept values from 1 up to this number.
+    max?: number;
     wrapStyle?: CSSProperties;
     inputStyle?: CSSProperties;
     breakAfter?: boolean;
     readOnly?: boolean;
-    // Record id: read-only while an existing row is loaded.
     isKey?: boolean;
-    // Suggestions shown as a dropdown under the input (always the full list); free typing still works.
     options?: { value: string; label: string }[];
 }
 
@@ -28,7 +27,7 @@ interface ManualFieldProps<T extends string> {
     readOnly?: boolean;
 }
 
-export default function ManualField<T extends string>({ config, value, onChange, readOnly }: ManualFieldProps<T>) {
+function ManualField<T extends string>({ config, value, onChange, readOnly }: ManualFieldProps<T>) {
     const [open, setOpen] = useState(false);
     const locked = config.readOnly || readOnly;
     const showOptions = open && !locked && !!config.options?.length;
@@ -50,6 +49,7 @@ export default function ManualField<T extends string>({ config, value, onChange,
                     let next = e.target.value;
                     if (config.inputMode === 'numeric') next = next.replace(/\D/g, '');
                     if (config.nonZero) next = next.replace(/^0+/, '');
+                    if (config.max !== undefined && Number(next) > config.max) return;
                     const { allowedChars } = config;
                     if (allowedChars) {
                         next = [...next].filter((c) => allowedChars.includes(c.toUpperCase())).join('');
@@ -64,19 +64,19 @@ export default function ManualField<T extends string>({ config, value, onChange,
                 }}
                 onBlur={() => {
                     setOpen(false);
-                    if (config.padTo && value) onChange(value.padStart(config.padTo, '0'));
+                    // A lone 0 is allowed while typing (e.g. "0" before "01") but is never a valid value.
+                    if (config.max !== undefined && value && Number(value) < 1) onChange('');
+                    else if (config.padTo && value) onChange(value.padStart(config.padTo, '0'));
                 }}
                 style={config.inputStyle}
                 autoComplete={config.options ? 'off' : undefined}
             />
             {showOptions && (
-                // A datalist would filter by what's typed; this list always shows every option.
                 <ul className="stc-field-options">
                     {config.options!.map((option) => (
                         <li
                             key={option.value}
                             className={option.value === value ? 'stc-field-option-active' : undefined}
-                            // mousedown keeps focus in the input so onBlur doesn't close the list first.
                             onMouseDown={(e) => {
                                 e.preventDefault();
                                 onChange(option.value);

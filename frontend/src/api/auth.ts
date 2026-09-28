@@ -79,4 +79,3 @@ export const changePassword = async (payload: ChangePasswordPayload): Promise<vo
     await api.post('/change-password/', payload);
 };
 
-export default api;

@@ -3,8 +3,10 @@ import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 export interface Column<R> {
     header: string;
     cell: (row: R) => ReactNode;
-    // PDF only: sum this column's numbers in a totals row under the table.
     total?: boolean;
+    indent?: number;
+    fit?: boolean;
+    center?: boolean;
 }
 
 interface DataTableProps<R> {
@@ -20,7 +22,6 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
     const [selected, setSelected] = useState({ row: 0, col: 0 });
     const cellRefs = useRef<(HTMLTableCellElement | null)[][]>([]);
 
-    // Only a double click or Enter loads the row into the form; clicks and arrow keys just move the highlight.
     const loadRow = (row: number) => {
         if (rows[row] !== undefined && rows[row] !== selectedRow) onRowSelect?.(rows[row]);
     };

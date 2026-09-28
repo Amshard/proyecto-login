@@ -15,8 +15,6 @@ function cellText<R>(column: Column<R>, row: R): string {
     return value === null || value === undefined ? '' : String(value);
 }
 
-// Splits the report by a key: each group starts on a new page, with its label under the column
-// titles and its total under its rows.
 export interface PdfGroup<R> {
     key: (row: R) => string;
     label: (key: string) => string;
@@ -26,20 +24,27 @@ export interface PdfGroup<R> {
 export interface CatalogoPdfOptions<R> {
     countLabel?: string;
     countTitle?: string;
+    noteLabel?: string;
+    noteById?: boolean;
+    countBold?: boolean;
+    countUnderline?: boolean;
+    countUnderlineSplit?: boolean;
+    titleBold?: boolean;
+    // Space above and below the text of each body row.
+    rowPadding?: number;
     group?: PdfGroup<R>;
-    // Notes under the count for every row whose id is all zeros.
     unofficialNotes?: boolean;
 }
 
 const byCode = (a: string, b: string) => a.localeCompare(b, undefined, { numeric: true });
 
-const GROUP_TABLE_TOP = 78;
+const GROUP_TABLE_TOP = 76;
 
 export function buildCatalogoPdfBlob<R>(
     title: string,
     columns: Column<R>[],
     rows: R[],
-    { countLabel = 'Registros', countTitle = countLabel, group, unofficialNotes = true }: CatalogoPdfOptions<R> = {}
+    { countLabel = 'Registros', countTitle = countLabel, noteLabel = countLabel, noteById = false, countBold = false, countUnderline = !countBold, countUnderlineSplit = false, titleBold = true, rowPadding = 4, group, unofficialNotes = true }: CatalogoPdfOptions<R> = {}
 ): Blob {
     const idColumn = columns[0];
     rows = [...rows].sort(
@@ -53,17 +58,34 @@ export function buildCatalogoPdfBlob<R>(
     const pageCenter = doc.internal.pageSize.getWidth() / 2;
 
     const drawHeader = () => {
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
         doc.text('SUBDIRECCIÓN GENERAL DE ADMINISTRACIÓN Y FINANZAS', pageCenter, 30, { align: 'center' });
         doc.text('COORDINACIÓN DE TAQUILLAS', pageCenter, 44, { align: 'center' });
-        doc.setFontSize(13);
-        doc.text(title, pageCenter, 66, { align: 'center' });
+        doc.setFontSize(11);
+        doc.setFont('helvetica', titleBold ? 'bold' : 'normal');
+        doc.text(title, pageCenter, 62, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
     };
 
     const hasTotals = columns.some((c) => c.total);
     const totalsRow = columns.map((c) =>
         c.total ? String(rows.reduce((sum, row) => sum + (Number(cellText(c, row)) || 0), 0)) : ''
+    );
+
+    const PDF_FONT_SIZE = 10;
+    const fittedWidth = (column: Column<R>) => {
+        doc.setFontSize(PDF_FONT_SIZE);
+        doc.setFont('helvetica', 'bold');
+        let widest = doc.getTextWidth(column.header);
+        doc.setFont('helvetica', 'normal');
+        rows.forEach((row) => {
+            widest = Math.max(widest, doc.getTextWidth(cellText(column, row)));
+        });
+        return widest + 8 + (column.indent ?? 0);
+    };
+    const columnStyles = Object.fromEntries(
+        columns.flatMap((c, i) => (c.fit ? [[i, { cellWidth: fittedWidth(c) }]] : []))
     );
 
     const drawTable = (tableRows: R[], showTotals: boolean, options: Partial<UserOptions>, label?: string) =>
@@ -78,7 +100,9 @@ export function buildCatalogoPdfBlob<R>(
             body: tableRows.map((row) => columns.map((c) => cellText(c, row))),
             foot: hasTotals && showTotals ? [totalsRow] : undefined,
             showFoot: 'lastPage',
-            styles: { fontSize: 8, cellPadding: 4, lineColor: [0, 0, 0] },
+            styles: { fontSize: PDF_FONT_SIZE, cellPadding: 4, lineColor: [0, 0, 0] },
+            columnStyles,
+            bodyStyles: { cellPadding: { top: rowPadding, right: 4, bottom: rowPadding, left: 4 } },
             headStyles: {
                 fillColor: false,
                 textColor: [0, 0, 0],
@@ -93,6 +117,26 @@ export function buildCatalogoPdfBlob<R>(
                 fontSize: 9,
                 cellPadding: { top: 8, right: 4, bottom: 4, left: 4 },
                 lineWidth: 0,
+            },
+            willDrawCell: ({ section, row, column, cell }) => {
+                const pdfColumn = columns[column.index];
+                const indent = pdfColumn?.indent ?? 0;
+                if (section === 'foot' || (section === 'head' && row.index !== 0)) return;
+                let offset = indent;
+                if (pdfColumn?.center && section === 'body') {
+                    doc.setFontSize(PDF_FONT_SIZE);
+                    doc.setFont('helvetica', 'bold');
+                    const headerWidth = doc.getTextWidth(pdfColumn.header);
+                    doc.setFont('helvetica', 'normal');
+                    offset += (headerWidth - doc.getTextWidth(cell.text.join(''))) / 2;
+                }
+                if (!offset) return;
+                cell.styles.cellPadding = {
+                    top: cell.padding('top'),
+                    right: cell.padding('right'),
+                    bottom: cell.padding('bottom'),
+                    left: cell.padding('left') + offset,
+                };
             },
             didDrawCell: ({ section, cell }) => {
                 const text = cell.text.join('');
@@ -126,7 +170,6 @@ export function buildCatalogoPdfBlob<R>(
                 {
                     startY: GROUP_TABLE_TOP,
                     margin: { left: 20, right: 20, top: GROUP_TABLE_TOP },
-                    // Also runs on the pages a long group spills onto.
                     didDrawPage: drawHeader,
                 },
                 group.label(key)
@@ -138,7 +181,9 @@ export function buildCatalogoPdfBlob<R>(
                 totalY = GROUP_TABLE_TOP + 10;
             }
             doc.setFontSize(9);
-            doc.text(group.total(key, groupRows.length), 24, totalY);
+            doc.setFont('helvetica', 'bold');
+            doc.text(group.total(key, groupRows.length), pageCenter, totalY, { align: 'center' });
+            doc.setFont('helvetica', 'normal');
             finalY = totalY;
         });
         finalY ??= lastTableY();
@@ -151,18 +196,33 @@ export function buildCatalogoPdfBlob<R>(
     const countLabelText = `${countTitle}: ${rows.length}`;
     const countLabelY = finalY + 18;
     doc.setFontSize(9);
+    doc.setFont('helvetica', countBold || countUnderlineSplit ? 'bold' : 'normal');
     doc.text(countLabelText, pageCenter, countLabelY, { align: 'center' });
 
     const countLabelWidth = doc.getTextWidth(countLabelText);
-    const underlineStartX = pageCenter - countLabelWidth / 2;
-    const underlineEndX = pageCenter + countLabelWidth / 2;
-    doc.setLineWidth(0.75);
-    doc.line(underlineStartX, countLabelY + 3, underlineEndX, countLabelY + 3);
-    doc.line(underlineStartX, countLabelY + 5, underlineEndX, countLabelY + 5);
+    const countStartX = pageCenter - countLabelWidth / 2;
+    const countEndX = pageCenter + countLabelWidth / 2;
+    const countNumberX = countStartX + doc.getTextWidth(`${countTitle}: `);
+
+    if (countUnderline) {
+        const doubleUnderline = (startX: number, endX: number) => {
+            doc.line(startX, countLabelY + 3, endX, countLabelY + 3);
+            doc.line(startX, countLabelY + 5, endX, countLabelY + 5);
+        };
+        doc.setLineWidth(0.75);
+        if (countUnderlineSplit) {
+            doubleUnderline(countStartX, countStartX + doc.getTextWidth(countTitle));
+            doubleUnderline(countNumberX, countEndX);
+        } else {
+            doubleUnderline(countStartX, countEndX);
+        }
+    }
+    doc.setFont('helvetica', 'normal');
 
     let noteY = countLabelY + 20;
     let unofficialCount = 0;
     doc.setFontSize(8);
+    doc.setFont('helvetica', countUnderlineSplit ? 'bold' : 'normal');
     if (idColumn && unofficialNotes) {
         rows.forEach((row, index) => {
             if (!/^0+$/.test(cellText(idColumn, row).trim())) return;
@@ -172,14 +232,15 @@ export function buildCatalogoPdfBlob<R>(
                 noteY = 40;
             }
             doc.text(
-                `Menos ${unofficialCount} por la ${countLabel} ${index + 1} que no es oficial`,
-                pageCenter,
+                `Menos ${unofficialCount} por la ${noteLabel} ${noteById ? cellText(idColumn, row).trim() : index + 1} que no es oficial`,
+                countUnderlineSplit ? countNumberX : pageCenter,
                 noteY,
-                { align: 'center' }
+                { align: countUnderlineSplit ? 'left' : 'center' }
             );
             noteY += 12;
         });
     }
+    doc.setFont('helvetica', 'normal');
 
     const now = new Date();
     const generatedAt = `${now.toLocaleDateString('es-MX', {

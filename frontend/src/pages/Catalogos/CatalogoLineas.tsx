@@ -12,7 +12,6 @@ interface LineaConPermanencia extends Linea {
 
 type LineaForm = Record<keyof LineaConPermanencia, string>;
 
-// DirIni and DirFin are fixed for every line.
 const DIR_INI = '1';
 const DIR_FIN = '2';
 
@@ -41,14 +40,11 @@ const FIELDS = [
     codeField('estaciones', 'Estaciones', 5, COUNT),
     codeField('taquillas', 'Taquillas', 5, COUNT),
     codeField('tramos', 'Tramos', 5, { ...COUNT, wrap: 70 }),
-    // A single digit, 0-9.
     codeField('id_permanencia', 'Permanencia', 1, { width: 45, wrap: 80, numeric: true }),
 ];
 
-// Every editable field; nombre_perma / descripcion follow the chosen permanencia.
 const REQUIRED = FIELDS.map((field) => field.key);
 
-// Shows the nombre_perma of the id typed in Permanencia; hidden while Permanencia is empty.
 const NOMBRE_PERMA_FIELD = { ...textField('nombre_perma', 'Nombre Permanencia', 150), readOnly: true };
 
 const COLUMNS: Column<LineaConPermanencia>[] = [
@@ -69,11 +65,11 @@ const joinParts = (separator: string, ...parts: (string | null)[]) =>
     parts.filter((part) => part).join(separator);
 
 const PDF_COLUMNS: Column<LineaConPermanencia>[] = [
-    { header: 'Línea', cell: (r) => r.id_linea },
+    { header: 'Línea', cell: (r) => r.id_linea, center: true },
     { header: 'Nombre', cell: (r) => joinParts(' - ', r.nombre_dirlin1, r.nombre_dirlin2) },
-    { header: 'Estaciones', cell: (r) => r.estaciones, total: true },
-    { header: 'Taquillas', cell: (r) => r.taquillas, total: true },
-    { header: 'Tramos', cell: (r) => r.tramos },
+    { header: 'Estaciones', cell: (r) => r.estaciones, total: true, center: true },
+    { header: 'Taquillas', cell: (r) => r.taquillas, total: true, center: true },
+    { header: 'Tramos', cell: (r) => r.tramos, center: true },
     { header: 'Permanencia', cell: (r) => joinParts('         ', r.id_permanencia, r.nombre_perma) },
 ];
 
@@ -112,18 +108,15 @@ export default function CatalogoLineas() {
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
     const { form, selected, updateField, clear, fill } = catalogoForm;
 
-    // Permanencia offers every entry of cat_permanencias as a dropdown.
     const fields = useMemo(() => {
         const options = permanencias.map((p) => ({ value: p.id_permanencia, label: p.nombre_perma }));
         const withOptions = FIELDS.map((field) => (field.key === 'id_permanencia' ? { ...field, options } : field));
-        // Hidden rather than removed, so the other fields keep their place.
         const nombrePerma = form.id_permanencia
             ? NOMBRE_PERMA_FIELD
             : { ...NOMBRE_PERMA_FIELD, wrapStyle: { ...NOMBRE_PERMA_FIELD.wrapStyle, visibility: 'hidden' as const } };
         return [...withOptions, nombrePerma];
     }, [permanencias, form.id_permanencia]);
 
-    // Keeps the table-only Nombre / Descripcion in step with the chosen permanencia.
     const onFieldChange = (key: keyof LineaForm, value: string) => {
         updateField(key, value);
         if (key !== 'id_permanencia') return;
@@ -132,7 +125,6 @@ export default function CatalogoLineas() {
         updateField('descripcion', permanencia?.descripcion ?? '');
     };
 
-    // Permanencia is optional, but when given it must exist in the catálogo de permanencias.
     const validate = () => {
         if (!catalogoForm.validate()) return false;
         const id = form.id_permanencia.trim();
@@ -147,6 +139,7 @@ export default function CatalogoLineas() {
         create: createLinea,
         update: updateLinea,
         remove: (r) => deleteLinea(r.id_linea),
+        describe: (r) => `Línea ${r.id_linea}`,
     });
 
     return (
@@ -167,11 +160,14 @@ export default function CatalogoLineas() {
                     lockKeys={selected !== null}
                 />
             }
-            pdfTitle="Catálogo de Líneas"
+            pdfTitle="CATALOGO DE LÍNEAS"
             pdfColumns={PDF_COLUMNS}
             pdfRows={rows}
             pdfCountLabel="Líneas"
             pdfCountTitle="Total de Líneas"
+            pdfCountBold
+            pdfCountUnderline
+            pdfRowPadding={7}
         >
             <DataTable
                 title="Líneas de la red"

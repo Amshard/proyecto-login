@@ -22,14 +22,12 @@ export function useCatalogoRows<R>(load?: () => Promise<R[]>) {
 }
 
 interface FormOptions<T> {
-    // Defaults to every form field.
     required?: (keyof T)[];
     noUpper?: (keyof T)[];
 }
 
 export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, options: FormOptions<T> = {}) {
     const [form, setForm] = useState<T>(empty);
-    // Table row currently loaded into the form (null while capturing a new one).
     const [selected, setSelected] = useState<object | null>(null);
     const required = options.required ?? (Object.keys(empty) as (keyof T)[]);
 
@@ -43,7 +41,6 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
         setSelected(null);
     };
 
-    // Loads a table row into the form; keys the form doesn't have are ignored.
     const fill = (row: object) => {
         const values = row as Record<string, unknown>;
         const next = { ...empty };
@@ -51,7 +48,6 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
             const value = values[key];
             if (value == null) continue;
             const text = String(value);
-            // Date inputs only accept YYYY-MM-DD.
             (next as Record<string, string>)[key] = /^\d{4}-\d{2}-\d{2}T/.test(text) ? text.slice(0, 10) : text;
         }
         setForm(next);
@@ -73,9 +69,10 @@ interface Persistence<R> {
     create?: (row: R) => Promise<void>;
     update?: (row: R) => Promise<void>;
     remove?: (row: R) => Promise<void>;
+    // Names the record in the modify/delete messages, e.g. "Línea 3".
+    describe?: (row: R) => string;
 }
 
-// Runs the database call; on failure shows the backend's reason and reports false.
 async function persisted(action: Promise<void> | undefined, failure: string) {
     try {
         await action;
@@ -86,18 +83,15 @@ async function persisted(action: Promise<void> | undefined, failure: string) {
     }
 }
 
-// A row that is already gone from the database only needs to leave the table.
 const ignoreNotFound = (error: unknown) => {
     if (!isNotFound(error)) throw error;
 };
 
-// Guardar / Modificar / Eliminar go to the database first and only change the table
-// once the backend accepts them.
 export function catalogoActions<R, T extends { [K in keyof T]: string }>(
     setRows: Dispatch<SetStateAction<R[]>>,
     { form, selected, setSelected, clear, validate }: CatalogoForm<T>,
     toRow: (form: T, previous?: R) => R,
-    { create, update, remove }: Persistence<R> = {}
+    { create, update, remove, describe }: Persistence<R> = {}
 ) {
     return {
         onSave: async () => {
@@ -113,24 +107,24 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
             if (!(await persisted(update?.(updated), 'No se pudo modificar el registro.'))) return;
             setRows((prev) => prev.map((row) => (row === selected ? updated : row)));
             setSelected(updated as object);
-            window.alert('Registro modificado correctamente.');
+            window.alert(describe ? `Se modificó correctamente: ${describe(updated)}.` : 'Registro modificado correctamente.');
         },
         onDelete: async () => {
-            if (!selected || !window.confirm('¿Desea eliminar el registro seleccionado?')) return;
+            if (!selected) return;
+            const deleted = describe?.(selected as R);
+            if (!window.confirm(deleted ? `¿Desea eliminar el registro ${deleted}?` : '¿Desea eliminar el registro seleccionado?')) return;
             if (!(await persisted(remove?.(selected as R).catch(ignoreNotFound), 'No se pudo eliminar el registro.'))) return;
             setRows((prev) => prev.filter((row) => row !== selected));
             clear();
-            window.alert('Registro eliminado correctamente.');
+            window.alert(deleted ? `Se eliminó correctamente: ${deleted}.` : 'Registro eliminado correctamente.');
         },
     };
 }
 
 type FieldStyle = { maxLength?: number; wrap?: number };
 
-// Padding + border of .stc-field-input, so `width` keeps meaning the content width.
 const INPUT_CHROME = 26;
 
-// Fields keep their designed size when there is room, and shrink/wrap to stay inside the box.
 function fluidStyles(width: number, wrap: number, input: CSSProperties) {
     const inputWidth = width + INPUT_CHROME;
     return {

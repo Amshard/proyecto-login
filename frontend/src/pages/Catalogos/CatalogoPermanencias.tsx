@@ -27,7 +27,7 @@ const FIELDS = [
 ];
 
 const COLUMNS: Column<PermanenciaForm>[] = [
-    { header: 'Permanencia', cell: (r) => r.clave },
+    { header: 'Permanencia', cell: (r) => r.clave, indent: 40, fit: true, center: true },
     { header: 'Nombre', cell: (r) => r.nombre },
     { header: 'Descripcion', cell: (r) => r.descripcion },
     { header: 'Siglas', cell: (r) => r.siglas },
@@ -74,10 +74,14 @@ export default function CatalogoPermanencias() {
             onDelete={onDelete}
             editing={selected !== null}
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />}
-            pdfTitle="Catálogo de Permanencias"
+            pdfTitle="CATÁLOGO DE PERMANENCIAS"
             pdfColumns={COLUMNS}
             pdfRows={rows}
             pdfCountLabel="Permanencias"
+            pdfCountTitle="Total Permanencias"
+            pdfNoteLabel="Permanencia"
+            pdfNoteById
+            pdfCountUnderlineSplit
         >
             <DataTable
                 title="Permanencias de la red"
