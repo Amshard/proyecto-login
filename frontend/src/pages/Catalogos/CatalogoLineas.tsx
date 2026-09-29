@@ -167,6 +167,7 @@ export default function CatalogoLineas() {
             pdfCountTitle="Total de Líneas"
             pdfCountBold
             pdfCountUnderline
+            pdfCountUnderlineSplit
             pdfRowPadding={7}
         >
             <DataTable

@@ -72,7 +72,6 @@ export default function CatalogoEstaciones() {
         }));
         const estacionesDeLinea = rows.filter((r) => r.id_linea === idLinea);
         const estacionOptions = estacionesDeLinea.map((r) => ({ value: r.id_estacion, label: r.nombre_estacion }));
-        // Estación only accepts 01 up to the highest station registered on the chosen line.
         const maxEstacion = Math.max(0, ...estacionesDeLinea.map((r) => Number(r.id_estacion) || 0));
         return FIELDS.map((field) => {
             if (field.key === 'id_linea') return { ...field, options: lineaOptions };

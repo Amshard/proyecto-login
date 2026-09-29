@@ -10,13 +10,13 @@ export interface ManualFieldConfig<T extends string = string> {
     padTo?: number;
     allowedChars?: string;
     nonZero?: boolean;
-    // Numeric fields only: accept values from 1 up to this number.
     max?: number;
     wrapStyle?: CSSProperties;
     inputStyle?: CSSProperties;
     breakAfter?: boolean;
     readOnly?: boolean;
     isKey?: boolean;
+    selectOnly?: boolean;
     options?: { value: string; label: string }[];
 }
 
@@ -39,11 +39,11 @@ function ManualField<T extends string>({ config, value, onChange, readOnly }: Ma
             </label>
             <input
                 id={config.id}
-                className="stc-field-input"
+                className={config.selectOnly && !locked ? 'stc-field-input stc-field-input-select' : 'stc-field-input'}
                 type={config.type ?? 'text'}
                 inputMode={config.inputMode}
                 maxLength={config.maxLength}
-                readOnly={locked}
+                readOnly={locked || config.selectOnly}
                 value={value}
                 onChange={(e) => {
                     let next = e.target.value;

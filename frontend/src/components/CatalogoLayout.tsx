@@ -31,6 +31,7 @@ interface CatalogoLayoutProps<R> {
     pdfCountUnderline?: boolean;
     pdfCountUnderlineSplit?: boolean;
     pdfTitleBold?: boolean;
+    pdfRowPadding?: number;
     pdfGroup?: PdfGroup<R>;
     pdfUnofficialNotes?: boolean;
 }
@@ -60,6 +61,7 @@ export default function CatalogoLayout<R>({
     pdfCountUnderline,
     pdfCountUnderlineSplit,
     pdfTitleBold,
+    pdfRowPadding,
     pdfGroup,
     pdfUnofficialNotes,
 }: CatalogoLayoutProps<R>) {
@@ -78,6 +80,7 @@ export default function CatalogoLayout<R>({
             countUnderline: pdfCountUnderline,
             countUnderlineSplit: pdfCountUnderlineSplit,
             titleBold: pdfTitleBold,
+            rowPadding: pdfRowPadding,
             group: pdfGroup,
             unofficialNotes: pdfUnofficialNotes,
         });
@@ -86,7 +89,7 @@ export default function CatalogoLayout<R>({
         return () => {
             URL.revokeObjectURL(url);
         };
-    }, [isCatalogo, pdfColumns, pdfRows, pdfTitle, reportButton, statusLabel, pdfCountLabel, pdfCountTitle, pdfNoteLabel, pdfNoteById, pdfCountBold, pdfCountUnderline, pdfCountUnderlineSplit, pdfTitleBold, pdfGroup, pdfUnofficialNotes]);
+    }, [isCatalogo, pdfColumns, pdfRows, pdfTitle, reportButton, statusLabel, pdfCountLabel, pdfCountTitle, pdfNoteLabel, pdfNoteById, pdfCountBold, pdfCountUnderline, pdfCountUnderlineSplit, pdfTitleBold, pdfRowPadding, pdfGroup, pdfUnofficialNotes]);
 
     const tabs = [
         { key: 'catalogo', label: tabLabel },

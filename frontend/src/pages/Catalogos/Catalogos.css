@@ -213,6 +213,11 @@
   cursor: default;
 }
 
+.stc-manual-field .stc-field-input.stc-field-input-select {
+  background: #fff;
+  cursor: pointer;
+}
+
 .stc-provisional-form {
   box-sizing: border-box;
   width: 100%;
