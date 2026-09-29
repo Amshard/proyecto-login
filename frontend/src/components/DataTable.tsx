@@ -15,15 +15,15 @@ interface DataTableProps<R> {
     rows: R[];
     className?: string;
     onRowSelect?: (row: R) => void;
-    selectedRow?: unknown;
 }
 
-export default function DataTable<R>({ title, columns, rows, className, onRowSelect, selectedRow }: DataTableProps<R>) {
+export default function DataTable<R>({ title, columns, rows, className, onRowSelect }: DataTableProps<R>) {
     const [selected, setSelected] = useState({ row: 0, col: 0 });
     const cellRefs = useRef<(HTMLTableCellElement | null)[][]>([]);
 
     const loadRow = (row: number) => {
-        if (rows[row] !== undefined && rows[row] !== selectedRow) onRowSelect?.(rows[row]);
+        // Reloading the already selected row is allowed so it discards unsaved edits in the fields.
+        if (rows[row] !== undefined) onRowSelect?.(rows[row]);
     };
 
     const focusCell = (row: number, col: number) => {

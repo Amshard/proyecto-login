@@ -88,7 +88,6 @@ export default function CatalogoPermanencias() {
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}
-                selectedRow={selected}
             />
         </CatalogoLayout>
     );

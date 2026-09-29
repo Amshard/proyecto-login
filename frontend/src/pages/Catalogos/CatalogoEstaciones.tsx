@@ -13,7 +13,7 @@ const EMPTY_FORM: EstacionForm = { id_linea: '', id_estacion: '', nombre_estacio
 const FIELDS = [
     { ...codeField('id_linea', 'Línea', 2, { numeric: true, padTo: 2 }), isKey: true },
     { ...textField('nombre_linea', 'Nombre', 280), readOnly: true, breakAfter: true },
-    codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 }),
+    { ...codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 }), isKey: true },
     textField('nombre_estacion', 'Nombre', 280, { maxLength: 25 }),
 ];
 
@@ -49,6 +49,14 @@ export default function CatalogoEstaciones() {
     const idLinea = padCode(form.id_linea);
     const linea = lineas.find((l) => l.id_linea === idLinea);
     const nombreLinea = linea ? [linea.nombre_dirlin1, linea.nombre_dirlin2].filter(Boolean).join('-') : '';
+
+    const onFieldChange = (key: string, value: string) => {
+        updateField(key as keyof EstacionForm, value);
+        if (key !== 'id_estacion') return;
+        const idEstacion = padCode(value);
+        const estacion = rows.find((r) => r.id_linea === idLinea && r.id_estacion === idEstacion);
+        updateField('nombre_estacion', estacion?.nombre_estacion ?? '');
+    };
 
     const pdfRows = useMemo(() => rows.filter((r) => r.id_linea !== '00'), [rows]);
 
@@ -96,7 +104,7 @@ export default function CatalogoEstaciones() {
                 <ManualFields
                     fields={fields}
                     form={{ ...form, nombre_linea: nombreLinea }}
-                    onChange={(key, value) => updateField(key as keyof EstacionForm, value)}
+                    onChange={onFieldChange}
                     lockKeys={selected !== null}
                 />
             }
@@ -115,7 +123,6 @@ export default function CatalogoEstaciones() {
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}
-                selectedRow={selected}
             />
         </CatalogoLayout>
     );

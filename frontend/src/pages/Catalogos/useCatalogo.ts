@@ -133,6 +133,18 @@ function fluidStyles(width: number, wrap: number, input: CSSProperties) {
     };
 }
 
+// Characters allowed in Línea/Estación codes: digits plus the lettered lines (0A, 0B).
+export const CODE_CHARS = '0123456789AB';
+
+export const padCode = (value: string) => (value ? value.padStart(2, '0') : '');
+
+// True when some existing code can still be reached from what has been typed so far.
+// A single character also matches its padded form, so "A" is accepted for 0A.
+export const isCodePrefix = (typed: string, codes: string[]) => {
+    const value = typed.toUpperCase();
+    return codes.some((code) => code.startsWith(value) || code === padCode(value));
+};
+
 export function codeField<T extends string>(
     key: T,
     label: string,

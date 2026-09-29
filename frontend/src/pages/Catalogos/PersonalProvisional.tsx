@@ -139,7 +139,6 @@ export default function PersonalProvisional() {
                     columns={COLUMNS}
                     rows={rows}
                     onRowSelect={fill}
-                    selectedRow={selected}
                 />
             </div>
         </CatalogoLayout>

@@ -6,7 +6,7 @@ import stcLogo from '../assets/stc.png?inline';
 
 const LOGO_TOP = 10;
 const LOGO_WIDTH = 140;
-const LOGO_HEIGHT = (LOGO_WIDTH * 463) / 1504;
+const LOGO_HEIGHT = (LOGO_WIDTH * 463) / 1504 + 5;
 const STC_LOGO_HEIGHT = LOGO_HEIGHT + 5;
 const STC_LOGO_WIDTH = (STC_LOGO_HEIGHT * 369) / 150;
 
@@ -36,7 +36,12 @@ export interface CatalogoPdfOptions<R> {
     unofficialNotes?: boolean;
 }
 
-const byCode = (a: string, b: string) => a.localeCompare(b, undefined, { numeric: true });
+// Same-length codes sort by plain character order so digits come before letters (09 < 0A < 0B < 12);
+// codes of different lengths sort numerically (2 < 10).
+const byCode = (a: string, b: string) =>
+    a.length === b.length
+        ? a < b ? -1 : a > b ? 1 : 0
+        : a.localeCompare(b, undefined, { numeric: true });
 
 const GROUP_TABLE_TOP = 76;
 

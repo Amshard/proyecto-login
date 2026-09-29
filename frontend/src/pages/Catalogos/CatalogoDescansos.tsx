@@ -59,7 +59,6 @@ export default function CatalogoDescansos() {
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}
-                selectedRow={selected}
             />
         </CatalogoLayout>
     );

@@ -18,6 +18,8 @@ export interface ManualFieldConfig<T extends string = string> {
     isKey?: boolean;
     selectOnly?: boolean;
     options?: { value: string; label: string }[];
+    // Rejects typed values it returns false for (e.g. codes that match no existing record).
+    accept?: (value: string) => boolean;
 }
 
 interface ManualFieldProps<T extends string> {
@@ -54,6 +56,7 @@ function ManualField<T extends string>({ config, value, onChange, readOnly }: Ma
                     if (allowedChars) {
                         next = [...next].filter((c) => allowedChars.includes(c.toUpperCase())).join('');
                     }
+                    if (config.accept && next && !config.accept(next)) return;
                     onChange(next);
                 }}
                 onFocus={() => setOpen(true)}

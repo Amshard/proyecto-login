@@ -3,7 +3,15 @@ import { createLinea, deleteLinea, getLineas, getPermanencias, type Linea, updat
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
-import { catalogoActions, codeField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import {
+    catalogoActions,
+    CODE_CHARS,
+    codeField,
+    isCodePrefix,
+    textField,
+    useCatalogoForm,
+    useCatalogoRows,
+} from './useCatalogo';
 
 interface LineaConPermanencia extends Linea {
     nombre_perma: string | null;
@@ -32,7 +40,7 @@ const EMPTY_FORM: LineaForm = {
 const COUNT = { width: 60, wrap: 80, numeric: true, nonZero: true };
 
 const FIELDS = [
-    { ...codeField('id_linea', 'Línea', 2, { numeric: true, padTo: 2 }), isKey: true },
+    { ...codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS }), isKey: true },
     { ...codeField('dirdelinea1', 'DirIni', 5, { width: 50, wrap: 70, numeric: true }), readOnly: true },
     textField('nombre_dirlin1', 'Nombre Dirdelinea1', 150, { maxLength: 20 }),
     { ...codeField('dirdelinea2', 'DirFin', 5, { width: 50, wrap: 70, numeric: true }), readOnly: true },
@@ -45,7 +53,10 @@ const FIELDS = [
 
 const REQUIRED = FIELDS.map((field) => field.key);
 
-const NOMBRE_PERMA_FIELD = { ...textField('nombre_perma', 'Nombre Permanencia', 150), readOnly: true };
+const PERMA_FIELDS = [
+    { ...textField('nombre_perma', 'Nombre Permanencia', 150), readOnly: true },
+    { ...textField('descripcion', 'Descripción', 250), readOnly: true },
+];
 
 const COLUMNS: Column<LineaConPermanencia>[] = [
     { header: 'Línea', cell: (r) => r.id_linea },
@@ -110,14 +121,21 @@ export default function CatalogoLineas() {
 
     const fields = useMemo(() => {
         const options = permanencias.map((p) => ({ value: p.id_permanencia, label: p.nombre_perma }));
-        const withOptions = FIELDS.map((field) => (field.key === 'id_permanencia' ? { ...field, options } : field));
-        const nombrePerma = form.id_permanencia
-            ? NOMBRE_PERMA_FIELD
-            : { ...NOMBRE_PERMA_FIELD, wrapStyle: { ...NOMBRE_PERMA_FIELD.wrapStyle, visibility: 'hidden' as const } };
-        return [...withOptions, nombrePerma];
-    }, [permanencias, form.id_permanencia]);
+        const allowedChars = permanencias.map((p) => p.id_permanencia).join('');
+        const lineaCodes = rows.map((r) => r.id_linea);
+        const withOptions = FIELDS.map((field) => {
+            if (field.key === 'id_linea') return { ...field, accept: (v: string) => isCodePrefix(v, lineaCodes) };
+            if (field.key === 'id_permanencia') return { ...field, options, allowedChars };
+            return field;
+        });
+        const permaFields = form.id_permanencia
+            ? PERMA_FIELDS
+            : PERMA_FIELDS.map((field) => ({ ...field, wrapStyle: { ...field.wrapStyle, visibility: 'hidden' as const } }));
+        return [...withOptions, ...permaFields];
+    }, [rows, permanencias, form.id_permanencia]);
 
-    const onFieldChange = (key: keyof LineaForm, value: string) => {
+    const onFieldChange = (key: keyof LineaForm, rawValue: string) => {
+        const value = key === 'id_linea' ? rawValue.toUpperCase() : rawValue;
         updateField(key, value);
         if (key !== 'id_permanencia') return;
         const permanencia = permanencias.find((p) => p.id_permanencia === value);
@@ -142,6 +160,12 @@ export default function CatalogoLineas() {
         describe: (r) => `Línea ${r.id_linea}`,
     });
 
+    const sortedRows = useMemo(
+        // Plain character order puts digits before letters: 09 < 0A < 0B < 12.
+        () => [...rows].sort((a, b) => (a.id_linea < b.id_linea ? -1 : a.id_linea > b.id_linea ? 1 : 0)),
+        [rows],
+    );
+
     return (
         <CatalogoLayout
             tabLabel="Catálogo de Líneas"
@@ -162,7 +186,7 @@ export default function CatalogoLineas() {
             }
             pdfTitle="CATALOGO DE LÍNEAS"
             pdfColumns={PDF_COLUMNS}
-            pdfRows={rows}
+            pdfRows={sortedRows}
             pdfCountLabel="Líneas"
             pdfCountTitle="Total de Líneas"
             pdfCountBold
@@ -174,9 +198,8 @@ export default function CatalogoLineas() {
                 title="Líneas de la red"
                 className="stc-table-lineas"
                 columns={COLUMNS}
-                rows={rows}
+                rows={sortedRows}
                 onRowSelect={fill}
-                selectedRow={selected}
             />
         </CatalogoLayout>
     );

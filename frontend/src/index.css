@@ -182,7 +182,8 @@ code {
   cursor: pointer;
 }
 
-.stc-nav-btn:hover {
+.stc-nav-btn:hover,
+.stc-nav-btn:focus-visible {
   background: rgb(136, 80, 33);
 }
 
@@ -244,7 +245,8 @@ code {
   left: 100%;
 }
 
-.stc-submenu-btn:hover {
+.stc-submenu-btn:hover,
+.stc-submenu-btn:focus-visible {
   background: #bdbdbd;
 }
 

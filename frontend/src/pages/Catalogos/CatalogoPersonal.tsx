@@ -125,7 +125,6 @@ export default function CatalogoPersonal() {
                 columns={COLUMNS}
                 rows={displayedRows}
                 onRowSelect={fill}
-                selectedRow={selected}
             />
         </CatalogoLayout>
     );

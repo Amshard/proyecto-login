@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { type KeyboardEvent, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { ARROW_KEYS, navbarTopButtons, sideButtons } from './keyboardNav';
 
 function slugify(text: string): string {
     return text
@@ -50,6 +52,9 @@ const NAV_ITEMS = [
     { label: 'A Excel', items: ['Personal de Taquilla', 'Calificaciones', 'Personal_vacaciones', 'Rol vigente para Dias Economicos', 'Respalda Personal de Taquilla', 'Respalda Calificaciones'] },
 ];
 
+const listButtons = (list: Element) =>
+    Array.from(list.querySelectorAll<HTMLButtonElement>(':scope > li > .stc-submenu-btn'));
+
 export default function Navbar() {
     const navigate = useNavigate();
     const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -65,13 +70,121 @@ export default function Navbar() {
         navigate(`/dashboard/${path}`, { state });
     };
 
+    // With nothing focused, any arrow key starts keyboard navigation on the navbar.
+    useEffect(() => {
+        const onDocumentKeyDown = (e: globalThis.KeyboardEvent) => {
+            const active = document.activeElement;
+            if (!ARROW_KEYS.includes(e.key) || (active && active !== document.body)) return;
+            const first = navbarTopButtons()[0];
+            if (!first) return;
+            e.preventDefault();
+            first.focus();
+        };
+        document.addEventListener('keydown', onDocumentKeyDown);
+        return () => document.removeEventListener('keydown', onDocumentKeyDown);
+    }, []);
+
+    // Focuses a top-level button, opening its menu on the first item when it has one.
+    const focusTop = (button: HTMLButtonElement, open: boolean) => {
+        const menu = button.dataset.menu;
+        flushSync(() => {
+            setOpenMenu(open && menu ? menu : null);
+            setOpenSubMenu(null);
+        });
+        const list = open && menu ? button.parentElement?.querySelector(':scope > .stc-submenu') : null;
+        (list ? listButtons(list)[0] : button)?.focus();
+    };
+
+    const openFlyout = (button: HTMLButtonElement) => {
+        flushSync(() => setOpenSubMenu(button.dataset.submenu ?? null));
+        const flyout = button.parentElement?.querySelector(':scope > .stc-submenu-flyout');
+        if (flyout) listButtons(flyout)[0]?.focus();
+    };
+
+    // Arrow keys move between menus and items, Enter opens a menu or runs an item, Escape backs out.
+    const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+        const target = e.target;
+        if (!(target instanceof HTMLButtonElement)) return;
+        const tops = navbarTopButtons();
+        const wrap = (i: number) => tops[(i + tops.length) % tops.length];
+
+        const topIndex = tops.indexOf(target);
+        if (topIndex >= 0) {
+            const side = sideButtons()[0];
+            if (e.key === 'ArrowLeft' && topIndex === 0 && side) {
+                // Left of the first menu is the button column on the left of the page.
+                closeMenus();
+                side.focus();
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                focusTop(wrap(topIndex + (e.key === 'ArrowRight' ? 1 : -1)), openMenu !== null);
+            } else if ((e.key === 'ArrowDown' || e.key === 'Enter') && target.dataset.menu) {
+                focusTop(target, true);
+            } else if (e.key === 'Escape') {
+                closeMenus();
+            } else {
+                return;
+            }
+            e.preventDefault();
+            return;
+        }
+
+        const list = target.closest('ul');
+        const topButton = target.closest('.stc-nav-item')?.querySelector<HTMLButtonElement>(':scope > .stc-nav-btn');
+        if (!list || !topButton) return;
+        const items = listButtons(list);
+        const index = items.indexOf(target);
+        const inFlyout = list.classList.contains('stc-submenu-flyout');
+        const groupButton = inFlyout ? list.parentElement?.querySelector<HTMLButtonElement>(':scope > .stc-submenu-btn') : null;
+        const backToGroup = () => {
+            flushSync(() => setOpenSubMenu(null));
+            groupButton?.focus();
+        };
+
+        switch (e.key) {
+            case 'ArrowDown':
+                items[(index + 1) % items.length]?.focus();
+                break;
+            case 'ArrowUp':
+                items[(index - 1 + items.length) % items.length]?.focus();
+                break;
+            case 'ArrowRight':
+                if (target.dataset.submenu) openFlyout(target);
+                else focusTop(wrap(tops.indexOf(topButton) + 1), true);
+                break;
+            case 'ArrowLeft':
+                if (inFlyout) backToGroup();
+                else focusTop(wrap(tops.indexOf(topButton) - 1), true);
+                break;
+            case 'Enter':
+                if (!target.dataset.submenu) return; // plain items run through their click handler
+                openFlyout(target);
+                break;
+            case 'Escape':
+                if (inFlyout) backToGroup();
+                else focusTop(topButton, false);
+                break;
+            default:
+                return;
+        }
+        e.preventDefault();
+    };
+
     return (
-        <nav className="stc-navbar">
+        <nav
+            className="stc-navbar"
+            onKeyDown={onKeyDown}
+            onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) closeMenus();
+            }}
+        >
             {NAV_ITEMS.map((navItem) => (
                 <div key={navItem.label} className="stc-nav-item" onMouseLeave={closeMenus}>
                     <button
                         type="button"
                         className="stc-nav-btn"
+                        data-menu={navItem.label}
+                        aria-haspopup="menu"
+                        aria-expanded={openMenu === navItem.label}
                         onClick={() => setOpenMenu((prev) => (prev === navItem.label ? null : navItem.label))}
                     >
                         {navItem.label}
@@ -93,9 +206,13 @@ export default function Navbar() {
                                         <button
                                             type="button"
                                             className="stc-submenu-btn"
+                                            data-submenu={group ? subMenuKey : undefined}
+                                            aria-haspopup={group ? 'menu' : undefined}
+                                            aria-expanded={group ? openSubMenu === subMenuKey : undefined}
                                             onClick={() =>
-                                                !group &&
-                                                go(`${slugify(navItem.label)}/${slugify(label)}`, {
+                                                group
+                                                    ? setOpenSubMenu(subMenuKey)
+                                                    : go(`${slugify(navItem.label)}/${slugify(label)}`, {
                                                     title: label,
                                                     section: navItem.label,
                                                 })
