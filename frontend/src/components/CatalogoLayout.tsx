@@ -124,9 +124,11 @@ export default function CatalogoLayout<R>({
                         </button>
                         {editing ? (
                             <>
-                                <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onModify}>
-                                    Modificar
-                                </button>
+                                {onModify && (
+                                    <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onModify}>
+                                        Modificar
+                                    </button>
+                                )}
                                 <button type="button" className="stc-btn stc-exit-btn stc-delete-btn" onClick={onDelete}>
                                     Eliminar
                                 </button>

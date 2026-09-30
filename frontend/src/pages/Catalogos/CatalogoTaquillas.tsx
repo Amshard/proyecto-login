@@ -36,8 +36,6 @@ const EMPTY_FORM: TaquillaForm = {
     id_estacion: '',
 };
 
-// A taquilla code is Línea + Estación + one digit (01023); the Taquilla box only holds that last digit,
-// so Línea and Estación are part of the key too.
 const taquillaCode = (linea: string, estacion: string, digit: string) =>
     padCode(linea) + padCode(estacion) + digit.slice(-1);
 
@@ -52,7 +50,6 @@ const FIELDS = [
     textField('extension_tel', 'Extensión', 110, { maxLength: 10, wrap: 130 }),
 ];
 
-// Extensión is optional: a new taquilla may not have its phone line yet.
 const REQUIRED = (Object.keys(EMPTY_FORM) as (keyof TaquillaForm)[]).filter((key) => key !== 'extension_tel');
 
 const COLUMNS: Column<Taquilla>[] = [
@@ -103,7 +100,6 @@ export default function CatalogoTaquillas() {
         const l = lineas.find((item) => item.id_linea === id);
         return l ? [l.nombre_dirlin1, l.nombre_dirlin2].filter(Boolean).join('-') : '';
     };
-    // Look up with the padded code so a single typed digit already matches (1 -> 01).
     const idLinea = padCode(form.id_linea);
     const idEstacion = padCode(form.id_estacion);
     const nombreEstacion =
@@ -132,12 +128,9 @@ export default function CatalogoTaquillas() {
 
     const onFieldChange = (key: string, rawValue: string) => {
         const value = key === 'id_linea' || key === 'id_estacion' ? rawValue.toUpperCase() : rawValue;
-        // A different line invalidates the chosen station (padding 1 -> 01 on blur is the same line).
         if (key === 'id_linea' && padCode(value) !== idLinea) updateField('id_estacion', '');
         updateField(key as keyof TaquillaForm, value);
         if (key !== 'id_taquilla' || !value || !form.id_linea || !form.id_estacion) return;
-        // An existing taquilla loads its record (Turno, Dir. Línea, etc.) like a double-click;
-        // the typed turno wins when the taquilla has several.
         const id = taquillaCode(form.id_linea, form.id_estacion, value);
         const matches = rows.filter((r) => r.id_taquilla === id);
         const match = matches.find((r) => r.turno === form.turno) ?? matches[0];
@@ -154,13 +147,12 @@ export default function CatalogoTaquillas() {
             onModify={onModify}
             onDelete={onDelete}
             editing={selected !== null}
-            reportButton="Reporte Taquillas en Operaciones"
+            reportButton="Reporte Taquillas en Operacion"
             fields={
                 <ManualFields
                     fields={fields}
                     form={{
                         ...form,
-                        // A loaded record holds the full code; the box shows only its last digit.
                         id_taquilla: form.id_taquilla.slice(-1),
                         nombre_linea: nombreDeLinea(idLinea),
                         nombre_estacion: nombreEstacion,
@@ -180,6 +172,7 @@ export default function CatalogoTaquillas() {
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}
+                activeRow={selected as Taquilla | null}
             />
         </CatalogoLayout>
     );

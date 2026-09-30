@@ -97,10 +97,10 @@ code {
 }
 
 .stc-header-accent {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
-  bottom: -100vh;
+  bottom: 0;
   width: 115px;
   background: var(--accent);
   z-index: 4;

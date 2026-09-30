@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { memo, useEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 
 export interface Column<R> {
     header: string;
@@ -15,24 +15,106 @@ interface DataTableProps<R> {
     rows: R[];
     className?: string;
     onRowSelect?: (row: R) => void;
+    // Row loaded in the form; the table selects it and scrolls it into view.
+    activeRow?: R | null;
 }
 
-export default function DataTable<R>({ title, columns, rows, className, onRowSelect }: DataTableProps<R>) {
+interface DataTableRowProps<R> {
+    row: R;
+    rowIndex: number;
+    columns: Column<R>[];
+    // Column of the selected cell in this row, or -1 when the selection is elsewhere.
+    selectedCol: number;
+    highlighted: boolean;
+}
+
+// Memoized so moving the selection only re-renders the rows it leaves and enters.
+const DataTableRow = memo(function DataTableRow<R>({ row, rowIndex, columns, selectedCol, highlighted }: DataTableRowProps<R>) {
+    return (
+        <tr data-row={rowIndex} className={highlighted ? 'stc-table-row-active' : undefined}>
+            {columns.map((col, colIndex) => (
+                <td
+                    key={colIndex}
+                    data-col={colIndex}
+                    tabIndex={selectedCol === colIndex ? 0 : -1}
+                    className={selectedCol === colIndex ? 'stc-table-cell-selected' : undefined}
+                >
+                    {col.cell(row)}
+                </td>
+            ))}
+        </tr>
+    );
+}) as <R>(props: DataTableRowProps<R>) => ReactNode;
+
+// Row/column of the cell an event came from, read from the data attributes set above.
+const cellPosition = (target: EventTarget) => {
+    const cell = (target as HTMLElement).closest<HTMLTableCellElement>('td[data-col]');
+    const tr = cell?.parentElement;
+    if (!cell || !tr?.dataset.row) return null;
+    return { row: Number(tr.dataset.row), col: Number(cell.dataset.col) };
+};
+
+export default function DataTable<R>({ title, columns, rows, className, onRowSelect, activeRow }: DataTableProps<R>) {
     const [selected, setSelected] = useState({ row: 0, col: 0 });
-    const cellRefs = useRef<(HTMLTableCellElement | null)[][]>([]);
+    const [syncedRow, setSyncedRow] = useState(activeRow);
+    const bodyRef = useRef<HTMLTableSectionElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    // Row just loaded by double click/Enter, and whether the current activeRow came from there.
+    const [loadedFromTable, setLoadedFromTable] = useState<R | null>(null);
+    const [activeFromTable, setActiveFromTable] = useState(false);
+
+    // Follow a record loaded from outside the table (e.g. autofilled from the input fields).
+    if (activeRow !== syncedRow) {
+        setSyncedRow(activeRow);
+        setActiveFromTable(activeRow != null && activeRow === loadedFromTable);
+        setLoadedFromTable(null);
+        const index = activeRow == null ? -1 : rows.indexOf(activeRow);
+        if (index >= 0 && index !== selected.row) setSelected({ row: index, col: selected.col });
+    }
+
+    useEffect(() => {
+        // A row loaded from the table itself is already in view; don't move it.
+        if (activeRow == null || activeFromTable) return;
+        const container = scrollRef.current;
+        const tr = bodyRef.current?.rows[rows.indexOf(activeRow)];
+        if (!container || !tr) return;
+        // Scroll only the table box so the row sits at the top, just under the sticky header;
+        // the browser clamps it when the row is too close to the end to reach the top.
+        const header = container.querySelector('thead')?.getBoundingClientRect().height ?? 0;
+        const box = container.getBoundingClientRect();
+        container.scrollTop += tr.getBoundingClientRect().top - (box.top + header);
+    }, [activeRow, activeFromTable, rows]);
+
+    // A record loaded from outside the table (autofill) gets its whole line highlighted.
+    const highlightedRow = activeRow != null && !activeFromTable ? rows.indexOf(activeRow) : -1;
 
     const loadRow = (row: number) => {
         // Reloading the already selected row is allowed so it discards unsaved edits in the fields.
-        if (rows[row] !== undefined) onRowSelect?.(rows[row]);
+        if (rows[row] === undefined) return;
+        setLoadedFromTable(rows[row]);
+        onRowSelect?.(rows[row]);
     };
 
     const focusCell = (row: number, col: number) => {
-        const cell = cellRefs.current[row]?.[col];
+        const cell = bodyRef.current?.rows[row]?.cells[col];
         if (!cell) return;
         cell.focus();
     };
 
-    const handleKeyDown = (e: KeyboardEvent<HTMLTableCellElement>, row: number, col: number) => {
+    const handleFocus = (e: FocusEvent<HTMLTableSectionElement>) => {
+        const pos = cellPosition(e.target);
+        if (pos && (pos.row !== selected.row || pos.col !== selected.col)) setSelected(pos);
+    };
+
+    const handleDoubleClick = (e: MouseEvent<HTMLTableSectionElement>) => {
+        const pos = cellPosition(e.target);
+        if (pos) loadRow(pos.row);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLTableSectionElement>) => {
+        const pos = cellPosition(e.target);
+        if (!pos) return;
+        const { row, col } = pos;
         if (e.key === 'Enter') {
             e.preventDefault();
             loadRow(row);
@@ -63,7 +145,7 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
     return (
         <fieldset className="stc-table-frame">
             <legend className="stc-table-frame-title">{title}</legend>
-            <div className="stc-table-scroll">
+            <div className="stc-table-scroll" ref={scrollRef}>
                 <table className={`stc-table${className ? ` ${className}` : ''}`}>
                     <thead>
                         <tr>
@@ -72,29 +154,21 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
                             ))}
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody
+                        ref={bodyRef}
+                        onFocus={handleFocus}
+                        onDoubleClick={handleDoubleClick}
+                        onKeyDown={handleKeyDown}
+                    >
                         {rows.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                                {columns.map((col, colIndex) => (
-                                    <td
-                                        key={colIndex}
-                                        ref={(el) => {
-                                            (cellRefs.current[rowIndex] ??= [])[colIndex] = el;
-                                        }}
-                                        tabIndex={selected.row === rowIndex && selected.col === colIndex ? 0 : -1}
-                                        className={
-                                            selected.row === rowIndex && selected.col === colIndex
-                                                ? 'stc-table-cell-selected'
-                                                : undefined
-                                        }
-                                        onFocus={() => setSelected({ row: rowIndex, col: colIndex })}
-                                        onDoubleClick={() => loadRow(rowIndex)}
-                                        onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
-                                    >
-                                        {col.cell(row)}
-                                    </td>
-                                ))}
-                            </tr>
+                            <DataTableRow
+                                key={rowIndex}
+                                row={row}
+                                rowIndex={rowIndex}
+                                columns={columns}
+                                selectedCol={selected.row === rowIndex ? selected.col : -1}
+                                highlighted={highlightedRow === rowIndex}
+                            />
                         ))}
                     </tbody>
                 </table>

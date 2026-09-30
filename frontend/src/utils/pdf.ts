@@ -30,14 +30,11 @@ export interface CatalogoPdfOptions<R> {
     countUnderline?: boolean;
     countUnderlineSplit?: boolean;
     titleBold?: boolean;
-    // Space above and below the text of each body row.
     rowPadding?: number;
     group?: PdfGroup<R>;
     unofficialNotes?: boolean;
 }
 
-// Same-length codes sort by plain character order so digits come before letters (09 < 0A < 0B < 12);
-// codes of different lengths sort numerically (2 < 10).
 const byCode = (a: string, b: string) =>
     a.length === b.length
         ? a < b ? -1 : a > b ? 1 : 0
@@ -193,8 +190,11 @@ export function buildCatalogoPdfBlob<R>(
         });
         finalY ??= lastTableY();
     } else {
-        drawHeader();
-        drawTable(rows, true, { startY: 78 });
+        drawTable(rows, true, {
+            startY: 78,
+            margin: { left: 20, right: 20, top: 78 },
+            didDrawPage: drawHeader,
+        });
         finalY = lastTableY();
     }
 

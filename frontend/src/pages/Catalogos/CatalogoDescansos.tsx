@@ -1,4 +1,4 @@
-import { createDescanso, deleteDescanso, type Descanso, getDescansos, updateDescanso } from '../../api/catalogos';
+import { createDescanso, deleteDescanso, type Descanso, getDescansos } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
@@ -26,13 +26,12 @@ export default function CatalogoDescansos() {
     const [rows, setRows] = useCatalogoRows(getDescansos);
     const catalogoForm = useCatalogoForm(EMPTY_FORM);
     const { form, selected, updateField, clear, fill } = catalogoForm;
-    const { onSave, onModify, onDelete } = catalogoActions(
+    const { onSave, onDelete } = catalogoActions(
         setRows,
         catalogoForm,
         (f) => ({ ...f }),
         {
             create: createDescanso,
-            update: updateDescanso,
             remove: (r) => deleteDescanso(r.id_descansos),
         },
     );
@@ -44,10 +43,9 @@ export default function CatalogoDescansos() {
             count={rows.length}
             onClear={clear}
             onSave={onSave}
-            onModify={onModify}
             onDelete={onDelete}
             editing={selected !== null}
-            fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />}
+            fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockAll={selected !== null} />}
             pdfTitle="Catálogo de Descansos"
             pdfColumns={COLUMNS}
             pdfRows={rows}

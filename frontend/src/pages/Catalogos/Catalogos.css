@@ -352,6 +352,10 @@
   background: #dbe4ff;
 }
 
+.stc-table-row-active td {
+  background: #dbe4ff;
+}
+
 .stc-table-descansos th:nth-child(1) {
   width: 10%;
 }

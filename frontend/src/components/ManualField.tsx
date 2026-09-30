@@ -101,9 +101,10 @@ interface ManualFieldsProps<T extends string> {
     onChange: (key: T, value: string) => void;
     className?: string;
     lockKeys?: boolean;
+    lockAll?: boolean;
 }
 
-export function ManualFields<T extends string>({ fields, form, onChange, className, lockKeys }: ManualFieldsProps<T>) {
+export function ManualFields<T extends string>({ fields, form, onChange, className, lockKeys, lockAll }: ManualFieldsProps<T>) {
     return (
         <div className={className ?? 'stc-manual-fields'}>
             {fields.map((config) => (
@@ -112,7 +113,7 @@ export function ManualFields<T extends string>({ fields, form, onChange, classNa
                         config={config}
                         value={form[config.key]}
                         onChange={(value) => onChange(config.key, value)}
-                        readOnly={lockKeys && config.isKey}
+                        readOnly={lockAll || (lockKeys && config.isKey)}
                     />
                     {config.breakAfter && <div className="stc-field-break" />}
                 </Fragment>

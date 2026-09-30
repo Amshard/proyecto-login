@@ -119,7 +119,7 @@ export default function PersonalProvisional() {
             onModify={onModify}
             onDelete={onDelete}
             editing={selected !== null}
-            reportButton="Califica X rango por cambio de linea-y turno"
+            reportButton="Califica Turnos=4 Líneas=4"
             pdfTitle="Catálogo de Personal Provisional"
             pdfColumns={COLUMNS}
             pdfRows={rows}
