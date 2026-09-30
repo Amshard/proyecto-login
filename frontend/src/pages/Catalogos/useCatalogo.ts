@@ -1,12 +1,11 @@
 import { useEffect, useState, type CSSProperties, type Dispatch, type SetStateAction } from 'react';
-import { apiErrorMessage, isNotFound } from '../../api/catalogos';
+import { apiErrorMessage, isNotFound, type Linea } from '../../api/catalogos';
 import type { ManualFieldConfig } from '../../components/ManualField';
 
-export function useCatalogoRows<R>(load?: () => Promise<R[]>) {
+export function useCatalogoRows<R>(load: () => Promise<R[]>) {
     const [rows, setRows] = useState<R[]>([]);
 
     useEffect(() => {
-        if (!load) return;
         let active = true;
         load()
             .then((data) => {
@@ -66,14 +65,15 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
 type CatalogoForm<T> = ReturnType<typeof useCatalogoForm<T & { [K in keyof T]: string }>>;
 
 interface Persistence<R> {
-    create?: (row: R) => Promise<void>;
+    create: (row: R) => Promise<void>;
+    // Without it the catalogo offers no Modificar button.
     update?: (row: R) => Promise<void>;
-    remove?: (row: R) => Promise<void>;
+    remove: (row: R) => Promise<void>;
     // Names the record in the modify/delete messages, e.g. "Línea 3".
     describe?: (row: R) => string;
 }
 
-async function persisted(action: Promise<void> | undefined, failure: string) {
+async function persisted(action: Promise<void>, failure: string) {
     try {
         await action;
         return true;
@@ -91,29 +91,29 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
     setRows: Dispatch<SetStateAction<R[]>>,
     { form, selected, setSelected, clear, validate }: CatalogoForm<T>,
     toRow: (form: T, previous?: R) => R,
-    { create, update, remove, describe }: Persistence<R> = {}
+    { create, update, remove, describe }: Persistence<R>
 ) {
     return {
         onSave: async () => {
             if (!validate()) return false;
             const row = toRow(form);
-            if (!(await persisted(create?.(row), 'No se pudo guardar el registro.'))) return false;
+            if (!(await persisted(create(row), 'No se pudo guardar el registro.'))) return false;
             setRows((prev) => [...prev, row]);
             return true;
         },
-        onModify: async () => {
+        onModify: update && (async () => {
             if (!selected || !validate()) return;
             const updated = toRow(form, selected as R);
-            if (!(await persisted(update?.(updated), 'No se pudo modificar el registro.'))) return;
+            if (!(await persisted(update(updated), 'No se pudo modificar el registro.'))) return;
             setRows((prev) => prev.map((row) => (row === selected ? updated : row)));
             setSelected(updated as object);
             window.alert(describe ? `Se modificó correctamente: ${describe(updated)}.` : 'Registro modificado correctamente.');
-        },
+        }),
         onDelete: async () => {
             if (!selected) return;
             const deleted = describe?.(selected as R);
             if (!window.confirm(deleted ? `¿Desea eliminar el registro ${deleted}?` : '¿Desea eliminar el registro seleccionado?')) return;
-            if (!(await persisted(remove?.(selected as R).catch(ignoreNotFound), 'No se pudo eliminar el registro.'))) return;
+            if (!(await persisted(remove(selected as R).catch(ignoreNotFound), 'No se pudo eliminar el registro.'))) return;
             setRows((prev) => prev.filter((row) => row !== selected));
             clear();
             window.alert(deleted ? `Se eliminó correctamente: ${deleted}.` : 'Registro eliminado correctamente.');
@@ -137,6 +137,10 @@ function fluidStyles(width: number, wrap: number, input: CSSProperties) {
 export const CODE_CHARS = '0123456789AB';
 
 export const padCode = (value: string) => (value ? value.padStart(2, '0') : '');
+
+// "Terminal 1-Terminal 2" name of a línea, as shown next to its code.
+export const lineaName = (linea: Linea | undefined) =>
+    linea ? [linea.nombre_dirlin1, linea.nombre_dirlin2].filter(Boolean).join('-') : '';
 
 // True when some existing code can still be reached from what has been typed so far.
 // A single character also matches its padded form, so "A" is accepted for 0A.

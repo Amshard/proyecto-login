@@ -96,16 +96,11 @@ export default function PersonalProvisional() {
     const [rows, setRows] = useCatalogoRows(loadGaceta);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['ingreso'] });
     const { form, selected, updateField, clear, fill } = catalogoForm;
-    const { onSave, onModify, onDelete } = catalogoActions(
-        setRows,
-        catalogoForm,
-        (f) => ({ ...f }),
-        {
-            create: (r) => createPersonalGaceta(formToGaceta(r)),
-            update: (r) => updatePersonalGaceta(formToGaceta(r)),
-            remove: (r) => deletePersonalGaceta(Number(r.expediente)),
-        },
-    );
+    const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
+        create: (r) => createPersonalGaceta(formToGaceta(r)),
+        update: (r) => updatePersonalGaceta(formToGaceta(r)),
+        remove: (r) => deletePersonalGaceta(Number(r.expediente)),
+    });
 
     return (
         <CatalogoLayout
@@ -113,17 +108,13 @@ export default function PersonalProvisional() {
             statusLabel="Catálogo de Personal Provisional"
             count={rows.length}
             onClear={clear}
+            {...actions}
             onSave={async () => {
-                if (await onSave()) clear();
+                if (await actions.onSave()) clear();
             }}
-            onModify={onModify}
-            onDelete={onDelete}
             editing={selected !== null}
             reportButton="Califica Turnos=4 Líneas=4"
-            pdfTitle="Catálogo de Personal Provisional"
-            pdfColumns={COLUMNS}
-            pdfRows={rows}
-            pdfCountLabel="Personal Provisional"
+            pdf={{ title: 'Catálogo de Personal Provisional', columns: COLUMNS, rows, countLabel: 'Personal Provisional' }}
         >
             <div className="stc-provisional-form">
                 <ManualFields fields={MAIN_FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />

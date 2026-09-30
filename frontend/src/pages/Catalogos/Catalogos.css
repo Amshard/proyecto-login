@@ -213,11 +213,6 @@
   cursor: default;
 }
 
-.stc-manual-field .stc-field-input.stc-field-input-select {
-  background: #fff;
-  cursor: pointer;
-}
-
 .stc-provisional-form {
   box-sizing: border-box;
   width: 100%;
@@ -250,10 +245,7 @@
   align-items: flex-start;
   justify-content: flex-start;
   background: rgb(224, 224, 224);
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-  border-bottom: 1px solid black;
-  border-top: 1px solid black;
+  border: 1px solid black;
 }
 
 .stc-report-panel {
@@ -262,12 +254,6 @@
   align-items: flex-start;
   gap: 12px;
   width: 100%;
-}
-
-.stc-generar-reporte-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-  box-shadow: none;
 }
 
 .stc-table-frame {
@@ -291,8 +277,7 @@
 
 .stc-table-scroll {
   height: calc(11 * 2.6em);
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: auto;
 }
 
 .stc-table {
@@ -366,10 +351,7 @@
   width: 30%;
 }
 
-.stc-table-taquillas th:nth-child(1) {
-  width: 12%;
-}
-
+.stc-table-taquillas th:nth-child(1),
 .stc-table-taquillas th:nth-child(2) {
   width: 12%;
 }
@@ -386,18 +368,12 @@
   width: 30%;
 }
 
-.stc-table-taquillas th:nth-child(6) {
-  width: 14%;
-}
-
+.stc-table-taquillas th:nth-child(6),
 .stc-table-taquillas th:nth-child(7) {
   width: 14%;
 }
 
-.stc-table-lineas th:nth-child(1) {
-  width: 8%;
-}
-
+.stc-table-lineas th:nth-child(1),
 .stc-table-lineas th:nth-child(2),
 .stc-table-lineas th:nth-child(4) {
   width: 8%;
@@ -408,20 +384,7 @@
   width: 16%;
 }
 
-.stc-table-lineas th:nth-child(6),
-.stc-table-lineas th:nth-child(7),
-.stc-table-lineas th:nth-child(8) {
-  width: 11%;
-}
-
-.stc-table-lineas th:nth-child(9) {
-  width: 11%;
-}
-
-.stc-table-lineas th:nth-child(10) {
-  width: 11%;
-}
-.stc-table-lineas th:nth-child(11) {
+.stc-table-lineas th:nth-child(n + 6) {
   width: 11%;
 }
 
@@ -437,10 +400,7 @@
   width: 22%;
 }
 
-.stc-table-personal th:nth-child(4) {
-  width: 12%;
-}
-
+.stc-table-personal th:nth-child(4),
 .stc-table-personal th:nth-child(5) {
   width: 12%;
 }

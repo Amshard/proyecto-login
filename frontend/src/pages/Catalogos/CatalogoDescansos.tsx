@@ -26,15 +26,10 @@ export default function CatalogoDescansos() {
     const [rows, setRows] = useCatalogoRows(getDescansos);
     const catalogoForm = useCatalogoForm(EMPTY_FORM);
     const { form, selected, updateField, clear, fill } = catalogoForm;
-    const { onSave, onDelete } = catalogoActions(
-        setRows,
-        catalogoForm,
-        (f) => ({ ...f }),
-        {
-            create: createDescanso,
-            remove: (r) => deleteDescanso(r.id_descansos),
-        },
-    );
+    const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
+        create: createDescanso,
+        remove: (r) => deleteDescanso(r.id_descansos),
+    });
 
     return (
         <CatalogoLayout
@@ -42,14 +37,10 @@ export default function CatalogoDescansos() {
             statusLabel="Catálogo de Descansos"
             count={rows.length}
             onClear={clear}
-            onSave={onSave}
-            onDelete={onDelete}
+            {...actions}
             editing={selected !== null}
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockAll={selected !== null} />}
-            pdfTitle="Catálogo de Descansos"
-            pdfColumns={COLUMNS}
-            pdfRows={rows}
-            pdfCountLabel="Descansos"
+            pdf={{ title: 'Catálogo de Descansos', columns: COLUMNS, rows, countLabel: 'Descansos' }}
         >
             <DataTable
                 title="Descansos de la red"

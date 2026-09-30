@@ -4,7 +4,7 @@ import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
 import type { PdfGroup } from '../../utils/pdf';
-import { catalogoActions, codeField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { catalogoActions, codeField, lineaName, padCode, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 type EstacionForm = Record<keyof Estacion, string>;
 
@@ -28,27 +28,19 @@ const PDF_COLUMNS: Column<Estacion>[] = [
     { header: 'Nombre', cell: (r) => r.nombre_estacion },
 ];
 
-const padCode = (value: string) => (value ? value.padStart(2, '0') : '');
-
 export default function CatalogoEstaciones() {
     const [rows, setRows] = useCatalogoRows(getEstaciones);
     const [lineas] = useCatalogoRows(getLineas);
     const catalogoForm = useCatalogoForm(EMPTY_FORM);
     const { form, selected, updateField, clear, fill } = catalogoForm;
-    const { onSave, onModify, onDelete } = catalogoActions(
-        setRows,
-        catalogoForm,
-        (f) => ({ ...f }),
-        {
-            create: createEstacion,
-            update: updateEstacion,
-            remove: (r) => deleteEstacion(r.id_linea, r.id_estacion),
-        },
-    );
+    const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
+        create: createEstacion,
+        update: updateEstacion,
+        remove: (r) => deleteEstacion(r.id_linea, r.id_estacion),
+    });
 
+    const nombreDeLinea = (id: string) => lineaName(lineas.find((l) => l.id_linea === id));
     const idLinea = padCode(form.id_linea);
-    const linea = lineas.find((l) => l.id_linea === idLinea);
-    const nombreLinea = linea ? [linea.nombre_dirlin1, linea.nombre_dirlin2].filter(Boolean).join('-') : '';
 
     const onFieldChange = (key: string, value: string) => {
         updateField(key as keyof EstacionForm, value);
@@ -58,26 +50,14 @@ export default function CatalogoEstaciones() {
         updateField('nombre_estacion', estacion?.nombre_estacion ?? '');
     };
 
-    const pdfRows = useMemo(() => rows.filter((r) => r.id_linea !== '00'), [rows]);
-
-    const pdfGroup = useMemo<PdfGroup<Estacion>>(() => {
-        const nombreDeLinea = (id: string) => {
-            const l = lineas.find((item) => item.id_linea === id);
-            return l ? [l.nombre_dirlin1, l.nombre_dirlin2].filter(Boolean).join('-') : '';
-        };
-        return {
-            key: (r) => r.id_linea,
-            label: (id) => [`Línea ${id}`, nombreDeLinea(id)].filter(Boolean).join('     '),
-            total: (id, count) =>
-                [`Total de ${count} Estaciones en la línea ${id}`, nombreDeLinea(id)].filter(Boolean).join(' '),
-        };
-    }, [lineas]);
+    const pdfGroup: PdfGroup<Estacion> = {
+        key: (r) => r.id_linea,
+        label: (id) => [`Línea ${id}`, nombreDeLinea(id)].filter(Boolean).join('     '),
+        total: (id, count) => [`Total de ${count} Estaciones en la línea ${id}`, nombreDeLinea(id)].filter(Boolean).join(' '),
+    };
 
     const fields = useMemo(() => {
-        const lineaOptions = lineas.map((l) => ({
-            value: l.id_linea,
-            label: [l.nombre_dirlin1, l.nombre_dirlin2].filter(Boolean).join('-'),
-        }));
+        const lineaOptions = lineas.map((l) => ({ value: l.id_linea, label: lineaName(l) }));
         const estacionesDeLinea = rows.filter((r) => r.id_linea === idLinea);
         const estacionOptions = estacionesDeLinea.map((r) => ({ value: r.id_estacion, label: r.nombre_estacion }));
         const maxEstacion = Math.max(0, ...estacionesDeLinea.map((r) => Number(r.id_estacion) || 0));
@@ -96,34 +76,28 @@ export default function CatalogoEstaciones() {
             statusLabel="Catálogo de Estaciones"
             count={rows.length}
             onClear={clear}
-            onSave={onSave}
-            onModify={onModify}
-            onDelete={onDelete}
+            {...actions}
             editing={selected !== null}
             fields={
                 <ManualFields
                     fields={fields}
-                    form={{ ...form, nombre_linea: nombreLinea }}
+                    form={{ ...form, nombre_linea: nombreDeLinea(idLinea) }}
                     onChange={onFieldChange}
                     lockKeys={selected !== null}
                 />
             }
-            pdfTitle="CATÁLOGO DE ESTACIONES"
-            pdfColumns={PDF_COLUMNS}
-            pdfRows={pdfRows}
-            pdfCountLabel="Estaciones"
-            pdfCountTitle="Total de estaciones en la Red del Metro"
-            pdfCountBold
-            pdfTitleBold
-            pdfGroup={pdfGroup}
-            pdfUnofficialNotes={false}
+            pdf={{
+                title: 'CATÁLOGO DE ESTACIONES',
+                columns: PDF_COLUMNS,
+                rows: rows.filter((r) => r.id_linea !== '00'),
+                countLabel: 'Estaciones',
+                countTitle: 'Total de estaciones en la Red del Metro',
+                countBold: true,
+                group: pdfGroup,
+                unofficialNotes: false,
+            }}
         >
-            <DataTable
-                title="Estaciones"
-                columns={COLUMNS}
-                rows={rows}
-                onRowSelect={fill}
-            />
+            <DataTable title="Estaciones" columns={COLUMNS} rows={rows} onRowSelect={fill} />
         </CatalogoLayout>
     );
 }

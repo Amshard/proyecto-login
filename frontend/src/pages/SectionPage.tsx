@@ -1,6 +1,7 @@
 import { useLocation, useParams } from 'react-router-dom';
 import './Login/Login.css';
 import Navbar from '../components/Navbar';
+import PageHeader from '../components/PageHeader';
 import StatusBar from '../components/StatusBar';
 
 function unslugify(slug: string): string {
@@ -20,14 +21,7 @@ export default function SectionPage() {
     return (
         <div className="stc-login-page">
             <Navbar />
-
-            <header className="stc-header">
-                <div className="stc-header-accent" />
-                <div className="stc-header-text">
-                    COORDINACIÓN DE TAQUILLA
-                    <h1>SUBDIRECCION GENERAL DE ADMINISTRACION Y FINANZAS</h1>
-                </div>
-            </header>
+            <PageHeader />
 
             <div className="stc-body">
                 <main className="stc-content">

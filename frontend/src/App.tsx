@@ -10,9 +10,7 @@ import CatalogoTaquillas from './pages/Catalogos/CatalogoTaquillas';
 import PersonalProvisional from './pages/Catalogos/PersonalProvisional';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
-import Register from './pages/Login/Register';
 import SectionPage from './pages/SectionPage';
-import './App.css';
 
 const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/cambio-password', <ChangePassword />],
@@ -32,7 +30,6 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
       {PROTECTED_ROUTES.map(([path, element]) => (
         <Route key={path} path={path} element={<ProtectedRoute>{element}</ProtectedRoute>} />
       ))}

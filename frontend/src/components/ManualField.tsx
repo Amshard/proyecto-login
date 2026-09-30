@@ -16,7 +16,6 @@ export interface ManualFieldConfig<T extends string = string> {
     breakAfter?: boolean;
     readOnly?: boolean;
     isKey?: boolean;
-    selectOnly?: boolean;
     options?: { value: string; label: string }[];
     // Rejects typed values it returns false for (e.g. codes that match no existing record).
     accept?: (value: string) => boolean;
@@ -41,11 +40,11 @@ function ManualField<T extends string>({ config, value, onChange, readOnly }: Ma
             </label>
             <input
                 id={config.id}
-                className={config.selectOnly && !locked ? 'stc-field-input stc-field-input-select' : 'stc-field-input'}
+                className="stc-field-input"
                 type={config.type ?? 'text'}
                 inputMode={config.inputMode}
                 maxLength={config.maxLength}
-                readOnly={locked || config.selectOnly}
+                readOnly={locked}
                 value={value}
                 onChange={(e) => {
                     let next = e.target.value;

@@ -27,20 +27,13 @@ const COLUMNS: Column<PersonalTaquilla>[] = [
 
 export default function CatalogoPersonal() {
     const [rows, setRows] = useCatalogoRows(getPersonalTaquilla);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM, {
-        noUpper: ['fecha_ingreso'],
-    });
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['fecha_ingreso'] });
     const { form, selected, updateField, clear, fill } = catalogoForm;
-    const { onSave, onModify, onDelete } = catalogoActions(
-        setRows,
-        catalogoForm,
-        (f) => ({ ...f, id_expediente: Number(f.id_expediente) }),
-        {
-            create: createPersonalTaquilla,
-            update: updatePersonalTaquilla,
-            remove: (r) => deletePersonalTaquilla(r.id_expediente),
-        },
-    );
+    const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f, id_expediente: Number(f.id_expediente) }), {
+        create: createPersonalTaquilla,
+        update: updatePersonalTaquilla,
+        remove: (r) => deletePersonalTaquilla(r.id_expediente),
+    });
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [appliedSearch, setAppliedSearch] = useState('');
@@ -103,9 +96,7 @@ export default function CatalogoPersonal() {
             statusLabel="Catálogo de Personal de Taquilla"
             count={rows.length}
             onClear={clear}
-            onSave={onSave}
-            onModify={onModify}
-            onDelete={onDelete}
+            {...actions}
             editing={selected !== null}
             actions={
                 <button type="button" className="stc-btn stc-exit-btn stc-search-btn" onClick={openSearch}>
@@ -114,10 +105,7 @@ export default function CatalogoPersonal() {
             }
             fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />}
             overlay={searchModal}
-            pdfTitle="Catálogo de Personal de Taquilla"
-            pdfColumns={COLUMNS}
-            pdfRows={displayedRows}
-            pdfCountLabel="Personal"
+            pdf={{ title: 'Catálogo de Personal de Taquilla', columns: COLUMNS, rows: displayedRows, countLabel: 'Personal' }}
         >
             <DataTable
                 title="Personal de Taquilla"

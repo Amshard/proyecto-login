@@ -40,7 +40,11 @@ export default function ChangePassword() {
 
     return (
         <div className="stc-login-page">
-            <PageHeader onExit={() => navigate('/login', { replace: true })} />
+            <PageHeader>
+                <button type="button" className="stc-btn stc-exit-btn" onClick={() => navigate('/login', { replace: true })}>
+                    Salir
+                </button>
+            </PageHeader>
 
             <div className="stc-body">
                 <main className="stc-content">

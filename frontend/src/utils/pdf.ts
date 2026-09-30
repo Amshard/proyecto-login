@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import autoTable, { type UserOptions } from 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import type { Column } from '../components/DataTable';
 import cdmxLogo from '../assets/cdmx2.jpg?inline';
 import stcLogo from '../assets/stc.png?inline';
@@ -21,7 +21,10 @@ export interface PdfGroup<R> {
     total: (key: string, count: number) => string;
 }
 
-export interface CatalogoPdfOptions<R> {
+export interface PdfReport<R> {
+    title: string;
+    columns: Column<R>[];
+    rows: R[];
     countLabel?: string;
     countTitle?: string;
     noteLabel?: string;
@@ -42,14 +45,24 @@ const byCode = (a: string, b: string) =>
 
 const GROUP_TABLE_TOP = 76;
 
-export function buildCatalogoPdfBlob<R>(
-    title: string,
-    columns: Column<R>[],
-    rows: R[],
-    { countLabel = 'Registros', countTitle = countLabel, noteLabel = countLabel, noteById = false, countBold = false, countUnderline = !countBold, countUnderlineSplit = false, titleBold = true, rowPadding = 4, group, unofficialNotes = true }: CatalogoPdfOptions<R> = {}
-): Blob {
+export function buildCatalogoPdfBlob<R>({
+    title,
+    columns,
+    rows: unsortedRows,
+    countLabel = 'Registros',
+    countTitle = countLabel,
+    noteLabel = countLabel,
+    noteById = false,
+    countBold = false,
+    countUnderline = !countBold,
+    countUnderlineSplit = false,
+    titleBold = true,
+    rowPadding = 4,
+    group,
+    unofficialNotes = true,
+}: PdfReport<R>): Blob {
     const idColumn = columns[0];
-    rows = [...rows].sort(
+    const rows = [...unsortedRows].sort(
         (a, b) =>
             (group ? byCode(group.key(a), group.key(b)) : 0) ||
             (idColumn ? byCode(cellText(idColumn, a), cellText(idColumn, b)) : 0)
@@ -57,7 +70,9 @@ export function buildCatalogoPdfBlob<R>(
 
     const doc = new jsPDF({ orientation: 'portrait', unit: 'pt' });
 
-    const pageCenter = doc.internal.pageSize.getWidth() / 2;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const pageCenter = pageWidth / 2;
 
     const drawHeader = () => {
         doc.setFontSize(8);
@@ -76,11 +91,16 @@ export function buildCatalogoPdfBlob<R>(
     );
 
     const PDF_FONT_SIZE = 10;
-    const fittedWidth = (column: Column<R>) => {
+    // Width of a column header in the bold table font; leaves the normal font set for measuring cells.
+    const headerWidth = (column: Column<R>) => {
         doc.setFontSize(PDF_FONT_SIZE);
         doc.setFont('helvetica', 'bold');
-        let widest = doc.getTextWidth(column.header);
+        const width = doc.getTextWidth(column.header);
         doc.setFont('helvetica', 'normal');
+        return width;
+    };
+    const fittedWidth = (column: Column<R>) => {
+        let widest = headerWidth(column);
         rows.forEach((row) => {
             widest = Math.max(widest, doc.getTextWidth(cellText(column, row)));
         });
@@ -90,7 +110,7 @@ export function buildCatalogoPdfBlob<R>(
         columns.flatMap((c, i) => (c.fit ? [[i, { cellWidth: fittedWidth(c) }]] : []))
     );
 
-    const drawTable = (tableRows: R[], showTotals: boolean, options: Partial<UserOptions>, label?: string) =>
+    const drawTable = (tableRows: R[], showTotals: boolean, top: number, label?: string) =>
         autoTable(doc, {
             theme: 'plain',
             head: [
@@ -126,11 +146,7 @@ export function buildCatalogoPdfBlob<R>(
                 if (section === 'foot' || (section === 'head' && row.index !== 0)) return;
                 let offset = indent;
                 if (pdfColumn?.center && section === 'body') {
-                    doc.setFontSize(PDF_FONT_SIZE);
-                    doc.setFont('helvetica', 'bold');
-                    const headerWidth = doc.getTextWidth(pdfColumn.header);
-                    doc.setFont('helvetica', 'normal');
-                    offset += (headerWidth - doc.getTextWidth(cell.text.join(''))) / 2;
+                    offset += (headerWidth(pdfColumn) - doc.getTextWidth(cell.text.join(''))) / 2;
                 }
                 if (!offset) return;
                 cell.styles.cellPadding = {
@@ -150,11 +166,11 @@ export function buildCatalogoPdfBlob<R>(
                 doc.line(startX, cell.y + 1, endX, cell.y + 1);
                 doc.line(startX, cell.y + 3, endX, cell.y + 3);
             },
-            margin: { left: 20, right: 20 },
-            ...options,
+            startY: top,
+            margin: { left: 20, right: 20, top },
+            didDrawPage: drawHeader,
         });
 
-    const pageHeight = doc.internal.pageSize.getHeight();
     const lastTableY = () => (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
     let finalY: number;
 
@@ -166,16 +182,7 @@ export function buildCatalogoPdfBlob<R>(
         });
         [...groups].forEach(([key, groupRows], index) => {
             if (index > 0) doc.addPage();
-            drawTable(
-                groupRows,
-                index === groups.size - 1,
-                {
-                    startY: GROUP_TABLE_TOP,
-                    margin: { left: 20, right: 20, top: GROUP_TABLE_TOP },
-                    didDrawPage: drawHeader,
-                },
-                group.label(key)
-            );
+            drawTable(groupRows, index === groups.size - 1, GROUP_TABLE_TOP, group.label(key));
             let totalY = lastTableY() + 18;
             if (totalY > pageHeight - 50) {
                 doc.addPage();
@@ -190,11 +197,7 @@ export function buildCatalogoPdfBlob<R>(
         });
         finalY ??= lastTableY();
     } else {
-        drawTable(rows, true, {
-            startY: 78,
-            margin: { left: 20, right: 20, top: 78 },
-            didDrawPage: drawHeader,
-        });
+        drawTable(rows, true, 78);
         finalY = lastTableY();
     }
 
@@ -254,7 +257,6 @@ export function buildCatalogoPdfBlob<R>(
         year: 'numeric',
     })} ${now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 
-    const pageWidth = doc.internal.pageSize.getWidth();
     const footerY = pageHeight - 20;
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {

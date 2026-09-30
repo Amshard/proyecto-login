@@ -1,13 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { LoginPayload, RegisterPayload, User } from '../types/auth.types';
+import type { LoginPayload, User } from '../types/auth.types';
 import * as authApi from '../api/auth';
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (payload: LoginPayload) => Promise<User>;
-    register: (payload: RegisterPayload) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -15,14 +14,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => localStorage.getItem('access') !== null);
 
     useEffect(() => {
-        const access = localStorage.getItem('access');
-        if (!access) {
-            setLoading(false);
-            return;
-        }
+        if (!localStorage.getItem('access')) return;
         authApi
             .getMe()
             .then(setUser)
@@ -38,11 +33,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return data.user;
     };
 
-    const register = async (payload: RegisterPayload) => {
-        const created = await authApi.register(payload);
-        await login({ id_usuario: created.id_usuario, password: payload.password });
-    };
-
     const logout = async () => {
         await authApi.logout();
         authApi.clearTokens();
@@ -50,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -95,12 +95,6 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
         onRowSelect?.(rows[row]);
     };
 
-    const focusCell = (row: number, col: number) => {
-        const cell = bodyRef.current?.rows[row]?.cells[col];
-        if (!cell) return;
-        cell.focus();
-    };
-
     const handleFocus = (e: FocusEvent<HTMLTableSectionElement>) => {
         const pos = cellPosition(e.target);
         if (pos && (pos.row !== selected.row || pos.col !== selected.col)) setSelected(pos);
@@ -139,7 +133,7 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
                 return;
         }
         e.preventDefault();
-        focusCell(nextRow, nextCol);
+        bodyRef.current?.rows[nextRow]?.cells[nextCol]?.focus();
     };
 
     return (

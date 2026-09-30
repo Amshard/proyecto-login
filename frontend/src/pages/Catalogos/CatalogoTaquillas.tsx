@@ -16,6 +16,7 @@ import {
     CODE_CHARS,
     codeField,
     isCodePrefix,
+    lineaName,
     padCode,
     textField,
     useCatalogoForm,
@@ -78,38 +79,26 @@ export default function CatalogoTaquillas() {
     const [estaciones] = useCatalogoRows(getEstaciones);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
     const { form, selected, updateField, clear, fill } = catalogoForm;
-    const { onSave: saveTaquilla, onModify, onDelete } = catalogoActions(
-        setRows,
-        catalogoForm,
-        formToTaquilla,
-        {
-            create: createTaquilla,
-            update: updateTaquilla,
-            remove: (r) => deleteTaquilla(r.id_taquilla, r.turno),
-        },
-    );
+    const actions = catalogoActions(setRows, catalogoForm, formToTaquilla, {
+        create: createTaquilla,
+        update: updateTaquilla,
+        remove: (r) => deleteTaquilla(r.id_taquilla, r.turno),
+    });
 
     const onSave = async () => {
-        const saved = await saveTaquilla();
+        const saved = await actions.onSave();
         if (saved && !form.extension_tel.trim()) {
             window.alert('Taquilla guardada sin extensión, posteriormente podrá asignarla.');
         }
     };
 
-    const nombreDeLinea = (id: string) => {
-        const l = lineas.find((item) => item.id_linea === id);
-        return l ? [l.nombre_dirlin1, l.nombre_dirlin2].filter(Boolean).join('-') : '';
-    };
     const idLinea = padCode(form.id_linea);
     const idEstacion = padCode(form.id_estacion);
     const nombreEstacion =
         estaciones.find((e) => e.id_linea === idLinea && e.id_estacion === idEstacion)?.nombre_estacion ?? '';
 
     const fields = useMemo(() => {
-        const lineaOptions = lineas.map((l) => ({
-            value: l.id_linea,
-            label: [l.nombre_dirlin1, l.nombre_dirlin2].filter(Boolean).join('-'),
-        }));
+        const lineaOptions = lineas.map((l) => ({ value: l.id_linea, label: lineaName(l) }));
         const estacionOptions = estaciones
             .filter((e) => e.id_linea === idLinea)
             .map((e) => ({ value: e.id_estacion, label: e.nombre_estacion }));
@@ -143,9 +132,8 @@ export default function CatalogoTaquillas() {
             statusLabel="Catálogo de Taquillas"
             count={rows.length}
             onClear={clear}
+            {...actions}
             onSave={onSave}
-            onModify={onModify}
-            onDelete={onDelete}
             editing={selected !== null}
             reportButton="Reporte Taquillas en Operacion"
             fields={
@@ -154,17 +142,14 @@ export default function CatalogoTaquillas() {
                     form={{
                         ...form,
                         id_taquilla: form.id_taquilla.slice(-1),
-                        nombre_linea: nombreDeLinea(idLinea),
+                        nombre_linea: lineaName(lineas.find((l) => l.id_linea === idLinea)),
                         nombre_estacion: nombreEstacion,
                     }}
                     onChange={onFieldChange}
                     lockKeys={selected !== null}
                 />
             }
-            pdfTitle="Catálogo de Taquillas"
-            pdfColumns={COLUMNS}
-            pdfRows={rows}
-            pdfCountLabel="Taquillas"
+            pdf={{ title: 'Catálogo de Taquillas', columns: COLUMNS, rows, countLabel: 'Taquillas' }}
         >
             <DataTable
                 title="Taquillas de la red"

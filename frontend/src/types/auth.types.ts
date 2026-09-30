@@ -18,12 +18,6 @@ export interface LoginPayload {
     password: string;
 }
 
-export interface RegisterPayload {
-    id_usuario: string;
-    nombre: string;
-    password: string;
-}
-
 export interface AuthTokens {
     access: string;
     refresh: string;

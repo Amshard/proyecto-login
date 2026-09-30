@@ -153,7 +153,7 @@ export default function CatalogoLineas() {
         return true;
     };
 
-    const { onSave, onModify, onDelete } = catalogoActions(setRows, { ...catalogoForm, validate }, formToLinea, {
+    const actions = catalogoActions(setRows, { ...catalogoForm, validate }, formToLinea, {
         create: createLinea,
         update: updateLinea,
         remove: (r) => deleteLinea(r.id_linea),
@@ -172,9 +172,7 @@ export default function CatalogoLineas() {
             statusLabel="Catálogo de Líneas"
             count={rows.length}
             onClear={clear}
-            onSave={onSave}
-            onModify={onModify}
-            onDelete={onDelete}
+            {...actions}
             editing={selected !== null}
             fields={
                 <ManualFields
@@ -184,15 +182,17 @@ export default function CatalogoLineas() {
                     lockKeys={selected !== null}
                 />
             }
-            pdfTitle="CATALOGO DE LÍNEAS"
-            pdfColumns={PDF_COLUMNS}
-            pdfRows={sortedRows}
-            pdfCountLabel="Líneas"
-            pdfCountTitle="Total de Líneas"
-            pdfCountBold
-            pdfCountUnderline
-            pdfCountUnderlineSplit
-            pdfRowPadding={7}
+            pdf={{
+                title: 'CATALOGO DE LÍNEAS',
+                columns: PDF_COLUMNS,
+                rows: sortedRows,
+                countLabel: 'Líneas',
+                countTitle: 'Total de Líneas',
+                countBold: true,
+                countUnderline: true,
+                countUnderlineSplit: true,
+                rowPadding: 7,
+            }}
         >
             <DataTable
                 title="Líneas de la red"

@@ -1,13 +1,15 @@
+import type { KeyboardEventHandler, ReactNode } from 'react';
+
 interface PageHeaderProps {
-    onExit: () => void;
+    // Buttons shown in the column on the left of the page.
+    children?: ReactNode;
+    onKeyDown?: KeyboardEventHandler<HTMLElement>;
 }
 
-export default function PageHeader({ onExit }: PageHeaderProps) {
+export default function PageHeader({ children, onKeyDown }: PageHeaderProps) {
     return (
-        <header className="stc-header">
-            <button type="button" className="stc-btn stc-exit-btn" onClick={onExit}>
-                Salir
-            </button>
+        <header className="stc-header" onKeyDown={onKeyDown}>
+            {children}
             <div className="stc-header-accent" />
             <div className="stc-header-text">
                 COORDINACIÓN DE TAQUILLA
