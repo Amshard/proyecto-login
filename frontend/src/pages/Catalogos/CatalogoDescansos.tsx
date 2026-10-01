@@ -25,11 +25,12 @@ const COLUMNS: Column<Descanso>[] = [
 export default function CatalogoDescansos() {
     const [rows, setRows] = useCatalogoRows(getDescansos);
     const catalogoForm = useCatalogoForm(EMPTY_FORM);
-    const { form, selected, updateField, clear, fill } = catalogoForm;
+    const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createDescanso,
         remove: (r) => deleteDescanso(r.id_descansos),
     });
+    const onFieldChange = keyChange(['id_descansos'], (f) => rows.find((r) => String(r.id_descansos) === f.id_descansos));
 
     return (
         <CatalogoLayout
@@ -39,7 +40,7 @@ export default function CatalogoDescansos() {
             onClear={clear}
             {...actions}
             editing={selected !== null}
-            fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockAll={selected !== null} />}
+            fields={<ManualFields fields={FIELDS} form={form} onChange={onFieldChange} lockValues={selected !== null} />}
             pdf={{ title: 'Catálogo de Descansos', columns: COLUMNS, rows, countLabel: 'Descansos' }}
         >
             <DataTable
@@ -48,6 +49,7 @@ export default function CatalogoDescansos() {
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}
+                activeRow={selected as Descanso | null}
             />
         </CatalogoLayout>
     );

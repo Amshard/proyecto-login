@@ -28,12 +28,13 @@ const COLUMNS: Column<PersonalTaquilla>[] = [
 export default function CatalogoPersonal() {
     const [rows, setRows] = useCatalogoRows(getPersonalTaquilla);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['fecha_ingreso'] });
-    const { form, selected, updateField, clear, fill } = catalogoForm;
+    const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f, id_expediente: Number(f.id_expediente) }), {
         create: createPersonalTaquilla,
         update: updatePersonalTaquilla,
         remove: (r) => deletePersonalTaquilla(r.id_expediente),
     });
+    const onFieldChange = keyChange(['id_expediente'], (f) => rows.find((r) => String(r.id_expediente) === f.id_expediente));
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [appliedSearch, setAppliedSearch] = useState('');
@@ -103,7 +104,7 @@ export default function CatalogoPersonal() {
                     Buscar
                 </button>
             }
-            fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />}
+            fields={<ManualFields fields={FIELDS} form={form} onChange={onFieldChange} />}
             overlay={searchModal}
             pdf={{ title: 'Catálogo de Personal de Taquilla', columns: COLUMNS, rows: displayedRows, countLabel: 'Personal' }}
         >
@@ -113,6 +114,7 @@ export default function CatalogoPersonal() {
                 columns={COLUMNS}
                 rows={displayedRows}
                 onRowSelect={fill}
+                activeRow={selected as PersonalTaquilla | null}
             />
         </CatalogoLayout>
     );

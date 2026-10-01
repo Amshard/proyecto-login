@@ -99,6 +99,18 @@
   gap: 10px;
 }
 
+.stc-header-registros {
+  position: absolute;
+  right: 200px;
+  top: 85%;
+  transform: translateY(-50%);
+  z-index: 5;
+}
+
+.stc-header-registros .stc-registros-label {
+  color: #470404;
+}
+
 .stc-registros-label {
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 13px;
@@ -113,7 +125,8 @@
   align-items: center;
   justify-content: center;
   border: 1px black;
-  background: #f5f4f2;
+  background: rgb(235, 235, 235);
+  cursor: default;
   box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4);
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 14px;
@@ -175,6 +188,7 @@
   padding: 0;
   overflow-y: auto;
   list-style: none;
+  text-align: left;
   white-space: nowrap;
   background: white;
   border: 1px solid black;

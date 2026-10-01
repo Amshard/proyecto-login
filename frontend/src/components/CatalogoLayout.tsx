@@ -5,7 +5,7 @@ import { navbarTopButtons, sideButtons } from './keyboardNav';
 import Navbar from './Navbar';
 import PageHeader from './PageHeader';
 import StatusBar from './StatusBar';
-import { buildCatalogoPdfBlob, type PdfReport } from '../utils/pdf';
+import { openPdf, type PdfReport } from '../utils/pdf';
 
 interface CatalogoLayoutProps<R> {
     tabLabel: string;
@@ -18,6 +18,10 @@ interface CatalogoLayoutProps<R> {
     editing: boolean;
     actions?: ReactNode;
     reportButton?: string;
+    // Extra buttons shown in the Reporte tab, above Generar reporte.
+    reportActions?: ReactNode;
+    // Text of the button that generates the catalog's PDF.
+    reportLabel?: string;
     fields?: ReactNode;
     overlay?: ReactNode;
     children: ReactNode;
@@ -39,13 +43,6 @@ const onSideKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     next.focus();
 };
 
-const openPdf = <R,>(report: PdfReport<R>) => {
-    const url = URL.createObjectURL(buildCatalogoPdfBlob(report));
-    window.open(url, '_blank', 'noopener,noreferrer');
-    // Give the new tab time to load the blob before releasing it.
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-};
-
 export default function CatalogoLayout<R>({
     tabLabel,
     statusLabel,
@@ -57,6 +54,8 @@ export default function CatalogoLayout<R>({
     editing,
     actions,
     reportButton,
+    reportActions,
+    reportLabel = 'Generar reporte',
     fields,
     overlay,
     children,
@@ -108,18 +107,17 @@ export default function CatalogoLayout<R>({
                         )}
                     </>
                 )}
+                {isCatalogo && (
+                    <div className="stc-registros-row stc-header-registros">
+                        <span className="stc-registros-label">Registros</span>
+                        <div className="stc-registros-box">{count}</div>
+                    </div>
+                )}
             </PageHeader>
 
             <div className="stc-body stc-catalogo-body">
                 <main className="stc-content">
                     <div className="stc-registros-wrapper">
-                        {isCatalogo && (
-                            <div className="stc-registros-row">
-                                <span className="stc-registros-label">Registros</span>
-                                <div className="stc-registros-box">{count}</div>
-                            </div>
-                        )}
-
                         <div className="stc-content-square stc-changepw-box">
                             <div className="stc-tabs">
                                 {tabs.map(({ key, label }) => (
@@ -141,12 +139,13 @@ export default function CatalogoLayout<R>({
                                     children
                                 ) : (
                                     <div className="stc-report-panel">
+                                        {reportActions}
                                         <button
                                             type="button"
                                             className="stc-btn stc-generar-reporte-btn"
                                             onClick={() => openPdf(pdf)}
                                         >
-                                            Generar reporte
+                                            {reportLabel}
                                         </button>
                                     </div>
                                 )}

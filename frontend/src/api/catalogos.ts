@@ -56,7 +56,6 @@ export interface Taquilla {
     extension_tel: string | null;
     id_linea: string;
     id_estacion: string;
-    direccion?: string | null;
 }
 
 type Key = string | number;
@@ -82,6 +81,8 @@ export const getLineas = getRows<Linea>('lineas');
 export const getEstaciones = getRows<Estacion>('estaciones');
 export const getDescansos = getRows<Descanso>('descansos');
 export const getTaquillas = getRows<Taquilla>('taquillas');
+// Taquilla/turno pairs assigned in the current (last) rol.
+export const getTaquillasOperacion = getRows<Pick<Taquilla, 'id_taquilla' | 'turno'>>('taquillas/operacion');
 export const getPersonalTaquilla = getRows<PersonalTaquilla>('personal-taquilla');
 export const getPersonalGaceta = getRows<PersonalGaceta>('personal-gaceta');
 

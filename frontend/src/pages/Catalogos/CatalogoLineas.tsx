@@ -8,6 +8,7 @@ import {
     CODE_CHARS,
     codeField,
     isCodePrefix,
+    padCode,
     textField,
     useCatalogoForm,
     useCatalogoRows,
@@ -117,7 +118,7 @@ export default function CatalogoLineas() {
     const [rows, setRows] = useCatalogoRows(loadLineas);
     const [permanencias] = useCatalogoRows(getPermanencias);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
-    const { form, selected, updateField, clear, fill } = catalogoForm;
+    const { form, selected, updateField, clear, fill, keyChange } = catalogoForm;
 
     const fields = useMemo(() => {
         const options = permanencias.map((p) => ({ value: p.id_permanencia, label: p.nombre_perma }));
@@ -134,9 +135,11 @@ export default function CatalogoLineas() {
         return [...withOptions, ...permaFields];
     }, [rows, permanencias, form.id_permanencia]);
 
-    const onFieldChange = (key: keyof LineaForm, rawValue: string) => {
-        const value = key === 'id_linea' ? rawValue.toUpperCase() : rawValue;
-        updateField(key, value);
+    // The línea code loads with or without its leading 0 ("1" loads 01).
+    const lineaChange = keyChange(['id_linea'], (f) => rows.find((r) => r.id_linea === padCode(f.id_linea)));
+
+    const onFieldChange = (key: keyof LineaForm, value: string) => {
+        lineaChange(key, value);
         if (key !== 'id_permanencia') return;
         const permanencia = permanencias.find((p) => p.id_permanencia === value);
         updateField('nombre_perma', permanencia?.nombre_perma ?? '');
@@ -179,7 +182,6 @@ export default function CatalogoLineas() {
                     fields={fields}
                     form={{ ...form, dirdelinea1: DIR_INI, dirdelinea2: DIR_FIN }}
                     onChange={onFieldChange}
-                    lockKeys={selected !== null}
                 />
             }
             pdf={{
@@ -200,6 +202,7 @@ export default function CatalogoLineas() {
                 columns={COLUMNS}
                 rows={sortedRows}
                 onRowSelect={fill}
+                activeRow={selected as LineaConPermanencia | null}
             />
         </CatalogoLayout>
     );

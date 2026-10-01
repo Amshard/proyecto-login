@@ -30,9 +30,10 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
     const [selected, setSelected] = useState<object | null>(null);
     const required = options.required ?? (Object.keys(empty) as (keyof T)[]);
 
+    const normalize = (field: keyof T, value: string) => (options.noUpper?.includes(field) ? value : value.toUpperCase());
+
     const updateField = (field: keyof T, value: string) => {
-        const keep = options.noUpper?.includes(field);
-        setForm((prev) => ({ ...prev, [field]: keep ? value : value.toUpperCase() }));
+        setForm((prev) => ({ ...prev, [field]: normalize(field, value) }));
     };
 
     const clear = () => {
@@ -59,7 +60,25 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
         return !invalid;
     };
 
-    return { form, selected, setSelected, updateField, clear, fill, validate };
+    // Change handler that loads the record whose key fields match what is typed in them; `find` gets
+    // the form as it will be and returns that record, if any. The typed key values are kept so a code
+    // can still be extended ("1" → "12"). With no match a loaded record is dropped, keeping the keys.
+    // `patch` sets other fields along with the change (e.g. clearing Estación when Línea changes).
+    const keyChange =
+        <R extends object>(keys: (keyof T)[], find: (next: T) => R | undefined) =>
+        (field: keyof T, value: string, patch: Partial<T> = {}) => {
+            if (!keys.includes(field)) return updateField(field, value);
+            const next = { ...form, ...patch, [field]: normalize(field, value) };
+            const match = find(next);
+            if (match) {
+                fill(match);
+                return updateField(field, value);
+            }
+            if (selected) clear();
+            for (const key of keys) updateField(key, next[key]);
+        };
+
+    return { form, selected, setSelected, updateField, clear, fill, validate, keyChange };
 }
 
 type CatalogoForm<T> = ReturnType<typeof useCatalogoForm<T & { [K in keyof T]: string }>>;

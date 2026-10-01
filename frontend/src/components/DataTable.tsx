@@ -7,6 +7,8 @@ export interface Column<R> {
     indent?: number;
     fit?: boolean;
     center?: boolean;
+    // PDF only: leave the value blank while this key repeats from the row above under the same headings.
+    repeatKey?: (row: R) => string;
 }
 
 interface DataTableProps<R> {

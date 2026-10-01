@@ -99,11 +99,11 @@ interface ManualFieldsProps<T extends string> {
     form: Record<T, string>;
     onChange: (key: T, value: string) => void;
     className?: string;
-    lockKeys?: boolean;
-    lockAll?: boolean;
+    // Locks every field except the keys, which stay editable to load another record.
+    lockValues?: boolean;
 }
 
-export function ManualFields<T extends string>({ fields, form, onChange, className, lockKeys, lockAll }: ManualFieldsProps<T>) {
+export function ManualFields<T extends string>({ fields, form, onChange, className, lockValues }: ManualFieldsProps<T>) {
     return (
         <div className={className ?? 'stc-manual-fields'}>
             {fields.map((config) => (
@@ -112,7 +112,7 @@ export function ManualFields<T extends string>({ fields, form, onChange, classNa
                         config={config}
                         value={form[config.key]}
                         onChange={(value) => onChange(config.key, value)}
-                        readOnly={lockAll || (lockKeys && config.isKey)}
+                        readOnly={lockValues && !config.isKey}
                     />
                     {config.breakAfter && <div className="stc-field-break" />}
                 </Fragment>

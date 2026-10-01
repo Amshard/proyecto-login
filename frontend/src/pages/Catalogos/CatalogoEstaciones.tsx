@@ -32,7 +32,7 @@ export default function CatalogoEstaciones() {
     const [rows, setRows] = useCatalogoRows(getEstaciones);
     const [lineas] = useCatalogoRows(getLineas);
     const catalogoForm = useCatalogoForm(EMPTY_FORM);
-    const { form, selected, updateField, clear, fill } = catalogoForm;
+    const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createEstacion,
         update: updateEstacion,
@@ -42,13 +42,11 @@ export default function CatalogoEstaciones() {
     const nombreDeLinea = (id: string) => lineaName(lineas.find((l) => l.id_linea === id));
     const idLinea = padCode(form.id_linea);
 
-    const onFieldChange = (key: string, value: string) => {
-        updateField(key as keyof EstacionForm, value);
-        if (key !== 'id_estacion') return;
-        const idEstacion = padCode(value);
-        const estacion = rows.find((r) => r.id_linea === idLinea && r.id_estacion === idEstacion);
-        updateField('nombre_estacion', estacion?.nombre_estacion ?? '');
-    };
+    // A Línea + Estación pair loads with or without leading 0s ("1" + "5" loads 01/05).
+    const keyFieldChange = keyChange(['id_linea', 'id_estacion'], (f) =>
+        rows.find((r) => r.id_linea === padCode(f.id_linea) && r.id_estacion === padCode(f.id_estacion)),
+    );
+    const onFieldChange = (key: string, value: string) => keyFieldChange(key as keyof EstacionForm, value);
 
     const pdfGroup: PdfGroup<Estacion> = {
         key: (r) => r.id_linea,
@@ -83,7 +81,6 @@ export default function CatalogoEstaciones() {
                     fields={fields}
                     form={{ ...form, nombre_linea: nombreDeLinea(idLinea) }}
                     onChange={onFieldChange}
-                    lockKeys={selected !== null}
                 />
             }
             pdf={{
@@ -97,7 +94,13 @@ export default function CatalogoEstaciones() {
                 unofficialNotes: false,
             }}
         >
-            <DataTable title="Estaciones" columns={COLUMNS} rows={rows} onRowSelect={fill} />
+            <DataTable
+                title="Estaciones"
+                columns={COLUMNS}
+                rows={rows}
+                onRowSelect={fill}
+                activeRow={selected as Estacion | null}
+            />
         </CatalogoLayout>
     );
 }

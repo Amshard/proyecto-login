@@ -95,12 +95,13 @@ const COLUMNS: Column<ProvisionalForm>[] = [
 export default function PersonalProvisional() {
     const [rows, setRows] = useCatalogoRows(loadGaceta);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['ingreso'] });
-    const { form, selected, updateField, clear, fill } = catalogoForm;
+    const { form, selected, updateField, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: (r) => createPersonalGaceta(formToGaceta(r)),
         update: (r) => updatePersonalGaceta(formToGaceta(r)),
         remove: (r) => deletePersonalGaceta(Number(r.expediente)),
     });
+    const onFieldChange = keyChange(['expediente'], (f) => rows.find((r) => r.expediente === f.expediente));
 
     return (
         <CatalogoLayout
@@ -117,7 +118,7 @@ export default function PersonalProvisional() {
             pdf={{ title: 'Catálogo de Personal Provisional', columns: COLUMNS, rows, countLabel: 'Personal Provisional' }}
         >
             <div className="stc-provisional-form">
-                <ManualFields fields={MAIN_FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />
+                <ManualFields fields={MAIN_FIELDS} form={form} onChange={onFieldChange} />
                 <ManualFields
                     fields={SMALL_FIELDS}
                     form={form}
@@ -130,6 +131,7 @@ export default function PersonalProvisional() {
                     columns={COLUMNS}
                     rows={rows}
                     onRowSelect={fill}
+                    activeRow={selected as ProvisionalForm | null}
                 />
             </div>
         </CatalogoLayout>

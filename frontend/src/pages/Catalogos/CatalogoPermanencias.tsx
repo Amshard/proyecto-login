@@ -29,12 +29,13 @@ const COLUMNS: Column<Permanencia>[] = [
 export default function CatalogoPermanencias() {
     const [rows, setRows] = useCatalogoRows(getPermanencias);
     const catalogoForm = useCatalogoForm(EMPTY_FORM);
-    const { form, selected, updateField, clear, fill } = catalogoForm;
+    const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createPermanencia,
         update: updatePermanencia,
         remove: (r) => deletePermanencia(r.id_permanencia),
     });
+    const onFieldChange = keyChange(['id_permanencia'], (f) => rows.find((r) => String(r.id_permanencia) === f.id_permanencia));
 
     return (
         <CatalogoLayout
@@ -44,7 +45,13 @@ export default function CatalogoPermanencias() {
             onClear={clear}
             {...actions}
             editing={selected !== null}
-            fields={<ManualFields fields={FIELDS} form={form} onChange={updateField} lockKeys={selected !== null} />}
+            fields={
+                <ManualFields
+                    fields={FIELDS}
+                    form={form}
+                    onChange={onFieldChange}
+                />
+            }
             pdf={{
                 title: 'CATÁLOGO DE PERMANENCIAS',
                 columns: COLUMNS,
@@ -56,7 +63,10 @@ export default function CatalogoPermanencias() {
                 countUnderlineSplit: true,
             }}
         >
-            <DataTable title="Permanencias de la red" columns={COLUMNS} rows={rows} onRowSelect={fill} />
+            <DataTable title="Permanencias de la red" columns={COLUMNS}                 rows={rows}
+                onRowSelect={fill}
+                activeRow={selected as Permanencia | null}
+            />
         </CatalogoLayout>
     );
 }

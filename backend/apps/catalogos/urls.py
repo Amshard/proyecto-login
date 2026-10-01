@@ -16,6 +16,7 @@ from apps.catalogos.views import (
     PersonalTaquillaListView,
     TaquillaItemView,
     TaquillaListView,
+    TaquillaOperacionView,
 )
 
 urlpatterns = [
@@ -27,6 +28,7 @@ urlpatterns = [
     path('personal-respaldo/', PersonalRespaldoListView.as_view(), name='personal-respaldo'),
     path('personal-gaceta/', PersonalGacetaListView.as_view(), name='personal-gaceta'),
     path('taquillas/', TaquillaListView.as_view(), name='taquillas'),
+    path('taquillas/operacion/', TaquillaOperacionView.as_view(), name='taquillas-operacion'),
     path('permanencias/<str:id_permanencia>/', PermanenciaItemView.as_view(), name='permanencia-item'),
     path('lineas/<str:id_linea>/', LineaItemView.as_view(), name='linea-item'),
     path('estaciones/<str:id_linea>/<str:id_estacion>/', EstacionItemView.as_view(), name='estacion-item'),

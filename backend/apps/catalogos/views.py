@@ -79,6 +79,18 @@ PersonalGacetaListView = _list_view(models.PersonalGaceta, serializers.PersonalG
 TaquillaListView = _list_view(models.Taquilla, serializers.TaquillaSerializer, 'id_taquilla', 'turno')
 
 
+class TaquillaOperacionView(APIView):
+    """GET the taquilla/turno pairs assigned in rol_taquilla, which holds the current (last) rol."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT DISTINCT id_taquilla, turno FROM rol_taquilla')
+            pairs = [{'id_taquilla': id_taquilla, 'turno': turno} for id_taquilla, turno in cursor.fetchall()]
+        return Response(pairs)
+
+
 class CatalogoItemView(APIView):
     """PUT (modify) or DELETE one catalog row, addressed by its key columns.
 
