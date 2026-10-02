@@ -54,6 +54,7 @@ export default function CatalogoPermanencias() {
             }
             pdf={{
                 title: 'CATÁLOGO DE PERMANENCIAS',
+                footerTitle: 'RptCatPerma',
                 columns: COLUMNS,
                 rows,
                 countLabel: 'Permanencias',

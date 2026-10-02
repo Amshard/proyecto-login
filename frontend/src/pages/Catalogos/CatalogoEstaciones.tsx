@@ -1,17 +1,34 @@
 import { useMemo } from 'react';
-import { createEstacion, deleteEstacion, type Estacion, getEstaciones, getLineas, updateEstacion } from '../../api/catalogos';
+import {
+    createEstacion,
+    deleteEstacion,
+    type Estacion,
+    getEstaciones,
+    getLineas,
+    updateEstacion,
+} from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
 import type { PdfGroup } from '../../utils/pdf';
-import { catalogoActions, codeField, lineaName, padCode, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import {
+    catalogoActions,
+    CODE_CHARS,
+    codeField,
+    isCodePrefix,
+    lineaName,
+    padCode,
+    textField,
+    useCatalogoForm,
+    useCatalogoRows,
+} from './useCatalogo';
 
 type EstacionForm = Record<keyof Estacion, string>;
 
 const EMPTY_FORM: EstacionForm = { id_linea: '', id_estacion: '', nombre_estacion: '' };
 
 const FIELDS = [
-    { ...codeField('id_linea', 'Línea', 2, { numeric: true, padTo: 2 }), isKey: true },
+    { ...codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS }), isKey: true },
     { ...textField('nombre_linea', 'Nombre', 280), readOnly: true, breakAfter: true },
     { ...codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 }), isKey: true },
     textField('nombre_estacion', 'Nombre', 280, { maxLength: 25 }),
@@ -42,7 +59,6 @@ export default function CatalogoEstaciones() {
     const nombreDeLinea = (id: string) => lineaName(lineas.find((l) => l.id_linea === id));
     const idLinea = padCode(form.id_linea);
 
-    // A Línea + Estación pair loads with or without leading 0s ("1" + "5" loads 01/05).
     const keyFieldChange = keyChange(['id_linea', 'id_estacion'], (f) =>
         rows.find((r) => r.id_linea === padCode(f.id_linea) && r.id_estacion === padCode(f.id_estacion)),
     );
@@ -56,11 +72,14 @@ export default function CatalogoEstaciones() {
 
     const fields = useMemo(() => {
         const lineaOptions = lineas.map((l) => ({ value: l.id_linea, label: lineaName(l) }));
+        const lineaCodes = lineaOptions.map((o) => o.value);
         const estacionesDeLinea = rows.filter((r) => r.id_linea === idLinea);
         const estacionOptions = estacionesDeLinea.map((r) => ({ value: r.id_estacion, label: r.nombre_estacion }));
         const maxEstacion = Math.max(0, ...estacionesDeLinea.map((r) => Number(r.id_estacion) || 0));
         return FIELDS.map((field) => {
-            if (field.key === 'id_linea') return { ...field, options: lineaOptions };
+            if (field.key === 'id_linea') {
+                return { ...field, options: lineaOptions, accept: (v: string) => isCodePrefix(v, lineaCodes) };
+            }
             if (field.key === 'id_estacion') {
                 return { ...field, options: estacionOptions, max: maxEstacion || undefined };
             }
@@ -85,6 +104,7 @@ export default function CatalogoEstaciones() {
             }
             pdf={{
                 title: 'CATÁLOGO DE ESTACIONES',
+                footerTitle: 'RptCatEstaciones',
                 columns: PDF_COLUMNS,
                 rows: rows.filter((r) => r.id_linea !== '00'),
                 countLabel: 'Estaciones',

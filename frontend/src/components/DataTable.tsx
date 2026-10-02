@@ -7,7 +7,6 @@ export interface Column<R> {
     indent?: number;
     fit?: boolean;
     center?: boolean;
-    // PDF only: leave the value blank while this key repeats from the row above under the same headings.
     repeatKey?: (row: R) => string;
 }
 
@@ -17,7 +16,6 @@ interface DataTableProps<R> {
     rows: R[];
     className?: string;
     onRowSelect?: (row: R) => void;
-    // Row loaded in the form; the table selects it and scrolls it into view.
     activeRow?: R | null;
 }
 
@@ -25,12 +23,10 @@ interface DataTableRowProps<R> {
     row: R;
     rowIndex: number;
     columns: Column<R>[];
-    // Column of the selected cell in this row, or -1 when the selection is elsewhere.
     selectedCol: number;
     highlighted: boolean;
 }
 
-// Memoized so moving the selection only re-renders the rows it leaves and enters.
 const DataTableRow = memo(function DataTableRow<R>({ row, rowIndex, columns, selectedCol, highlighted }: DataTableRowProps<R>) {
     return (
         <tr data-row={rowIndex} className={highlighted ? 'stc-table-row-active' : undefined}>
@@ -48,7 +44,6 @@ const DataTableRow = memo(function DataTableRow<R>({ row, rowIndex, columns, sel
     );
 }) as <R>(props: DataTableRowProps<R>) => ReactNode;
 
-// Row/column of the cell an event came from, read from the data attributes set above.
 const cellPosition = (target: EventTarget) => {
     const cell = (target as HTMLElement).closest<HTMLTableCellElement>('td[data-col]');
     const tr = cell?.parentElement;
@@ -61,11 +56,9 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
     const [syncedRow, setSyncedRow] = useState(activeRow);
     const bodyRef = useRef<HTMLTableSectionElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
-    // Row just loaded by double click/Enter, and whether the current activeRow came from there.
     const [loadedFromTable, setLoadedFromTable] = useState<R | null>(null);
     const [activeFromTable, setActiveFromTable] = useState(false);
 
-    // Follow a record loaded from outside the table (e.g. autofilled from the input fields).
     if (activeRow !== syncedRow) {
         setSyncedRow(activeRow);
         setActiveFromTable(activeRow != null && activeRow === loadedFromTable);
@@ -75,23 +68,18 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
     }
 
     useEffect(() => {
-        // A row loaded from the table itself is already in view; don't move it.
         if (activeRow == null || activeFromTable) return;
         const container = scrollRef.current;
         const tr = bodyRef.current?.rows[rows.indexOf(activeRow)];
         if (!container || !tr) return;
-        // Scroll only the table box so the row sits at the top, just under the sticky header;
-        // the browser clamps it when the row is too close to the end to reach the top.
         const header = container.querySelector('thead')?.getBoundingClientRect().height ?? 0;
         const box = container.getBoundingClientRect();
         container.scrollTop += tr.getBoundingClientRect().top - (box.top + header);
     }, [activeRow, activeFromTable, rows]);
 
-    // A record loaded from outside the table (autofill) gets its whole line highlighted.
     const highlightedRow = activeRow != null && !activeFromTable ? rows.indexOf(activeRow) : -1;
 
     const loadRow = (row: number) => {
-        // Reloading the already selected row is allowed so it discards unsaved edits in the fields.
         if (rows[row] === undefined) return;
         setLoadedFromTable(rows[row]);
         onRowSelect?.(rows[row]);

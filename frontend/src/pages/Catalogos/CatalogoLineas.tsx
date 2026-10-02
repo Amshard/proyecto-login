@@ -135,7 +135,6 @@ export default function CatalogoLineas() {
         return [...withOptions, ...permaFields];
     }, [rows, permanencias, form.id_permanencia]);
 
-    // The línea code loads with or without its leading 0 ("1" loads 01).
     const lineaChange = keyChange(['id_linea'], (f) => rows.find((r) => r.id_linea === padCode(f.id_linea)));
 
     const onFieldChange = (key: keyof LineaForm, value: string) => {
@@ -164,7 +163,6 @@ export default function CatalogoLineas() {
     });
 
     const sortedRows = useMemo(
-        // Plain character order puts digits before letters: 09 < 0A < 0B < 12.
         () => [...rows].sort((a, b) => (a.id_linea < b.id_linea ? -1 : a.id_linea > b.id_linea ? 1 : 0)),
         [rows],
     );
@@ -186,6 +184,7 @@ export default function CatalogoLineas() {
             }
             pdf={{
                 title: 'CATALOGO DE LÍNEAS',
+                footerTitle: 'RptCatLineas',
                 columns: PDF_COLUMNS,
                 rows: sortedRows,
                 countLabel: 'Líneas',

@@ -90,6 +90,8 @@ interface Persistence<R> {
     remove: (row: R) => Promise<void>;
     // Names the record in the modify/delete messages, e.g. "Línea 3".
     describe?: (row: R) => string;
+    // Extra line for the save message, e.g. a reminder about an optional field left empty.
+    savedNote?: (row: R) => string | undefined;
 }
 
 async function persisted(action: Promise<void>, failure: string) {
@@ -110,7 +112,7 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
     setRows: Dispatch<SetStateAction<R[]>>,
     { form, selected, setSelected, clear, validate }: CatalogoForm<T>,
     toRow: (form: T, previous?: R) => R,
-    { create, update, remove, describe }: Persistence<R>
+    { create, update, remove, describe, savedNote }: Persistence<R>
 ) {
     return {
         onSave: async () => {
@@ -118,6 +120,8 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
             const row = toRow(form);
             if (!(await persisted(create(row), 'No se pudo guardar el registro.'))) return false;
             setRows((prev) => [...prev, row]);
+            const saved = describe ? `Se guardó correctamente: ${describe(row)}.` : 'Registro guardado correctamente.';
+            window.alert([saved, savedNote?.(row)].filter(Boolean).join('\n'));
             return true;
         },
         onModify: update && (async () => {

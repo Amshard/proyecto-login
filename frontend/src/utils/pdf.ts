@@ -41,10 +41,13 @@ export interface PdfReport<R> {
     countBold?: boolean;
     countUnderline?: boolean;
     countUnderlineSplit?: boolean;
+    // Draws a single line just above the final count, as wide as its text.
+    countRule?: boolean;
+    // Breaks the count's lines into the text before its number, the number, and the text after.
+    countSplitNumber?: boolean;
     titleBold?: boolean;
     rowPadding?: number;
     fontSize?: number;
-    // Text that precedes the name in the innermost section heading; the table rows start where it ends.
     rowsAlignWith?: string;
     group?: PdfGroup<R>;
     sections?: PdfSection<R>[];
@@ -82,6 +85,8 @@ export function buildCatalogoPdfBlob<R>({
     countBold = false,
     countUnderline = !countBold,
     countUnderlineSplit = false,
+    countRule = false,
+    countSplitNumber = false,
     titleBold = true,
     rowPadding = 4,
     fontSize = 10,
@@ -117,7 +122,6 @@ export function buildCatalogoPdfBlob<R>({
         doc.setFont('helvetica', 'normal');
     };
 
-    // Space around headings and totals follows the row spacing (the values are for the default 4).
     const gap = (points: number) => (points * rowPadding) / 4;
 
     const headingStyle = (level: number) => ({
@@ -143,8 +147,6 @@ export function buildCatalogoPdfBlob<R>({
         return width;
     };
 
-    // An empty leading column pushes the rows right, to where `rowsAlignWith` ends in the innermost
-    // heading (less the cell padding of the first real column).
     const spacerWidth = (() => {
         if (rowsAlignWith === undefined || !sections.length) return 0;
         const heading = headingStyle(sections.length - 1);
@@ -290,7 +292,6 @@ export function buildCatalogoPdfBlob<R>({
             return;
         }
         const scratch = new jsPDF({ orientation: 'portrait', unit: 'pt' });
-        // Rows must not be split here: a row cut at a page end records only its first part's height.
         autoTable(scratch, {
             ...tableOptions(body, spans, foot, top, columnStyles, label),
             rowPageBreak: 'avoid',
@@ -299,7 +300,6 @@ export function buildCatalogoPdfBlob<R>({
             didDrawPage: undefined,
         });
         const measured = lastTable(scratch);
-        // A point of slack so rounding never leaves the last row of a page a hair too tall.
         const room = pageHeight - BOTTOM_MARGIN - top - measured.head.reduce((sum, r) => sum + r.height, 0) - 1;
         const pageStarts = [0];
         let used = 0;
@@ -362,7 +362,6 @@ export function buildCatalogoPdfBlob<R>({
         finalY = lastTableY();
     }
 
-    // The count, with its notes about unofficial records, closes the report unless turned off.
     if (showCount) {
         const countLabelText = countText ? countText(rows) : `${countTitle}: ${rows.length}`;
         let countLabelY = finalY + 18;
@@ -379,6 +378,28 @@ export function buildCatalogoPdfBlob<R>({
         const countEndX = pageCenter + countLabelWidth / 2;
         const countNumberX = countStartX + doc.getTextWidth(`${countTitle}: `);
 
+        // Horizontal extents the count's lines cover: the whole text, or with countSplitNumber
+        // the text before the number, the number, and the text after it.
+        const countSegments = (() => {
+            const match = countSplitNumber ? /\d+/.exec(countLabelText) : null;
+            if (!match) return [[countStartX, countEndX]];
+            const before = countLabelText.slice(0, match.index);
+            const after = countLabelText.slice(match.index + match[0].length);
+            const numberStartX = countStartX + doc.getTextWidth(before);
+            const numberEndX = numberStartX + doc.getTextWidth(match[0]);
+            return [
+                [countStartX, countStartX + doc.getTextWidth(before.trimEnd())],
+                [numberStartX, numberEndX],
+                [countEndX - doc.getTextWidth(after.trimStart()), countEndX],
+            ].filter(([startX, endX]) => endX > startX);
+        })();
+
+        if (countRule) {
+            const ruleY = countLabelY - fontSize - 2;
+            doc.setLineWidth(0.75);
+            countSegments.forEach(([startX, endX]) => doc.line(startX, ruleY, endX, ruleY));
+        }
+
         if (countUnderline) {
             const doubleUnderline = (startX: number, endX: number) => {
                 doc.line(startX, countLabelY + 3, endX, countLabelY + 3);
@@ -389,7 +410,7 @@ export function buildCatalogoPdfBlob<R>({
                 doubleUnderline(countStartX, countStartX + doc.getTextWidth(countTitle));
                 doubleUnderline(countNumberX, countEndX);
             } else {
-                doubleUnderline(countStartX, countEndX);
+                countSegments.forEach(([startX, endX]) => doubleUnderline(startX, endX));
             }
         }
         doc.setFont('helvetica', 'normal');
@@ -423,7 +444,7 @@ export function buildCatalogoPdfBlob<R>({
         'FECHA:',
         now.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false }),
-    ].join('     ');
+    ].join('         ');
 
     const footerY = pageHeight - 20;
     const pageCount = doc.getNumberOfPages();
@@ -431,7 +452,6 @@ export function buildCatalogoPdfBlob<R>({
         doc.setPage(i);
         doc.addImage(stcLogo, 'PNG', 20, LOGO_TOP, STC_LOGO_WIDTH, STC_LOGO_HEIGHT);
         doc.addImage(cdmxLogo, 'JPEG', pageWidth - 20 - LOGO_WIDTH, LOGO_TOP, LOGO_WIDTH, LOGO_HEIGHT);
-        // After the logos, so a long title is written over them rather than hidden under them.
         drawHeader();
         doc.setFontSize(8);
         doc.setFont('helvetica', 'bold');

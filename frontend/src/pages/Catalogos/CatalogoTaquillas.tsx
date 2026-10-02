@@ -69,31 +69,39 @@ const taquillaColumns = (direccion: (r: Taquilla) => string): Column<Taquilla>[]
     { header: 'Turno', cell: (r) => r.turno },
     { header: 'DirLin', cell: (r) => r.dirdelinea },
     { header: 'Dirección', cell: (r) => direccion(r) || 'SIN DIRECCION DE LINEA' },
-    { header: 'ExtTel', cell: (r) => r.extension_tel },
+    { header: 'Ext_Tel', cell: (r) => r.extension_tel },
     { header: 'Línea', cell: (r) => r.id_linea },
 ];
 
 const porTaquilla = (r: Taquilla) => r.id_taquilla;
-// Space between the parts of a report heading, e.g. "ESTACIÓN 01     PANTITLAN".
 const HEADING_GAP = '     ';
+const DIRECCION_GAP = '          ';
 const reportColumns = (lineaDe: (r: Taquilla) => Linea | undefined): Column<Taquilla>[] => [
     { header: 'Taquilla', cell: (r) => r.id_taquilla, repeatKey: porTaquilla, indent: 28 },
     { header: 'Turno', cell: (r) => r.turno, center: true },
-    { header: 'ExtTel', cell: (r) => r.extension_tel },
+    { header: 'Ext_Tel', cell: (r) => r.extension_tel },
     {
         header: 'Dirección de Línea',
         cell: (r) => {
             const l = lineaDe(r);
-            return [r.dirdelinea, l?.nombre_dirlin1, l?.nombre_dirlin2].filter((part) => part != null).join('     ');
+            const nombres = [l?.nombre_dirlin1, l?.nombre_dirlin2].filter((part) => part != null).join(DIRECCION_GAP);
+            return [String(r.dirdelinea), nombres].filter(Boolean).join(HEADING_GAP);
         },
         repeatKey: porTaquilla,
+        // Separates it from Ext_Tel.
+        indent: 30,
     },
 ];
 
+const COUNT_GAP = ' '.repeat(4);
 const TOTAL_EN_RED = {
-    countText: (rows: Taquilla[]) => `Total de ${new Set(rows.map((r) => r.id_taquilla)).size} Taquillas en la red`,
+    // The wider spaces around the number also widen the gaps in its split lines.
+    countText: (rows: Taquilla[]) =>
+        `Total de${COUNT_GAP}${new Set(rows.map((r) => r.id_taquilla)).size}${COUNT_GAP}Taquillas en la red`,
     countBold: true,
     countUnderline: true,
+    countRule: true,
+    countSplitNumber: true,
 };
 
 const formToTaquilla =(form: TaquillaForm, previous?: Taquilla): Taquilla => ({
@@ -117,14 +125,9 @@ export default function CatalogoTaquillas() {
         create: createTaquilla,
         update: updateTaquilla,
         remove: (r) => deleteTaquilla(r.id_taquilla, r.turno),
+        describe: (r) => `Taquilla ${r.id_taquilla} turno ${r.turno}`,
+        savedNote: (r) => (r.extension_tel?.trim() ? undefined : 'Taquilla guardada sin extensión, posteriormente podrá asignarla.'),
     });
-
-    const onSave = async () => {
-        const saved = await actions.onSave();
-        if (saved && !form.extension_tel.trim()) {
-            window.alert('Taquilla guardada sin extensión, posteriormente podrá asignarla.');
-        }
-    };
 
     const idLinea = padCode(form.id_linea);
     const idEstacion = padCode(form.id_estacion);
@@ -149,7 +152,6 @@ export default function CatalogoTaquillas() {
                 columns: reportColumns((r) => porId.get(r.id_linea)),
                 fontSize: 9,
                 rowPadding: 2,
-                // Rows start under the estación name (every estación code is two digits wide).
                 rowsAlignWith: `ESTACIÓN 00${HEADING_GAP}`,
                 sections: [
                     {
@@ -203,6 +205,8 @@ export default function CatalogoTaquillas() {
                 return { ...field, options: estacionOptions, accept: (v: string) => isCodePrefix(v, estacionCodes) };
             }
             if (field.key === 'id_taquilla') return { ...field, options: taquillaOptions };
+            // A turno the taquilla doesn't have yet unloads the record (see taquillaChange), so it
+            // can only be saved as a new row, never used to rename an existing one through Modificar.
             if (field.key === 'turno') return { ...field, options: turnoOptions };
             return field;
         });
@@ -238,7 +242,6 @@ export default function CatalogoTaquillas() {
             count={rows.length}
             onClear={clear}
             {...actions}
-            onSave={onSave}
             editing={selected !== null}
             reportActions={
                 <button type="button" className="stc-btn stc-generar-reporte-btn" onClick={openOperacionPdf}>
@@ -259,7 +262,7 @@ export default function CatalogoTaquillas() {
                     onChange={onFieldChange}
                 />
             }
-            pdf={{ title: 'CATÁLOGO DE TAQUILLAS Y TURNOS', ...report, rows: rows.filter((r) => r.id_linea !== '00'), countLabel: 'Taquillas', keepTogether: true, ...TOTAL_EN_RED }}
+            pdf={{ title: 'CATÁLOGO DE TAQUILLAS Y TURNOS', footerTitle: 'RptCatTaquillas', ...report, rows: rows.filter((r) => r.id_linea !== '00'), countLabel: 'Taquillas', keepTogether: true, ...TOTAL_EN_RED }}
         >
             <DataTable
                 title="Taquillas de la red"

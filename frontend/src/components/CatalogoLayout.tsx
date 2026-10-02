@@ -18,7 +18,7 @@ interface CatalogoLayoutProps<R> {
     editing: boolean;
     actions?: ReactNode;
     reportButton?: string;
-    // Extra buttons shown in the Reporte tab, above Generar reporte.
+    // Extra buttons shown in the Reporte tab, below Generar reporte.
     reportActions?: ReactNode;
     // Text of the button that generates the catalog's PDF.
     reportLabel?: string;
@@ -139,7 +139,6 @@ export default function CatalogoLayout<R>({
                                     children
                                 ) : (
                                     <div className="stc-report-panel">
-                                        {reportActions}
                                         <button
                                             type="button"
                                             className="stc-btn stc-generar-reporte-btn"
@@ -147,6 +146,7 @@ export default function CatalogoLayout<R>({
                                         >
                                             {reportLabel}
                                         </button>
+                                        {reportActions}
                                     </div>
                                 )}
                             </div>
