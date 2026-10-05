@@ -17,7 +17,6 @@ export interface ManualFieldConfig<T extends string = string> {
     readOnly?: boolean;
     isKey?: boolean;
     options?: { value: string; label: string }[];
-    // Rejects typed values it returns false for (e.g. codes that match no existing record).
     accept?: (value: string) => boolean;
 }
 
@@ -66,7 +65,6 @@ function ManualField<T extends string>({ config, value, onChange, readOnly }: Ma
                 }}
                 onBlur={() => {
                     setOpen(false);
-                    // A lone 0 is allowed while typing (e.g. "0" before "01") but is never a valid value.
                     if (config.max !== undefined && value && Number(value) < 1) onChange('');
                     else if (config.padTo && value) onChange(value.padStart(config.padTo, '0'));
                 }}
@@ -99,7 +97,6 @@ interface ManualFieldsProps<T extends string> {
     form: Record<T, string>;
     onChange: (key: T, value: string) => void;
     className?: string;
-    // Locks every field except the keys, which stay editable to load another record.
     lockValues?: boolean;
 }
 

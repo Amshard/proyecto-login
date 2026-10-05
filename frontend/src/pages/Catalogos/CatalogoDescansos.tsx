@@ -9,7 +9,7 @@ type DescansoForm = Record<keyof Descanso, string>;
 const EMPTY_FORM: DescansoForm = { id_descansos: '', iniciales: '', descanso1: '', descanso2: '' };
 
 const FIELDS = [
-    { ...codeField('id_descansos', 'Clave', 2, { numeric: true }), isKey: true },
+    { ...codeField('id_descansos', 'Clave', 2, { numeric: true, allowedChars: '01234567' }), isKey: true, },
     codeField('iniciales', 'Iniciales', 2),
     textField('descanso1', 'Descanso 1', 150, { maxLength: 10 }),
     textField('descanso2', 'Descanso 2', 150, { maxLength: 10 }),

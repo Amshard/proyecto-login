@@ -88,14 +88,12 @@ const reportColumns = (lineaDe: (r: Taquilla) => Linea | undefined): Column<Taqu
             return [String(r.dirdelinea), nombres].filter(Boolean).join(HEADING_GAP);
         },
         repeatKey: porTaquilla,
-        // Separates it from Ext_Tel.
         indent: 30,
     },
 ];
 
 const COUNT_GAP = ' '.repeat(4);
 const TOTAL_EN_RED = {
-    // The wider spaces around the number also widen the gaps in its split lines.
     countText: (rows: Taquilla[]) =>
         `Total de${COUNT_GAP}${new Set(rows.map((r) => r.id_taquilla)).size}${COUNT_GAP}Taquillas en la red`,
     countBold: true,
@@ -205,8 +203,6 @@ export default function CatalogoTaquillas() {
                 return { ...field, options: estacionOptions, accept: (v: string) => isCodePrefix(v, estacionCodes) };
             }
             if (field.key === 'id_taquilla') return { ...field, options: taquillaOptions };
-            // A turno the taquilla doesn't have yet unloads the record (see taquillaChange), so it
-            // can only be saved as a new row, never used to rename an existing one through Modificar.
             if (field.key === 'turno') return { ...field, options: turnoOptions };
             return field;
         });

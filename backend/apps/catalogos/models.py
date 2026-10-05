@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Min
 
 
 class Permanencia(models.Model):
