@@ -1,7 +1,6 @@
 import type { KeyboardEventHandler, ReactNode } from 'react';
 
 interface PageHeaderProps {
-    // Buttons shown in the column on the left of the page.
     children?: ReactNode;
     onKeyDown?: KeyboardEventHandler<HTMLElement>;
 }

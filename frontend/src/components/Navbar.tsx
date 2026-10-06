@@ -70,7 +70,6 @@ export default function Navbar() {
         navigate(`/dashboard/${path}`, { state });
     };
 
-    // With nothing focused, any arrow key starts keyboard navigation on the navbar.
     useEffect(() => {
         const onDocumentKeyDown = (e: globalThis.KeyboardEvent) => {
             const active = document.activeElement;
@@ -84,7 +83,6 @@ export default function Navbar() {
         return () => document.removeEventListener('keydown', onDocumentKeyDown);
     }, []);
 
-    // Focuses a top-level button, opening its menu on the first item when it has one.
     const focusTop = (button: HTMLButtonElement, open: boolean) => {
         const menu = button.dataset.menu;
         flushSync(() => {
@@ -101,7 +99,6 @@ export default function Navbar() {
         if (flyout) listButtons(flyout)[0]?.focus();
     };
 
-    // Arrow keys move between menus and items, Enter opens a menu or runs an item, Escape backs out.
     const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
         const target = e.target;
         if (!(target instanceof HTMLButtonElement)) return;
@@ -112,7 +109,6 @@ export default function Navbar() {
         if (topIndex >= 0) {
             const side = sideButtons()[0];
             if (e.key === 'ArrowLeft' && topIndex === 0 && side) {
-                // Left of the first menu is the button column on the left of the page.
                 closeMenus();
                 side.focus();
             } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
@@ -156,7 +152,6 @@ export default function Navbar() {
                 else focusTop(wrap(tops.indexOf(topButton) - 1), true);
                 break;
             case 'Enter':
-                if (!target.dataset.submenu) return; // plain items run through their click handler
                 openFlyout(target);
                 break;
             case 'Escape':

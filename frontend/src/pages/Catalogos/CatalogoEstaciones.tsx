@@ -48,7 +48,13 @@ const PDF_COLUMNS: Column<Estacion>[] = [
 export default function CatalogoEstaciones() {
     const [rows, setRows] = useCatalogoRows(getEstaciones);
     const [lineas] = useCatalogoRows(getLineas);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM);
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, {
+        fields: FIELDS,
+        checks: {
+            id_linea: (v) =>
+                lineas.some((l) => l.id_linea === padCode(v)) ? undefined : `La Línea ${padCode(v)} no existe en el catálogo de líneas.`,
+        },
+    });
     const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createEstacion,

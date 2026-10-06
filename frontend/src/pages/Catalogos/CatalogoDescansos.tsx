@@ -10,10 +10,22 @@ const EMPTY_FORM: DescansoForm = { id_descansos: '', iniciales: '', descanso1: '
 
 const FIELDS = [
     { ...codeField('id_descansos', 'Clave', 2, { numeric: true, allowedChars: '01234567' }), isKey: true, },
-    codeField('iniciales', 'Iniciales', 2),
+    { ...codeField('iniciales', 'Iniciales', 2), readOnly: true },
     textField('descanso1', 'Descanso 1', 150, { maxLength: 10 }),
     textField('descanso2', 'Descanso 2', 150, { maxLength: 10 }),
 ];
+
+// Clave digits are days of the week (1-7); the first must be smaller than the second, except 71.
+const isValidClave = (clave: string) => {
+    if (clave === '71') return true;
+    const [first, second] = [...clave].map(Number);
+    return first >= 1 && first < second && second <= 7;
+};
+
+// Initial of each day of the week, Monday (1) to Sunday (7).
+const DAY_INITIALS = ['', 'L', 'M', 'M', 'J', 'V', 'S', 'D'];
+
+const claveIniciales = (clave: string) => (isValidClave(clave) ? [...clave].map((d) => DAY_INITIALS[Number(d)]).join('') : '');
 
 const COLUMNS: Column<Descanso>[] = [
     { header: 'Clave', cell: (r) => r.id_descansos },
@@ -24,13 +36,20 @@ const COLUMNS: Column<Descanso>[] = [
 
 export default function CatalogoDescansos() {
     const [rows, setRows] = useCatalogoRows(getDescansos);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM);
-    const { form, selected, clear, fill, keyChange } = catalogoForm;
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, {
+        fields: FIELDS,
+        checks: { id_descansos: (v) => (isValidClave(v) ? undefined : 'La clave del segundo descanso debe de ser consecutivo') },
+    });
+    const { form, selected, clear, fill, keyChange, updateField } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createDescanso,
         remove: (r) => deleteDescanso(r.id_descansos),
     });
-    const onFieldChange = keyChange(['id_descansos'], (f) => rows.find((r) => String(r.id_descansos) === f.id_descansos));
+    const onKeyChange = keyChange(['id_descansos'], (f) => rows.find((r) => String(r.id_descansos) === f.id_descansos));
+    const onFieldChange = (field: keyof DescansoForm, value: string) => {
+        onKeyChange(field, value);
+        if (field === 'id_descansos') updateField('iniciales', claveIniciales(value));
+    };
 
     return (
         <CatalogoLayout

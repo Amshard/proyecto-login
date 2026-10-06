@@ -23,6 +23,11 @@ export function useCatalogoRows<R>(load: () => Promise<R[]>) {
 interface FormOptions<T> {
     required?: (keyof T)[];
     noUpper?: (keyof T)[];
+    // The catalog's field configs: their labels name the field in validation messages, and the
+    // isKey ones are the only fields checked before a delete.
+    fields?: { key: string; label: string; isKey?: boolean }[];
+    // Extra check of a filled-in field, given the whole form; returns the message to show when its value is not valid.
+    checks?: Partial<Record<keyof T, (value: string, form: T) => string | undefined>>;
 }
 
 export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, options: FormOptions<T> = {}) {
@@ -54,10 +59,22 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
         setSelected(row);
     };
 
-    const validate = () => {
-        const invalid = required.some((field) => form[field].trim() === '');
-        if (invalid) window.alert('Por favor llene todos los campos antes de guardar.');
-        return !invalid;
+    const label = (field: keyof T) => options.fields?.find((f) => f.key === field)?.label ?? String(field);
+    const keyFields = (options.fields ?? []).filter((f) => f.isKey && f.key in empty).map((f) => f.key as keyof T);
+
+    // Checks the fields in order and alerts about the first one that is empty or not valid.
+    // `onlyKeys` limits it to the key fields, which is all a delete needs.
+    const validate = (onlyKeys = false) => {
+        const fields = onlyKeys ? keyFields : required;
+        for (const field of fields) {
+            const value = form[field].trim();
+            const error = value === '' ? `El campo ${label(field)} está vacío.` : options.checks?.[field]?.(value, form);
+            if (error) {
+                window.alert(error);
+                return false;
+            }
+        }
+        return true;
     };
 
     // Change handler that loads the record whose key fields match what is typed in them; `find` gets
@@ -133,7 +150,11 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
             window.alert(describe ? `Se modificó correctamente: ${describe(updated)}.` : 'Registro modificado correctamente.');
         }),
         onDelete: async () => {
-            if (!selected) return;
+            if (!validate(true)) return;
+            if (!selected) {
+                window.alert('No existe un registro con esa clave.');
+                return;
+            }
             const deleted = describe?.(selected as R);
             if (!window.confirm(deleted ? `¿Desea eliminar el registro ${deleted}?` : '¿Desea eliminar el registro seleccionado?')) return;
             if (!(await persisted(remove(selected as R).catch(ignoreNotFound), 'No se pudo eliminar el registro.'))) return;

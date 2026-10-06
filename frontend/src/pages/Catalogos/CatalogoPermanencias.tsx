@@ -28,7 +28,7 @@ const COLUMNS: Column<Permanencia>[] = [
 
 export default function CatalogoPermanencias() {
     const [rows, setRows] = useCatalogoRows(getPermanencias);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM);
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, { fields: FIELDS });
     const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createPermanencia,

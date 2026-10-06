@@ -114,6 +114,7 @@ p {
 
 .stc-btn:active {
   background: #804327;
+  border: 1px solid #613521;
   color: black;
 }
 
@@ -222,7 +223,7 @@ p {
 }
 
 .stc-nav-btn:active {
-  background: #3b3b3b;
+  background: rgb(90, 56, 29);
   box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.4);
 }
 

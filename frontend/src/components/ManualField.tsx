@@ -11,6 +11,8 @@ export interface ManualFieldConfig<T extends string = string> {
     allowedChars?: string;
     nonZero?: boolean;
     max?: number;
+    minDate?: string;
+    maxDate?: string;
     wrapStyle?: CSSProperties;
     inputStyle?: CSSProperties;
     breakAfter?: boolean;
@@ -43,6 +45,8 @@ function ManualField<T extends string>({ config, value, onChange, readOnly }: Ma
                 type={config.type ?? 'text'}
                 inputMode={config.inputMode}
                 maxLength={config.maxLength}
+                min={config.minDate}
+                max={config.maxDate}
                 readOnly={locked}
                 value={value}
                 onChange={(e) => {

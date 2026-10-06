@@ -17,6 +17,13 @@ const FIELDS = [
     codeField('sexo', 'Genero', 1, { wrap: 70, allowedChars: 'FM' }),
 ];
 
+const todayIso = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+};
+
+const formatDate = (iso: string) => iso.split('-').reverse().join('/');
+
 const COLUMNS: Column<PersonalTaquilla>[] = [
     { header: 'Expediente', cell: (r) => r.id_expediente },
     { header: 'Nombre', cell: (r) => r.nombre },
@@ -27,7 +34,26 @@ const COLUMNS: Column<PersonalTaquilla>[] = [
 
 export default function CatalogoPersonal() {
     const [rows, setRows] = useCatalogoRows(getPersonalTaquilla);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['fecha_ingreso'] });
+    const maxDate = todayIso();
+    const minDate = rows.reduce<string | undefined>((oldest, r) => {
+        const fecha = r.fecha_ingreso ? String(r.fecha_ingreso).slice(0, 10) : '';
+        return fecha && (!oldest || fecha < oldest) ? fecha : oldest;
+    }, undefined);
+    const fields = FIELDS.map((f) => (f.key === 'fecha_ingreso' ? { ...f, minDate, maxDate } : f));
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, {
+        noUpper: ['fecha_ingreso'],
+        fields: FIELDS,
+        checks: {
+            id_expediente: (v) => (/^\d+$/.test(v) && Number(v) >= 1 ? undefined : 'El campo Expediente debe ser un número mayor a 0.'),
+            nombre: (v) => (/^[A-ZÁÉÍÓÚÜÑ .'-]+$/.test(v) ? undefined : 'El campo Nombre solo puede contener letras y espacios.'),
+            fecha_ingreso: (v) => {
+                if (v > maxDate) return 'El campo Fecha de Ingreso no puede ser posterior a la fecha actual.';
+                if (minDate && v < minDate) return `El campo Fecha de Ingreso no puede ser anterior al ${formatDate(minDate)}.`;
+            },
+            prejubilacion: (v) => (['S', 'N'].includes(v) ? undefined : 'El campo Prejubilación solo acepta S o N.'),
+            sexo: (v) => (['F', 'M'].includes(v) ? undefined : 'El campo Genero solo acepta F o M.'),
+        },
+    });
     const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f, id_expediente: Number(f.id_expediente) }), {
         create: createPersonalTaquilla,
@@ -104,7 +130,7 @@ export default function CatalogoPersonal() {
                     Buscar
                 </button>
             }
-            fields={<ManualFields fields={FIELDS} form={form} onChange={onFieldChange} />}
+            fields={<ManualFields fields={fields} form={form} onChange={onFieldChange} />}
             overlay={searchModal}
             pdf={{ title: 'Catálogo de Personal de Taquilla', columns: COLUMNS, rows: displayedRows, countLabel: 'Personal' }}
         >

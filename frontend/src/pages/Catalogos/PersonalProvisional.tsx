@@ -94,7 +94,7 @@ const COLUMNS: Column<ProvisionalForm>[] = [
 
 export default function PersonalProvisional() {
     const [rows, setRows] = useCatalogoRows(loadGaceta);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['ingreso'] });
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['ingreso'], fields: [...MAIN_FIELDS, ...SMALL_FIELDS] });
     const { form, selected, updateField, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: (r) => createPersonalGaceta(formToGaceta(r)),

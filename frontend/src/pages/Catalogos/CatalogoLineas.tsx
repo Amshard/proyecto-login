@@ -117,7 +117,16 @@ async function loadLineas(): Promise<LineaConPermanencia[]> {
 export default function CatalogoLineas() {
     const [rows, setRows] = useCatalogoRows(loadLineas);
     const [permanencias] = useCatalogoRows(getPermanencias);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, {
+        required: REQUIRED,
+        fields: FIELDS,
+        checks: {
+            id_permanencia: (v) =>
+                permanencias.some((p) => p.id_permanencia === v)
+                    ? undefined
+                    : `La permanencia "${v}" no existe en el catálogo de permanencias.`,
+        },
+    });
     const { form, selected, updateField, clear, fill, keyChange } = catalogoForm;
 
     const fields = useMemo(() => {
@@ -145,17 +154,7 @@ export default function CatalogoLineas() {
         updateField('descripcion', permanencia?.descripcion ?? '');
     };
 
-    const validate = () => {
-        if (!catalogoForm.validate()) return false;
-        const id = form.id_permanencia.trim();
-        if (id && !permanencias.some((p) => p.id_permanencia === id)) {
-            window.alert(`La permanencia "${id}" no existe en el catálogo de permanencias.`);
-            return false;
-        }
-        return true;
-    };
-
-    const actions = catalogoActions(setRows, { ...catalogoForm, validate }, formToLinea, {
+    const actions = catalogoActions(setRows, catalogoForm, formToLinea, {
         create: createLinea,
         update: updateLinea,
         remove: (r) => deleteLinea(r.id_linea),

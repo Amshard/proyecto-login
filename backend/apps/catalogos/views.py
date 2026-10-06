@@ -94,8 +94,9 @@ class TaquillaOperacionView(APIView):
 class CatalogoItemView(APIView):
     """PUT (modify) or DELETE one catalog row, addressed by its key columns.
 
-    URL kwargs are named after the KEYS fields. `links` are (table, columns, reason) checked
-    in order with the same key values before a delete. A PUT also stamps usuario_modif with
+    URL kwargs are named after the KEYS fields. `links` are (table, columns, message) checked
+    in order with the same key values before a delete; the first table with a matching row
+    refuses the delete with its message. A PUT also stamps usuario_modif with
     the user and fecha_modif with today (except UNAUDITED tables).
     """
 
@@ -136,10 +137,10 @@ class CatalogoItemView(APIView):
     def delete(self, request, **kwargs):
         values = [kwargs[key] for key in self.keys]
         with transaction.atomic(), connection.cursor() as cursor:
-            for table, columns, reason in self.links:
+            for table, columns, message in self.links:
                 cursor.execute(f'SELECT TOP 1 1 FROM {table} WHERE {_where(columns)}', values)
                 if cursor.fetchone():
-                    return Response({'detail': f'No procede la baja, {reason}.'}, status=status.HTTP_409_CONFLICT)
+                    return Response({'detail': message}, status=status.HTTP_409_CONFLICT)
             cursor.execute(f'DELETE FROM {self._table} WHERE {self._where}', values)
             if cursor.rowcount == 0:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -164,27 +165,27 @@ def _item_view(model, serializer, *links):
 
 PermanenciaItemView = _item_view(
     models.Permanencia, serializers.PermanenciaSerializer,
-    ('cat_lineas', ('id_permanencia',), 'esta asignada a líneas'),
+    ('cat_lineas', ('id_permanencia',), 'No procede la baja, esta asignada a líneas.'),
 )
 LineaItemView = _item_view(
     models.Linea, serializers.LineaSerializer,
-    ('cat_estaciones', ('id_linea',), 'tiene estaciones asignadas'),
-    ('cat_taquillas', ('id_linea',), 'tiene taquillas asignadas'),
+    ('cat_estaciones', ('id_linea',), 'No procede la baja, tiene estaciones asignadas.'),
+    ('cat_taquillas', ('id_linea',), 'No procede la baja, tiene taquillas asignadas.'),
 )
 EstacionItemView = _item_view(
     models.Estacion, serializers.EstacionSerializer,
-    ('cat_taquillas', ('id_linea', 'id_estacion'), 'tiene taquillas asignadas'),
+    ('cat_taquillas', ('id_linea', 'id_estacion'), 'No procede la baja, tiene taquillas asignadas.'),
 )
 DescansoItemView = _item_view(
     models.Descanso, serializers.DescansoSerializer,
-    ('rol_taquilla', ('id_descansos',), 'esta asignado en el rol de taquilla'),
+    ('rol_taquilla', ('id_descansos',), 'Esta asignada en el rol de Taquillas'),
 )
 TaquillaItemView = _item_view(
     models.Taquilla, serializers.TaquillaSerializer,
-    ('rol_taquilla', ('id_taquilla', 'turno'), 'esta asignada en el rol de taquilla'),
+    ('rol_taquilla', ('id_taquilla', 'turno'), 'Existe en el Rol de Taquilla, Primero debe darla de baja en el Rol'),
 )
 PersonalTaquillaItemView = _item_view(
     models.PersonalTaquilla, serializers.PersonalTaquillaSerializer,
-    ('rol_taquilla', ('id_expediente',), 'esta asignado en el rol de taquilla'),
+    ('rol_taquilla', ('id_expediente',), 'No procede la baja, esta asignado en el rol de taquilla.'),
 )
 PersonalGacetaItemView = _item_view(models.PersonalGaceta, serializers.PersonalGacetaSerializer)

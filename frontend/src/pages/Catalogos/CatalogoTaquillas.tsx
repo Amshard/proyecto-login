@@ -117,7 +117,7 @@ export default function CatalogoTaquillas() {
     const [lineas] = useCatalogoRows(getLineas);
     const [estaciones] = useCatalogoRows(getEstaciones);
     const [enOperacion] = useCatalogoRows(getTaquillasOperacion);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED });
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED, fields: FIELDS });
     const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, formToTaquilla, {
         create: createTaquilla,
