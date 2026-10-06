@@ -169,16 +169,15 @@ PermanenciaItemView = _item_view(
 )
 LineaItemView = _item_view(
     models.Linea, serializers.LineaSerializer,
-    ('cat_estaciones', ('id_linea',), 'No procede la baja, tiene estaciones asignadas.'),
-    ('cat_taquillas', ('id_linea',), 'No procede la baja, tiene taquillas asignadas.'),
+    ('cat_taquillas', ('id_linea',), 'No procede la baja, hay taquillas con esta clave.'),
 )
 EstacionItemView = _item_view(
     models.Estacion, serializers.EstacionSerializer,
-    ('cat_taquillas', ('id_linea', 'id_estacion'), 'No procede la baja, tiene taquillas asignadas.'),
+    ('cat_taquillas', ('id_linea', 'id_estacion'), 'No procede la baja, hay taquillas con esta clave.'),
 )
 DescansoItemView = _item_view(
     models.Descanso, serializers.DescansoSerializer,
-    ('rol_taquilla', ('id_descansos',), 'Esta asignada en el rol de Taquillas'),
+    ('rol_taquilla', ('id_descansos',), 'No procede la baja, esta asignado en el rol de taquilla.'),
 )
 TaquillaItemView = _item_view(
     models.Taquilla, serializers.TaquillaSerializer,

@@ -15,14 +15,12 @@ const FIELDS = [
     textField('descanso2', 'Descanso 2', 150, { maxLength: 10 }),
 ];
 
-// Clave digits are days of the week (1-7); the first must be smaller than the second, except 71.
 const isValidClave = (clave: string) => {
     if (clave === '71') return true;
     const [first, second] = [...clave].map(Number);
     return first >= 1 && first < second && second <= 7;
 };
 
-// Initial of each day of the week, Monday (1) to Sunday (7).
 const DAY_INITIALS = ['', 'L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
 const claveIniciales = (clave: string) => (isValidClave(clave) ? [...clave].map((d) => DAY_INITIALS[Number(d)]).join('') : '');
@@ -36,15 +34,19 @@ const COLUMNS: Column<Descanso>[] = [
 
 export default function CatalogoDescansos() {
     const [rows, setRows] = useCatalogoRows(getDescansos);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM, {
-        fields: FIELDS,
-        checks: { id_descansos: (v) => (isValidClave(v) ? undefined : 'La clave del segundo descanso debe de ser consecutivo') },
-    });
+    const catalogoForm = useCatalogoForm(EMPTY_FORM);
     const { form, selected, clear, fill, keyChange, updateField } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createDescanso,
         remove: (r) => deleteDescanso(r.id_descansos),
     });
+    const onSave = async () => {
+        if (form.id_descansos.trim() !== '' && !isValidClave(form.id_descansos)) {
+            window.alert('La clave del segundo descanso debe de ser consecutivo');
+            return false;
+        }
+        return actions.onSave();
+    };
     const onKeyChange = keyChange(['id_descansos'], (f) => rows.find((r) => String(r.id_descansos) === f.id_descansos));
     const onFieldChange = (field: keyof DescansoForm, value: string) => {
         onKeyChange(field, value);
@@ -58,6 +60,7 @@ export default function CatalogoDescansos() {
             count={rows.length}
             onClear={clear}
             {...actions}
+            onSave={onSave}
             editing={selected !== null}
             fields={<ManualFields fields={FIELDS} form={form} onChange={onFieldChange} lockValues={selected !== null} />}
             pdf={{ title: 'Catálogo de Descansos', columns: COLUMNS, rows, countLabel: 'Descansos' }}
