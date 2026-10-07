@@ -14,12 +14,7 @@ import {
     useCatalogoRows,
 } from './useCatalogo';
 
-interface LineaConPermanencia extends Linea {
-    nombre_perma: string | null;
-    descripcion: string | null;
-}
-
-type LineaForm = Record<keyof LineaConPermanencia, string>;
+type LineaForm = Record<keyof Linea, string>;
 
 const DIR_INI = '1';
 const DIR_FIN = '2';
@@ -34,8 +29,6 @@ const EMPTY_FORM: LineaForm = {
     taquillas: '',
     tramos: '',
     id_permanencia: '',
-    nombre_perma: '',
-    descripcion: '',
 };
 
 const COUNT = { width: 60, wrap: 80, numeric: true, nonZero: true };
@@ -58,36 +51,26 @@ const PERMA_FIELDS = [
     { ...textField('nombre_perma', 'Nombre Permanencia', 150), readOnly: true },
     { ...textField('descripcion', 'Descripción', 250), readOnly: true },
 ];
+const HIDDEN_PERMA_FIELDS = PERMA_FIELDS.map((field) => ({
+    ...field,
+    wrapStyle: { ...field.wrapStyle, visibility: 'hidden' as const },
+}));
 
-const COLUMNS: Column<LineaConPermanencia>[] = [
-    { header: 'Línea', cell: (r) => r.id_linea },
-    { header: 'Dirección', cell: (r) => r.dirdelinea1 },
-    { header: 'Estación Inicial', cell: (r) => r.nombre_dirlin1 },
-    { header: 'Dirección', cell: (r) => r.dirdelinea2 },
-    { header: 'Estación Terminal', cell: (r) => r.nombre_dirlin2 },
-    { header: 'Estaciones', cell: (r) => r.estaciones },
-    { header: 'Taquillas', cell: (r) => r.taquillas },
-    { header: 'Tramos', cell: (r) => r.tramos },
-    { header: 'Permanencia', cell: (r) => r.id_permanencia },
-    { header: 'Nombre', cell: (r) => r.nombre_perma },
-    { header: 'Descripcion', cell: (r) => r.descripcion },
-];
+const PDF = {
+    title: 'CATALOGO DE LÍNEAS',
+    footerTitle: 'RptCatLineas',
+    countLabel: 'Líneas',
+    countTitle: 'Total de Líneas',
+    countBold: true,
+    countUnderline: true,
+    countUnderlineSplit: true,
+    rowPadding: 7,
+};
 
-const joinParts = (separator: string, ...parts: (string | null)[]) =>
-    parts.filter((part) => part).join(separator);
-
-const PDF_COLUMNS: Column<LineaConPermanencia>[] = [
-    { header: 'Línea', cell: (r) => r.id_linea, center: true },
-    { header: 'Nombre', cell: (r) => joinParts(' - ', r.nombre_dirlin1, r.nombre_dirlin2) },
-    { header: 'Estaciones', cell: (r) => r.estaciones, total: true, center: true },
-    { header: 'Taquillas', cell: (r) => r.taquillas, total: true, center: true },
-    { header: 'Tramos', cell: (r) => r.tramos, center: true },
-    { header: 'Permanencia', cell: (r) => joinParts('         ', r.id_permanencia, r.nombre_perma) },
-];
-
+const joinParts = (separator: string, ...parts: (string | null | undefined)[]) => parts.filter(Boolean).join(separator);
 const toNumberOrNull = (value: string) => (value ? Number(value) : null);
 
-const formToLinea = (form: LineaForm): LineaConPermanencia => ({
+const formToLinea = (form: LineaForm): Linea => ({
     id_linea: form.id_linea,
     dirdelinea1: Number(DIR_INI),
     nombre_dirlin1: form.nombre_dirlin1,
@@ -97,25 +80,10 @@ const formToLinea = (form: LineaForm): LineaConPermanencia => ({
     taquillas: toNumberOrNull(form.taquillas),
     tramos: toNumberOrNull(form.tramos),
     id_permanencia: form.id_permanencia || null,
-    nombre_perma: form.nombre_perma || null,
-    descripcion: form.descripcion || null,
 });
 
-async function loadLineas(): Promise<LineaConPermanencia[]> {
-    const [lineas, permanencias] = await Promise.all([getLineas(), getPermanencias()]);
-    const porId = new Map(permanencias.map((p) => [p.id_permanencia, p]));
-    return lineas.map((linea) => {
-        const permanencia = linea.id_permanencia ? porId.get(linea.id_permanencia) : undefined;
-        return {
-            ...linea,
-            nombre_perma: permanencia?.nombre_perma ?? null,
-            descripcion: permanencia?.descripcion ?? null,
-        };
-    });
-}
-
 export default function CatalogoLineas() {
-    const [rows, setRows] = useCatalogoRows(loadLineas);
+    const [rows, setRows] = useCatalogoRows(getLineas);
     const [permanencias] = useCatalogoRows(getPermanencias);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
         required: REQUIRED,
@@ -127,33 +95,7 @@ export default function CatalogoLineas() {
                     : `La permanencia "${v}" no existe en el catálogo de permanencias.`,
         },
     });
-    const { form, selected, updateField, clear, fill, keyChange } = catalogoForm;
-
-    const fields = useMemo(() => {
-        const options = permanencias.map((p) => ({ value: p.id_permanencia, label: p.nombre_perma }));
-        const allowedChars = permanencias.map((p) => p.id_permanencia).join('');
-        const lineaCodes = rows.map((r) => r.id_linea);
-        const withOptions = FIELDS.map((field) => {
-            if (field.key === 'id_linea') return { ...field, accept: (v: string) => isCodePrefix(v, lineaCodes) };
-            if (field.key === 'id_permanencia') return { ...field, options, allowedChars };
-            return field;
-        });
-        const permaFields = form.id_permanencia
-            ? PERMA_FIELDS
-            : PERMA_FIELDS.map((field) => ({ ...field, wrapStyle: { ...field.wrapStyle, visibility: 'hidden' as const } }));
-        return [...withOptions, ...permaFields];
-    }, [rows, permanencias, form.id_permanencia]);
-
-    const lineaChange = keyChange(['id_linea'], (f) => rows.find((r) => r.id_linea === padCode(f.id_linea)));
-
-    const onFieldChange = (key: keyof LineaForm, value: string) => {
-        lineaChange(key, value);
-        if (key !== 'id_permanencia') return;
-        const permanencia = permanencias.find((p) => p.id_permanencia === value);
-        updateField('nombre_perma', permanencia?.nombre_perma ?? '');
-        updateField('descripcion', permanencia?.descripcion ?? '');
-    };
-
+    const { form, selected, clear, fill, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, formToLinea, {
         create: createLinea,
         update: updateLinea,
@@ -161,10 +103,58 @@ export default function CatalogoLineas() {
         describe: (r) => `Línea ${r.id_linea}`,
     });
 
+    const { permanencia, columns, pdfColumns } = useMemo(() => {
+        const porId = new Map(permanencias.map((p) => [p.id_permanencia, p]));
+        const permanencia = (id: string | null) => (id ? porId.get(id) : undefined);
+        const nombrePerma = (r: Linea) => permanencia(r.id_permanencia)?.nombre_perma;
+        return {
+            permanencia,
+            columns: [
+                { header: 'Línea', cell: (r) => r.id_linea },
+                { header: 'Dirección', cell: (r) => r.dirdelinea1 },
+                { header: 'Estación Inicial', cell: (r) => r.nombre_dirlin1 },
+                { header: 'Dirección', cell: (r) => r.dirdelinea2 },
+                { header: 'Estación Terminal', cell: (r) => r.nombre_dirlin2 },
+                { header: 'Estaciones', cell: (r) => r.estaciones },
+                { header: 'Taquillas', cell: (r) => r.taquillas },
+                { header: 'Tramos', cell: (r) => r.tramos },
+                { header: 'Permanencia', cell: (r) => r.id_permanencia },
+                { header: 'Nombre', cell: nombrePerma },
+                { header: 'Descripcion', cell: (r) => permanencia(r.id_permanencia)?.descripcion },
+            ] as Column<Linea>[],
+            pdfColumns: [
+                { header: 'Línea', cell: (r) => r.id_linea, center: true },
+                { header: 'Nombre', cell: (r) => joinParts(' - ', r.nombre_dirlin1, r.nombre_dirlin2) },
+                { header: 'Estaciones', cell: (r) => r.estaciones, total: true, center: true },
+                { header: 'Taquillas', cell: (r) => r.taquillas, total: true, center: true },
+                { header: 'Tramos', cell: (r) => r.tramos, center: true },
+                { header: 'Permanencia', cell: (r) => joinParts(' '.repeat(9), r.id_permanencia, nombrePerma(r)) },
+            ] as Column<Linea>[],
+        };
+    }, [permanencias]);
+
+    const fields = useMemo(() => {
+        const lineaCodes = rows.map((r) => r.id_linea);
+        const extra: Record<string, object> = {
+            id_linea: { accept: (v: string) => isCodePrefix(v, lineaCodes) },
+            id_permanencia: {
+                options: permanencias.map((p) => ({ value: p.id_permanencia, label: p.nombre_perma })),
+                allowedChars: permanencias.map((p) => p.id_permanencia).join(''),
+            },
+        };
+        return [
+            ...FIELDS.map((field) => ({ ...field, ...extra[field.key] })),
+            ...(form.id_permanencia ? PERMA_FIELDS : HIDDEN_PERMA_FIELDS),
+        ];
+    }, [rows, permanencias, form.id_permanencia]);
+
     const sortedRows = useMemo(
         () => [...rows].sort((a, b) => (a.id_linea < b.id_linea ? -1 : a.id_linea > b.id_linea ? 1 : 0)),
-        [rows],
+        [rows]
     );
+
+    const lineaChange = keyChange(['id_linea'], (f) => rows.find((r) => r.id_linea === padCode(f.id_linea)));
+    const formPerma = permanencia(form.id_permanencia);
 
     return (
         <CatalogoLayout
@@ -177,30 +167,25 @@ export default function CatalogoLineas() {
             fields={
                 <ManualFields
                     fields={fields}
-                    form={{ ...form, dirdelinea1: DIR_INI, dirdelinea2: DIR_FIN }}
-                    onChange={onFieldChange}
+                    form={{
+                        ...form,
+                        dirdelinea1: DIR_INI,
+                        dirdelinea2: DIR_FIN,
+                        nombre_perma: formPerma?.nombre_perma ?? '',
+                        descripcion: formPerma?.descripcion ?? '',
+                    }}
+                    onChange={(key: string, value) => lineaChange(key as keyof LineaForm, value)}
                 />
             }
-            pdf={{
-                title: 'CATALOGO DE LÍNEAS',
-                footerTitle: 'RptCatLineas',
-                columns: PDF_COLUMNS,
-                rows: sortedRows,
-                countLabel: 'Líneas',
-                countTitle: 'Total de Líneas',
-                countBold: true,
-                countUnderline: true,
-                countUnderlineSplit: true,
-                rowPadding: 7,
-            }}
+            pdf={{ ...PDF, columns: pdfColumns, rows: sortedRows }}
         >
             <DataTable
                 title="Líneas de la red"
                 className="stc-table-lineas"
-                columns={COLUMNS}
+                columns={columns}
                 rows={sortedRows}
                 onRowSelect={fill}
-                activeRow={selected as LineaConPermanencia | null}
+                activeRow={selected as Linea | null}
             />
         </CatalogoLayout>
     );

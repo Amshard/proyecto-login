@@ -80,7 +80,7 @@ export default function Login() {
                             {error && <p className="stc-error">{error}</p>}
 
                             <button type="submit" className="stc-submit-btn" disabled={submitting}>
-                                {submitting ? 'Ingresando...' : 'Ingresar'}
+                                {submitting ? 'Ingresar' : 'Ingresar'}
                             </button>
                             <button
                                 type="button"

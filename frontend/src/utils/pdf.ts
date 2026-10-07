@@ -63,6 +63,10 @@ const byCode = (a: string, b: string) =>
 
 const GROUP_TABLE_TOP = 76;
 
+// Extra head row under the column titles; autoTable repeats it on every page of the table.
+// fromSection: it replaces the top section's body heading.
+type TableLabel = { content: string; styles: Partial<Styles>; fromSection: boolean };
+
 function splitBy<R>(rows: R[], key: (row: R) => string): R[][] {
     const runs: R[][] = [];
     rows.forEach((row, i) => {
@@ -172,7 +176,8 @@ export function buildCatalogoPdfBlob<R>({
         ...tableColumns.flatMap((c, i) => (c.fit ? [[i, { cellWidth: fittedWidth(c) }]] : [])),
     ]);
 
-    const tableBody = (tableRows: R[]) => {
+    // headed: the top section's heading is drawn in the table head (repeated on every page) instead of the body.
+    const tableBody = (tableRows: R[], headed: boolean) => {
         const body: RowInput[] = [];
         const spans: boolean[] = [];
         const blocks: number[] = [];
@@ -202,7 +207,7 @@ export function buildCatalogoPdfBlob<R>({
                 return;
             }
             splitBy(sectionRows, section.key).forEach((group) => {
-                spanRow(section.label(group[0]), headingStyle(level), true);
+                if (!(headed && level === 0)) spanRow(section.label(group[0]), headingStyle(level), true);
                 addRows(group, level + 1);
                 if (section.total) spanRow(section.total(group), totalStyle(), false);
             });
@@ -219,14 +224,12 @@ export function buildCatalogoPdfBlob<R>({
         foot: RowInput[] | undefined,
         top: number,
         styles: typeof columnStyles,
-        label?: string
+        label?: TableLabel
     ): UserOptions => ({
         theme: 'plain',
         head: [
             tableColumns.map((c) => c.header),
-            ...(label
-                ? [[{ content: label, colSpan: tableColumns.length, styles: { fontSize: 10, lineWidth: 0 } }]]
-                : []),
+            ...(label ? [[{ content: label.content, colSpan: tableColumns.length, styles: label.styles }]] : []),
         ],
         body,
         foot,
@@ -250,11 +253,10 @@ export function buildCatalogoPdfBlob<R>({
             lineWidth: 0,
         },
         willDrawCell: ({ section, row, column, cell }) => {
-            const pdfColumn = tableColumns[column.index];
-            const indent = pdfColumn?.indent ?? 0;
             if (section === 'foot' || (section === 'head' && row.index !== 0)) return;
             if (section === 'body' && spans[row.index]) return;
-            let offset = indent;
+            const pdfColumn = tableColumns[column.index];
+            let offset = pdfColumn?.indent ?? 0;
             if (pdfColumn?.center && section === 'body') {
                 offset += (headerWidth(pdfColumn) - doc.getTextWidth(cell.text.join(''))) / 2;
             }
@@ -284,8 +286,8 @@ export function buildCatalogoPdfBlob<R>({
     const lastTable = (pdf: jsPDF) => (pdf as unknown as { lastAutoTable: DrawnTable }).lastAutoTable;
     const lastTableY = () => lastTable(doc).finalY;
 
-    const drawTable = (tableRows: R[], showTotals: boolean, top: number, label?: string) => {
-        const { body, spans, blocks } = tableBody(tableRows);
+    const drawTable = (tableRows: R[], showTotals: boolean, top: number, label?: TableLabel) => {
+        const { body, spans, blocks } = tableBody(tableRows, label?.fromSection ?? false);
         const foot = hasTotals && showTotals ? [totalsRow] : undefined;
         if (!keepTogether) {
             autoTable(doc, tableOptions(body, spans, foot, top, columnStyles, label));
@@ -321,26 +323,25 @@ export function buildCatalogoPdfBlob<R>({
             const end = pageStarts[page + 1] ?? body.length;
             const last = page === pageStarts.length - 1;
             if (page > 0) doc.addPage();
-            autoTable(
-                doc,
-                {
-                    ...tableOptions(body.slice(start, end), spans.slice(start, end), last ? foot : undefined, top, fixedWidths, label),
-                    rowPageBreak: 'avoid',
-                }
-            );
+            autoTable(doc, {
+                ...tableOptions(body.slice(start, end), spans.slice(start, end), last ? foot : undefined, top, fixedWidths, label),
+                rowPageBreak: 'avoid',
+            });
         });
     };
     let finalY: number;
 
     if (group) {
-        const groups = new Map<string, R[]>();
-        rows.forEach((row) => {
-            const key = group.key(row);
-            groups.set(key, [...(groups.get(key) ?? []), row]);
-        });
-        [...groups].forEach(([key, groupRows], index) => {
+        // Rows are sorted by the group key first, so each group is one contiguous run.
+        const groups = splitBy(rows, group.key);
+        groups.forEach((groupRows, index) => {
+            const key = group.key(groupRows[0]);
             if (index > 0) doc.addPage();
-            drawTable(groupRows, index === groups.size - 1, GROUP_TABLE_TOP, group.label(key));
+            drawTable(groupRows, index === groups.length - 1, GROUP_TABLE_TOP, {
+                content: group.label(key),
+                styles: { fontSize: 10, lineWidth: 0 },
+                fromSection: false,
+            });
             let totalY = lastTableY() + 18;
             if (totalY > pageHeight - 50) {
                 doc.addPage();
@@ -354,10 +355,14 @@ export function buildCatalogoPdfBlob<R>({
         });
         finalY ??= lastTableY();
     } else {
-        const pages = sections[0]?.pageBreak ? splitBy(rows, sections[0].key) : [rows];
+        // A page-breaking section's heading goes in the table head so it repeats on every page.
+        const pageSection = sections[0]?.pageBreak ? sections[0] : undefined;
+        const pages = pageSection ? splitBy(rows, pageSection.key) : [rows];
+        const pageHeadingStyles = { ...headingStyle(0), lineWidth: 0 };
         pages.forEach((pageRows, index) => {
             if (index > 0) doc.addPage();
-            drawTable(pageRows, index === pages.length - 1, 78);
+            const label = pageSection && { content: pageSection.label(pageRows[0]), styles: pageHeadingStyles, fromSection: true };
+            drawTable(pageRows, index === pages.length - 1, 78, label);
         });
         finalY = lastTableY();
     }
@@ -378,8 +383,6 @@ export function buildCatalogoPdfBlob<R>({
         const countEndX = pageCenter + countLabelWidth / 2;
         const countNumberX = countStartX + doc.getTextWidth(`${countTitle}: `);
 
-        // Horizontal extents the count's lines cover: the whole text, or with countSplitNumber
-        // the text before the number, the number, and the text after it.
         const countSegments = (() => {
             const match = countSplitNumber ? /\d+/.exec(countLabelText) : null;
             if (!match) return [[countStartX, countEndX]];

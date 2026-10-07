@@ -71,6 +71,7 @@ class Taquilla(models.Model):
     extension_tel = models.CharField(max_length=10, null=True, blank=True)
     id_linea = models.CharField(max_length=2)
     id_estacion = models.CharField(max_length=2)
+    
 
     pk = models.CompositePrimaryKey('id_taquilla', 'turno')
 

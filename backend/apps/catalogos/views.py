@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from apps.catalogos import models, serializers
 
 
-# Key fields of each editable catalog; keys are set on insert and never updated.
 KEYS = {
     models.Permanencia: ('id_permanencia',),
     models.Linea: ('id_linea',),
@@ -17,7 +16,6 @@ KEYS = {
     models.PersonalGaceta: ('exp',),
 }
 
-# Tables without usuario_alta / fecha_alta / usuario_modif / fecha_modif columns.
 UNAUDITED = {models.PersonalGaceta}
 
 
@@ -40,7 +38,6 @@ class CatalogoListView(generics.ListAPIView):
         if keys is None:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         serializer = self.get_serializer(data=request.data)
-        # Checked before validation so a duplicate id gets this message, not the serializer's.
         if model.objects.filter(**{key: request.data.get(key) for key in keys}).exists():
             return Response({'detail': 'Ya existe un registro con esa clave.'}, status=status.HTTP_409_CONFLICT)
         serializer.is_valid(raise_exception=True)
@@ -80,15 +77,22 @@ TaquillaListView = _list_view(models.Taquilla, serializers.TaquillaSerializer, '
 
 
 class TaquillaOperacionView(APIView):
-    """GET the taquilla/turno pairs assigned in rol_taquilla, which holds the current (last) rol."""
 
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         with connection.cursor() as cursor:
-            cursor.execute('SELECT DISTINCT id_taquilla, turno FROM rol_taquilla')
-            pairs = [{'id_taquilla': id_taquilla, 'turno': turno} for id_taquilla, turno in cursor.fetchall()]
-        return Response(pairs)
+            cursor.execute(
+                'SELECT DISTINCT(id_taquilla) id_taquilla, turno, linea, nombre_estacion '
+                'FROM rol_taquilla_trabajo, cat_estaciones '
+                "WHERE id_taquilla <> '00000' "
+                'AND (id_estacion = substring(rol_taquilla_trabajo.id_taquilla,3,2)) '
+                'AND (rol_taquilla_trabajo.linea = cat_estaciones.id_linea) '
+                'ORDER BY id_taquilla, linea, rol_taquilla_trabajo.turno asc, nombre_estacion ASC'
+            )
+            columns = [col[0] for col in cursor.description]
+            rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        return Response(rows)
 
 
 class CatalogoItemView(APIView):
