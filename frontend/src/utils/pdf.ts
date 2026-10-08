@@ -41,9 +41,7 @@ export interface PdfReport<R> {
     countBold?: boolean;
     countUnderline?: boolean;
     countUnderlineSplit?: boolean;
-    // Draws a single line just above the final count, as wide as its text.
     countRule?: boolean;
-    // Breaks the count's lines into the text before its number, the number, and the text after.
     countSplitNumber?: boolean;
     titleBold?: boolean;
     rowPadding?: number;
@@ -63,8 +61,6 @@ const byCode = (a: string, b: string) =>
 
 const GROUP_TABLE_TOP = 76;
 
-// Extra head row under the column titles; autoTable repeats it on every page of the table.
-// fromSection: it replaces the top section's body heading.
 type TableLabel = { content: string; styles: Partial<Styles>; fromSection: boolean };
 
 function splitBy<R>(rows: R[], key: (row: R) => string): R[][] {
@@ -99,7 +95,7 @@ export function buildCatalogoPdfBlob<R>({
     sections = [],
     keepTogether = false,
     showCount = true,
-    unofficialNotes = true,
+    unofficialNotes = false,
 }: PdfReport<R>): Blob {
     const idColumn = columns[0];
     const sortKeys = [...(group ? [group.key] : []), ...sections.map((s) => s.key)];
@@ -176,7 +172,6 @@ export function buildCatalogoPdfBlob<R>({
         ...tableColumns.flatMap((c, i) => (c.fit ? [[i, { cellWidth: fittedWidth(c) }]] : [])),
     ]);
 
-    // headed: the top section's heading is drawn in the table head (repeated on every page) instead of the body.
     const tableBody = (tableRows: R[], headed: boolean) => {
         const body: RowInput[] = [];
         const spans: boolean[] = [];
@@ -332,7 +327,6 @@ export function buildCatalogoPdfBlob<R>({
     let finalY: number;
 
     if (group) {
-        // Rows are sorted by the group key first, so each group is one contiguous run.
         const groups = splitBy(rows, group.key);
         groups.forEach((groupRows, index) => {
             const key = group.key(groupRows[0]);
@@ -355,7 +349,6 @@ export function buildCatalogoPdfBlob<R>({
         });
         finalY ??= lastTableY();
     } else {
-        // A page-breaking section's heading goes in the table head so it repeats on every page.
         const pageSection = sections[0]?.pageBreak ? sections[0] : undefined;
         const pages = pageSection ? splitBy(rows, pageSection.key) : [rows];
         const pageHeadingStyles = { ...headingStyle(0), lineWidth: 0 };

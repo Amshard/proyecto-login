@@ -49,7 +49,6 @@ const PDF = {
     countLabel: 'Estaciones',
     countTitle: 'Total de estaciones en la Red del Metro',
     countBold: true,
-    unofficialNotes: false,
 };
 
 const toEstacion = (form: EstacionForm): Estacion => ({ ...form });

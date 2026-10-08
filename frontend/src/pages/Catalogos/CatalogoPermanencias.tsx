@@ -61,6 +61,7 @@ export default function CatalogoPermanencias() {
                 countTitle: 'Total Permanencias',
                 noteLabel: 'Permanencia',
                 noteById: true,
+                unofficialNotes: true,
                 countUnderlineSplit: true,
             }}
         >

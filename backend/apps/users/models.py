@@ -56,8 +56,6 @@ class User(AbstractBaseUser):
         return (now - self.fecha_modif) >= datetime.timedelta(days=PASSWORD_MAX_AGE_DAYS)
 
     def set_password(self, raw_password):
-        # The legacy USUARIOS table stores passwords in plain text (nvarchar(16));
-        # other systems read this same table, so we can't switch to hashing here.
         self.password = raw_password
 
     def check_password(self, raw_password):

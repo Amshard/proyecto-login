@@ -11,19 +11,22 @@ const EMPTY_FORM: DescansoForm = { id_descansos: '', iniciales: '', descanso1: '
 const FIELDS = [
     { ...codeField('id_descansos', 'Clave', 2, { numeric: true, allowedChars: '01234567' }), isKey: true, },
     { ...codeField('iniciales', 'Iniciales', 2), readOnly: true },
-    textField('descanso1', 'Descanso 1', 150, { maxLength: 10 }),
-    textField('descanso2', 'Descanso 2', 150, { maxLength: 10 }),
+    { ...textField('descanso1', 'Descanso 1', 150, { maxLength: 10 }), readOnly: true },
+    { ...textField('descanso2', 'Descanso 2', 150, { maxLength: 10 }), readOnly: true },
 ];
 
 const isValidClave = (clave: string) => {
     if (clave === '71') return true;
     const [first, second] = [...clave].map(Number);
-    return first >= 1 && first < second && second <= 7;
+    return first >= 0 && first < second && second <= 7;
 };
 
-const DAY_INITIALS = ['', 'L', 'M', 'M', 'J', 'V', 'S', 'D'];
+const DAYS = ['VARIABLE', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
 
-const claveIniciales = (clave: string) => (isValidClave(clave) ? [...clave].map((d) => DAY_INITIALS[Number(d)]).join('') : '');
+const claveDays = (clave: string) => {
+    const [descanso1 = '', descanso2 = ''] = [...clave].map((d) => DAYS[Number(d)] ?? '');
+    return { iniciales: descanso1.charAt(0) + descanso2.charAt(0), descanso1, descanso2 };
+};
 
 const COLUMNS: Column<Descanso>[] = [
     { header: 'Clave', cell: (r) => r.id_descansos },
@@ -34,7 +37,7 @@ const COLUMNS: Column<Descanso>[] = [
 
 export default function CatalogoDescansos() {
     const [rows, setRows] = useCatalogoRows(getDescansos);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM);
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, { fields: FIELDS });
     const { form, selected, clear, fill, keyChange, updateField } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createDescanso,
@@ -50,7 +53,11 @@ export default function CatalogoDescansos() {
     const onKeyChange = keyChange(['id_descansos'], (f) => rows.find((r) => String(r.id_descansos) === f.id_descansos));
     const onFieldChange = (field: keyof DescansoForm, value: string) => {
         onKeyChange(field, value);
-        if (field === 'id_descansos') updateField('iniciales', claveIniciales(value));
+        if (field !== 'id_descansos' || rows.some((r) => String(r.id_descansos) === value)) return;
+        const days = claveDays(value);
+        updateField('iniciales', days.iniciales);
+        updateField('descanso1', days.descanso1);
+        updateField('descanso2', days.descanso2);
     };
 
     return (

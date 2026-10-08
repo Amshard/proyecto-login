@@ -162,7 +162,9 @@ export default function CatalogoTaquillas() {
                 header: 'Dirección de Línea',
                 cell: (r) => {
                     const l = porId.get(r.id_linea);
-                    const nombres = [l?.nombre_dirlin1, l?.nombre_dirlin2].filter((part) => part != null).join(DIRECCION_GAP);
+                    const nombres = r.dirdelinea
+                        ? direccionName(l, r.dirdelinea)
+                        : [l?.nombre_dirlin1, l?.nombre_dirlin2].filter((part) => part != null).join(DIRECCION_GAP);
                     return heading(String(r.dirdelinea), nombres);
                 },
                 repeatKey: porTaquilla,
