@@ -52,6 +52,7 @@ export interface PdfReport<R> {
     keepTogether?: boolean;
     showCount?: boolean;
     unofficialNotes?: boolean;
+    inset?: number;
 }
 
 const byCode = (a: string, b: string) =>
@@ -96,6 +97,7 @@ export function buildCatalogoPdfBlob<R>({
     keepTogether = false,
     showCount = true,
     unofficialNotes = false,
+    inset = 0,
 }: PdfReport<R>): Blob {
     const idColumn = columns[0];
     const sortKeys = [...(group ? [group.key] : []), ...sections.map((s) => s.key)];
@@ -152,7 +154,9 @@ export function buildCatalogoPdfBlob<R>({
         const heading = headingStyle(sections.length - 1);
         return heading.cellPadding.left + textWidth(rowsAlignWith, heading.fontSize, 'bold') - 4;
     })();
-    const tableColumns: Column<R>[] = spacerWidth ? [{ header: '', cell: () => '' }, ...columns] : columns;
+    const leftSpacer = spacerWidth + inset;
+    const spacer: Column<R> = { header: '', cell: () => '' };
+    const tableColumns: Column<R>[] = [...(leftSpacer ? [spacer] : []), ...columns, ...(inset ? [spacer] : [])];
 
     const hasTotals = columns.some((c) => c.total);
     const totalsRow = tableColumns.map((c) =>
@@ -168,7 +172,8 @@ export function buildCatalogoPdfBlob<R>({
         return widest + 8 + (column.indent ?? 0);
     };
     const columnStyles = Object.fromEntries([
-        ...(spacerWidth ? [[0, { cellWidth: spacerWidth }]] : []),
+        ...(leftSpacer ? [[0, { cellWidth: leftSpacer }]] : []),
+        ...(inset ? [[tableColumns.length - 1, { cellWidth: inset }]] : []),
         ...tableColumns.flatMap((c, i) => (c.fit ? [[i, { cellWidth: fittedWidth(c) }]] : [])),
     ]);
 

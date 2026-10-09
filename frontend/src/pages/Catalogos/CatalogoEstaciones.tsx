@@ -39,9 +39,7 @@ const COLUMNS: Column<Estacion>[] = [
     { header: 'Nombre de Estación', cell: (r) => r.nombre_estacion },
 ];
 
-const PDF = {
-    title: 'CATÁLOGO DE ESTACIONES',
-    footerTitle: 'RptCatEstaciones',
+const PDF = { title: 'CATÁLOGO DE ESTACIONES', footerTitle: 'RptCatEstaciones',
     columns: [
         { header: 'Estación', cell: (r) => r.id_estacion, indent: 40, fit: true },
         { header: 'Nombre', cell: (r) => r.nombre_estacion },

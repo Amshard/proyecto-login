@@ -110,9 +110,6 @@ export default function PersonalProvisional() {
             count={rows.length}
             onClear={clear}
             {...actions}
-            onSave={async () => {
-                if (await actions.onSave()) clear();
-            }}
             editing={selected !== null}
             reportButton="Califica Turnos=4 Líneas=4"
             pdf={{ title: 'Catálogo de Personal Provisional', columns: COLUMNS, rows, countLabel: 'Personal Provisional' }}

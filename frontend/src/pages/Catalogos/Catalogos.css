@@ -168,6 +168,16 @@
   border-left: 1px solid black;
 }
 
+.stc-rol-fields {
+  gap: 12px clamp(12px, 2vw, 38px);
+  border-top: none;
+  padding-top: 0;
+}
+
+.stc-rol-fields-hidden > * {
+  visibility: hidden;
+}
+
 .stc-manual-field {
   position: relative;
   display: flex;

@@ -127,7 +127,7 @@ const ignoreNotFound = (error: unknown) => {
 
 export function catalogoActions<R, T extends { [K in keyof T]: string }>(
     setRows: Dispatch<SetStateAction<R[]>>,
-    { form, selected, setSelected, clear, validate }: CatalogoForm<T>,
+    { form, selected, setSelected, clear, fill, validate }: CatalogoForm<T>,
     toRow: (form: T, previous?: R) => R,
     { create, update, remove, describe, savedNote }: Persistence<R>
 ) {
@@ -137,6 +137,8 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
             const row = toRow(form);
             if (!(await persisted(create(row), 'No se pudo guardar el registro.'))) return false;
             setRows((prev) => [...prev, row]);
+            // Selects the new row, so the table highlights it and scrolls to it.
+            fill(row as object);
             const saved = describe ? `Se guardó correctamente: ${describe(row)}.` : 'Registro guardado correctamente.';
             window.alert([saved, savedNote?.(row)].filter(Boolean).join('\n'));
             return true;

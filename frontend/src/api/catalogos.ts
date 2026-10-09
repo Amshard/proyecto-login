@@ -43,6 +43,21 @@ export interface PersonalTaquilla {
     sexo: string;
 }
 
+// A position in the rol de taquilla; id_expediente 0 marks a free one.
+export interface RolTaquilla {
+    numero: number;
+    id_expediente: number;
+    id_tramo: string;
+    faltas: number | null;
+    id_taquilla: string;
+    categoria: string;
+    id_descansos: string;
+    lugar: number;
+    calificacion: string | number | null;
+    turno: string;
+    id_permanencia: number;
+}
+
 export interface PersonalGaceta {
     exp: number;
     permiso: string | null;
@@ -85,13 +100,16 @@ export type TaquillaOperacion = Pick<Taquilla, 'id_taquilla' | 'turno'> & { line
 export const getTaquillasOperacion = getRows<TaquillaOperacion>('taquillas/operacion');
 export const getPersonalTaquilla = getRows<PersonalTaquilla>('personal-taquilla');
 export const getPersonalGaceta = getRows<PersonalGaceta>('personal-gaceta');
+export const getRolTaquilla = getRows<RolTaquilla>('rol-taquilla');
 
 export const createPermanencia = (data: Permanencia) => createRow('permanencias', data);
 export const createLinea = (data: Linea) => createRow('lineas', data);
 export const createEstacion = (data: Estacion) => createRow('estaciones', data);
 export const createDescanso = (data: Descanso) => createRow('descansos', data);
 export const createTaquilla = (data: Taquilla) => createRow('taquillas', data);
-export const createPersonalTaquilla = (data: PersonalTaquilla) => createRow('personal-taquilla', data);
+// `numero` is the free rol_taquilla position assigned to the new person.
+export const createPersonalTaquilla = (data: PersonalTaquilla, numero: number) =>
+    createRow('personal-taquilla', { ...data, numero });
 export const createPersonalGaceta = (data: PersonalGaceta) => createRow('personal-gaceta', data);
 
 export const updatePermanencia = (data: Permanencia) => updateRow(['permanencias', data.id_permanencia], data);

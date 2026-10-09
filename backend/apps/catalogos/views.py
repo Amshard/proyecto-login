@@ -70,7 +70,38 @@ PermanenciaListView = _list_view(models.Permanencia, serializers.PermanenciaSeri
 LineaListView = _list_view(models.Linea, serializers.LineaSerializer, 'id_linea')
 EstacionListView = _list_view(models.Estacion, serializers.EstacionSerializer, 'id_linea', 'id_estacion')
 DescansoListView = _list_view(models.Descanso, serializers.DescansoSerializer, 'id_descansos')
-PersonalTaquillaListView = _list_view(models.PersonalTaquilla, serializers.PersonalTaquillaSerializer, 'nombre')
+
+
+class PersonalTaquillaListView(_list_view(models.PersonalTaquilla, serializers.PersonalTaquillaSerializer, 'nombre')):
+    """POST also takes `numero`, the free rol_taquilla position the new person is assigned to,
+    in the same transaction: without a free position nothing is saved."""
+
+    def post(self, request):
+        try:
+            numero = int(request.data.get('numero'))
+        except (TypeError, ValueError):
+            numero = None
+        with transaction.atomic():
+            response = super().post(request)
+            if response.status_code != status.HTTP_201_CREATED:
+                return response
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'UPDATE rol_taquilla SET id_expediente = %s, usuario_modif = %s, fecha_modif = GETDATE() '
+                    'WHERE numero = %s AND id_expediente = 0',
+                    [response.data['id_expediente'], request.user.id_usuario, numero],
+                )
+                if cursor.rowcount == 0:
+                    transaction.set_rollback(True)
+                    cursor.execute('SELECT TOP 1 1 FROM rol_taquilla WHERE numero = %s', [numero])
+                    message = (
+                        'Esta Posición esta ocupada en el ROL Verifique'
+                        if cursor.fetchone() else 'Debe asignar a un Rol disponible'
+                    )
+                    return Response({'detail': message}, status=status.HTTP_409_CONFLICT)
+        return response
+
+
 PersonalRespaldoListView = _list_view(models.PersonalRespaldo, serializers.PersonalRespaldoSerializer, 'id_expediente')
 PersonalGacetaListView = _list_view(models.PersonalGaceta, serializers.PersonalGacetaSerializer, 'exp')
 TaquillaListView = _list_view(models.Taquilla, serializers.TaquillaSerializer, 'id_taquilla', 'turno')
@@ -89,6 +120,22 @@ class TaquillaOperacionView(APIView):
                 'AND (id_estacion = substring(rol_taquilla_trabajo.id_taquilla,3,2)) '
                 'AND (rol_taquilla_trabajo.linea = cat_estaciones.id_linea) '
                 'ORDER BY id_taquilla, linea, rol_taquilla_trabajo.turno asc, nombre_estacion ASC'
+            )
+            columns = [col[0] for col in cursor.description]
+            rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        return Response(rows)
+
+
+class RolTaquillaView(APIView):
+    """GET the rol_taquilla positions; id_expediente 0 marks a free one."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT numero, id_expediente, id_tramo, faltas, id_taquilla, categoria, id_descansos, '
+                'lugar, calificacion, turno, id_permanencia FROM rol_taquilla ORDER BY numero'
             )
             columns = [col[0] for col in cursor.description]
             rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -187,8 +234,22 @@ TaquillaItemView = _item_view(
     models.Taquilla, serializers.TaquillaSerializer,
     ('rol_taquilla', ('id_taquilla', 'turno'), 'Existe en el Rol de Taquilla, Primero debe darla de baja en el Rol'),
 )
-PersonalTaquillaItemView = _item_view(
-    models.PersonalTaquilla, serializers.PersonalTaquillaSerializer,
-    ('rol_taquilla', ('id_expediente',), 'No procede la baja, esta asignado en el rol de taquilla.'),
-)
+
+
+class PersonalTaquillaItemView(_item_view(models.PersonalTaquilla, serializers.PersonalTaquillaSerializer)):
+    """DELETE also frees the person's rol_taquilla position, in the same transaction."""
+
+    def delete(self, request, **kwargs):
+        with transaction.atomic():
+            response = super().delete(request, **kwargs)
+            if response.status_code == status.HTTP_204_NO_CONTENT:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        'UPDATE rol_taquilla SET id_expediente = 0, faltas = 0, calificacion = 0.00, '
+                        'usuario_modif = %s, fecha_modif = GETDATE() WHERE id_expediente = %s',
+                        [request.user.id_usuario, kwargs['id_expediente']],
+                    )
+        return response
+
+
 PersonalGacetaItemView = _item_view(models.PersonalGaceta, serializers.PersonalGacetaSerializer)

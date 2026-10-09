@@ -9,19 +9,23 @@ type DescansoForm = Record<keyof Descanso, string>;
 const EMPTY_FORM: DescansoForm = { id_descansos: '', iniciales: '', descanso1: '', descanso2: '' };
 
 const FIELDS = [
-    { ...codeField('id_descansos', 'Clave', 2, { numeric: true, allowedChars: '01234567' }), isKey: true, },
+    {
+        ...codeField('id_descansos', 'Clave', 2, { numeric: true, allowedChars: '01234567' }),
+        isKey: true,
+        accept: (v: string) => v.length < 2 || isValidClave(v),
+    },
     { ...codeField('iniciales', 'Iniciales', 2), readOnly: true },
     { ...textField('descanso1', 'Descanso 1', 150, { maxLength: 10 }), readOnly: true },
     { ...textField('descanso2', 'Descanso 2', 150, { maxLength: 10 }), readOnly: true },
 ];
 
 const isValidClave = (clave: string) => {
-    if (clave === '71') return true;
+    if (clave === '00') return true;
     const [first, second] = [...clave].map(Number);
-    return first >= 0 && first < second && second <= 7;
+    return first >= 1 && first <= 7 && second === (first % 7) + 1;
 };
 
-const DAYS = ['VARIABLE', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+const DAYS = ['', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
 
 const claveDays = (clave: string) => {
     const [descanso1 = '', descanso2 = ''] = [...clave].map((d) => DAYS[Number(d)] ?? '');
@@ -29,10 +33,10 @@ const claveDays = (clave: string) => {
 };
 
 const COLUMNS: Column<Descanso>[] = [
-    { header: 'Clave', cell: (r) => r.id_descansos },
-    { header: 'Iniciales', cell: (r) => r.iniciales },
-    { header: 'Descanso 1', cell: (r) => r.descanso1 },
-    { header: 'Descanso 2', cell: (r) => r.descanso2 },
+    { header: 'Descansos', cell: (r) => r.id_descansos, center: true },
+    { header: 'Iniciales', cell: (r) => r.iniciales, center: true },
+    { header: 'Descanso 1', cell: (r) => r.descanso1, center: true },
+    { header: 'Descanso 2', cell: (r) => r.descanso2, center: true },
 ];
 
 export default function CatalogoDescansos() {
@@ -70,7 +74,7 @@ export default function CatalogoDescansos() {
             onSave={onSave}
             editing={selected !== null}
             fields={<ManualFields fields={FIELDS} form={form} onChange={onFieldChange} lockValues={selected !== null} />}
-            pdf={{ title: 'Catálogo de Descansos', columns: COLUMNS, rows, countLabel: 'Descansos' }}
+            pdf={{ title: 'CATÁLOGO DE DESCANSOS', footerTitle: 'RptCatDescansos', columns: COLUMNS, rows, countLabel: 'Total de Descansos', countText: (r) => `Total de Descansos      ${r.length}`, countSplitNumber: true, inset: 80 }}
         >
             <DataTable
                 title="Descansos de la red"
