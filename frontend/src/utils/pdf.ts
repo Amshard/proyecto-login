@@ -11,8 +11,7 @@ const STC_LOGO_HEIGHT = LOGO_HEIGHT + 5;
 const STC_LOGO_WIDTH = (STC_LOGO_HEIGHT * 369) / 150;
 
 function cellText<R>(column: Column<R>, row: R): string {
-    const value = column.cell(row);
-    return value === null || value === undefined ? '' : String(value);
+    return String(column.cell(row) ?? '');
 }
 
 export interface PdfGroup<R> {
@@ -30,6 +29,8 @@ export interface PdfSection<R> {
 
 export interface PdfReport<R> {
     title: string;
+    // Second line under the title, e.g. the order of the report.
+    subtitle?: string;
     footerTitle?: string;
     columns: Column<R>[];
     rows: R[];
@@ -43,7 +44,6 @@ export interface PdfReport<R> {
     countUnderlineSplit?: boolean;
     countRule?: boolean;
     countSplitNumber?: boolean;
-    titleBold?: boolean;
     rowPadding?: number;
     fontSize?: number;
     rowsAlignWith?: string;
@@ -53,6 +53,12 @@ export interface PdfReport<R> {
     showCount?: boolean;
     unofficialNotes?: boolean;
     inset?: number;
+    // False keeps the rows in the given order instead of sorting them by the first column.
+    sortById?: boolean;
+    // Centers every column's title and its rows.
+    centered?: boolean;
+    // Widens each column enough to keep its title on one line.
+    oneLineHeaders?: boolean;
 }
 
 const byCode = (a: string, b: string) =>
@@ -60,7 +66,18 @@ const byCode = (a: string, b: string) =>
         ? a < b ? -1 : a > b ? 1 : 0
         : a.localeCompare(b, undefined, { numeric: true });
 
+// hh:mm:ss am/pm, built by hand: locale formats add "a. m." or narrow spaces the PDF font can't show.
+const clockTime = (date: Date) => {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const hours = date.getHours();
+    return `${pad(hours % 12 || 12)}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${hours < 12 ? 'am' : 'pm'}`;
+};
+
+// Where tables start below the page header (more when there is a subtitle).
+const TABLE_TOP = 78;
 const GROUP_TABLE_TOP = 76;
+const COUNT_PAGE_TOP = 96;
+const SUBTITLE_SPACE = 14;
 
 type TableLabel = { content: string; styles: Partial<Styles>; fromSection: boolean };
 
@@ -75,6 +92,7 @@ function splitBy<R>(rows: R[], key: (row: R) => string): R[][] {
 
 export function buildCatalogoPdfBlob<R>({
     title,
+    subtitle,
     footerTitle = title,
     columns,
     rows: unsortedRows,
@@ -88,7 +106,6 @@ export function buildCatalogoPdfBlob<R>({
     countUnderlineSplit = false,
     countRule = false,
     countSplitNumber = false,
-    titleBold = true,
     rowPadding = 4,
     fontSize = 10,
     rowsAlignWith,
@@ -98,13 +115,16 @@ export function buildCatalogoPdfBlob<R>({
     showCount = true,
     unofficialNotes = false,
     inset = 0,
+    sortById = true,
+    centered = false,
+    oneLineHeaders = false,
 }: PdfReport<R>): Blob {
     const idColumn = columns[0];
     const sortKeys = [...(group ? [group.key] : []), ...sections.map((s) => s.key)];
     const rows = [...unsortedRows].sort(
         (a, b) =>
             sortKeys.reduce((order, key) => order || byCode(key(a), key(b)), 0) ||
-            (idColumn ? byCode(cellText(idColumn, a), cellText(idColumn, b)) : 0)
+            (idColumn && sortById ? byCode(cellText(idColumn, a), cellText(idColumn, b)) : 0)
     );
 
     const doc = new jsPDF({ orientation: 'portrait', unit: 'pt' });
@@ -119,10 +139,14 @@ export function buildCatalogoPdfBlob<R>({
         doc.text('SUBDIRECCIÓN GENERAL DE ADMINISTRACIÓN Y FINANZAS', pageCenter, 30, { align: 'center' });
         doc.text('COORDINACIÓN DE TAQUILLAS', pageCenter, 44, { align: 'center' });
         doc.setFontSize(11);
-        doc.setFont('helvetica', titleBold ? 'bold' : 'normal');
         doc.text(title, pageCenter, 62, { align: 'center' });
+        if (subtitle) {
+            doc.setFontSize(10);
+            doc.text(subtitle, pageCenter, 76, { align: 'center' });
+        }
         doc.setFont('helvetica', 'normal');
     };
+    const headerShift = subtitle ? SUBTITLE_SPACE : 0;
 
     const gap = (points: number) => (points * rowPadding) / 4;
 
@@ -164,14 +188,10 @@ export function buildCatalogoPdfBlob<R>({
     );
 
     const headerWidth = (column: Column<R>) => textWidth(column.header, fontSize, 'bold');
-    const fittedWidth = (column: Column<R>) => {
-        let widest = headerWidth(column);
-        rows.forEach((row) => {
-            widest = Math.max(widest, doc.getTextWidth(cellText(column, row)));
-        });
-        return widest + 8 + (column.indent ?? 0);
-    };
+    const fittedWidth = (column: Column<R>) =>
+        Math.max(headerWidth(column), ...rows.map((row) => doc.getTextWidth(cellText(column, row)))) + 8 + (column.indent ?? 0);
     const columnStyles = Object.fromEntries([
+        ...(oneLineHeaders ? tableColumns.map((c, i) => [i, { minCellWidth: headerWidth(c) + 8 }]) : []),
         ...(leftSpacer ? [[0, { cellWidth: leftSpacer }]] : []),
         ...(inset ? [[tableColumns.length - 1, { cellWidth: inset }]] : []),
         ...tableColumns.flatMap((c, i) => (c.fit ? [[i, { cellWidth: fittedWidth(c) }]] : [])),
@@ -234,7 +254,7 @@ export function buildCatalogoPdfBlob<R>({
         body,
         foot,
         showFoot: 'lastPage',
-        styles: { fontSize, cellPadding: 4, lineColor: [0, 0, 0] },
+        styles: { fontSize, cellPadding: 4, lineColor: [0, 0, 0], ...(centered && { halign: 'center' as const }) },
         columnStyles: styles,
         bodyStyles: { cellPadding: { top: rowPadding, right: 4, bottom: rowPadding, left: 4 } },
         headStyles: {
@@ -336,7 +356,7 @@ export function buildCatalogoPdfBlob<R>({
         groups.forEach((groupRows, index) => {
             const key = group.key(groupRows[0]);
             if (index > 0) doc.addPage();
-            drawTable(groupRows, index === groups.length - 1, GROUP_TABLE_TOP, {
+            drawTable(groupRows, index === groups.length - 1, GROUP_TABLE_TOP + headerShift, {
                 content: group.label(key),
                 styles: { fontSize: 10, lineWidth: 0 },
                 fromSection: false,
@@ -344,7 +364,7 @@ export function buildCatalogoPdfBlob<R>({
             let totalY = lastTableY() + 18;
             if (totalY > pageHeight - 50) {
                 doc.addPage();
-                totalY = GROUP_TABLE_TOP + 10;
+                totalY = GROUP_TABLE_TOP + headerShift + 10;
             }
             doc.setFontSize(9);
             doc.setFont('helvetica', 'bold');
@@ -360,7 +380,7 @@ export function buildCatalogoPdfBlob<R>({
         pages.forEach((pageRows, index) => {
             if (index > 0) doc.addPage();
             const label = pageSection && { content: pageSection.label(pageRows[0]), styles: pageHeadingStyles, fromSection: true };
-            drawTable(pageRows, index === pages.length - 1, 78, label);
+            drawTable(pageRows, index === pages.length - 1, TABLE_TOP + headerShift, label);
         });
         finalY = lastTableY();
     }
@@ -370,7 +390,7 @@ export function buildCatalogoPdfBlob<R>({
         let countLabelY = finalY + 18;
         if (countLabelY > pageHeight - BOTTOM_MARGIN) {
             doc.addPage();
-            countLabelY = 96;
+            countLabelY = COUNT_PAGE_TOP + headerShift;
         }
         doc.setFontSize(fontSize - 1);
         doc.setFont('helvetica', countBold || countUnderlineSplit ? 'bold' : 'normal');
@@ -414,7 +434,6 @@ export function buildCatalogoPdfBlob<R>({
                 countSegments.forEach(([startX, endX]) => doubleUnderline(startX, endX));
             }
         }
-        doc.setFont('helvetica', 'normal');
 
         let noteY = countLabelY + 20;
         let unofficialCount = 0;
@@ -444,7 +463,7 @@ export function buildCatalogoPdfBlob<R>({
     const generatedAt = [
         'FECHA:',
         now.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-        now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        clockTime(now),
     ].join('         ');
 
     const footerY = pageHeight - 20;

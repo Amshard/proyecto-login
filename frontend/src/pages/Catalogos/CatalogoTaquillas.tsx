@@ -221,8 +221,8 @@ export default function CatalogoTaquillas() {
 
     return (
         <CatalogoLayout
-            tabLabel="Catálogo de Taquillas y sus Turnos"
-            statusLabel="Catálogo de Taquillas"
+            tabLabel="Catálogo Taquillas"
+            statusLabel="CatTaquillas"
             count={rows.length}
             onClear={clear}
             {...actions}

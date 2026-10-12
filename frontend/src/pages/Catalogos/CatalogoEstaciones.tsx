@@ -114,8 +114,8 @@ export default function CatalogoEstaciones() {
 
     return (
         <CatalogoLayout
-            tabLabel="Catálogo de Estaciones"
-            statusLabel="Catálogo de Estaciones"
+            tabLabel="Catálogo de Estacioness"
+            statusLabel="CatEstaciones"
             count={rows.length}
             onClear={clear}
             {...actions}

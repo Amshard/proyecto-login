@@ -237,13 +237,13 @@ p {
   background: lightgray;
   color: black;
   border-top: 1px solid #9aa0a6;
-  padding: 6px 20px;
+  padding: 6px 10px;
   font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 15px;
-  z-index: 10;
+  font-size: 16px;
+  z-index: 15;
 }
 
 .stc-status-row {
   display: flex;
-  gap: 3px;
+  gap: 5px;
 }

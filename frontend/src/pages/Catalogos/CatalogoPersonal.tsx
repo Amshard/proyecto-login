@@ -11,6 +11,7 @@ import {
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
+import type { PdfReport } from '../../utils/pdf';
 import { catalogoActions, codeField, dateField, expedienteField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 type PersonalForm = Record<keyof PersonalTaquilla, string>;
@@ -33,7 +34,6 @@ const ROL_OCUPADO_MESSAGE = 'Esta Posición esta ocupada en el ROL Verifique';
 
 type RolKey = keyof RolTaquilla | 'jubdo';
 
-// Shows a rol_taquilla column; only Posición en el ROL is typed in, the rest come from that position.
 const rolField = (key: RolKey, label: string, maxLength: number, width = 50) => ({
     ...codeField(key, label, maxLength, { width, wrap: width + 30 }),
     id: `rol-${key}`,
@@ -60,7 +60,6 @@ const rolForm = (numero: string, rol: RolTaquilla | undefined) => {
     return Object.fromEntries(ROL_FIELDS.map(({ key }) => [key, String(values[key] ?? '')])) as Record<RolKey, string>;
 };
 
-// Local date as YYYY-MM-DD.
 const todayIso = () => new Date().toLocaleDateString('en-CA');
 
 const formatDate = (iso: string) => iso.split('-').reverse().join('/');
@@ -72,6 +71,23 @@ const COLUMNS: Column<PersonalTaquilla>[] = [
     { header: 'Prejubilación', cell: (r) => r.prejubilacion },
     { header: 'FoM', cell: (r) => r.sexo },
 ];
+
+const PDF_HEADERS: Record<string, string> = { 'Fecha de Ingreso': 'Fecha Ingreso', Prejubilación: 'Pre-Jub', FoM: 'Genero' };
+
+const byNombre = (a: PersonalTaquilla, b: PersonalTaquilla) => a.nombre.localeCompare(b.nombre, 'es');
+
+const REPORTS: Record<string, { subtitle: string; rows: (rows: PersonalTaquilla[]) => PersonalTaquilla[] }> = {
+    'Por Expediente': {
+        subtitle: 'Clasificado por Expediente',
+        rows: (rows) => [...rows].sort((a, b) => a.id_expediente - b.id_expediente),
+    },
+    Alfabetico: { subtitle: 'Clasificado Alfabéticamente', rows: (rows) => [...rows].sort(byNombre) },
+    'En Prejubilación': {
+        subtitle: 'En Jubilacion',
+        rows: (rows) => rows.filter((r) => r.prejubilacion === 'S').sort(byNombre),
+    },
+};
+const REPORT_OPTIONS = Object.keys(REPORTS);
 
 function SearchModal({ initial, onApply, onClose }: { initial: string; onApply: (term: string) => void; onClose: () => void }) {
     const [term, setTerm] = useState(initial);
@@ -112,10 +128,10 @@ export default function CatalogoPersonal() {
     const [rows, setRows] = useCatalogoRows(getPersonalTaquilla);
     const [rolRows, setRolRows] = useCatalogoRows(getRolTaquilla);
     const [numero, setNumero] = useState('');
-    // The rol boxes keep their space but stay invisible until Guardar asks a new person for a free position.
     const [showRol, setShowRol] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [search, setSearch] = useState('');
+    const [reportOption, setReportOption] = useState(REPORT_OPTIONS[0]);
 
     const maxDate = todayIso();
     const minDate = rows.reduce<string | undefined>((oldest, r) => {
@@ -124,7 +140,6 @@ export default function CatalogoPersonal() {
     }, undefined);
     const fields = FIELDS.map((f) => (f.key === 'fecha_ingreso' ? { ...f, minDate, maxDate } : f));
 
-    // Prejubilación and Genero need no check: their inputs only take S/N and F/M.
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
         noUpper: ['fecha_ingreso'],
         fields: FIELDS,
@@ -146,7 +161,6 @@ export default function CatalogoPersonal() {
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f, id_expediente: Number(f.id_expediente) }), {
         create: (row) => createPersonalTaquilla(row, Number(numero)),
         update: updatePersonalTaquilla,
-        // The server also frees the person's position in the rol.
         remove: async (row) => {
             await deletePersonalTaquilla(row.id_expediente);
             patchRol((r) => r.id_expediente === row.id_expediente, { id_expediente: 0, faltas: 0, calificacion: '0.00' });
@@ -161,7 +175,6 @@ export default function CatalogoPersonal() {
 
     const onSave = async () => {
         if (!validate()) return false;
-        // Only a position whose id_expediente is 0 can take the new person.
         if (rol?.id_expediente !== 0) {
             setShowRol(true);
             window.alert(rol ? ROL_OCUPADO_MESSAGE : ROL_MESSAGE);
@@ -178,10 +191,31 @@ export default function CatalogoPersonal() {
         ? rows.filter((row) => Object.values(row).some((value) => String(value).toUpperCase().includes(term)))
         : rows;
 
+    const report = REPORTS[reportOption];
+    const pdfRows = report.rows(displayedRows);
+    const repOf = new Map(pdfRows.map((row, i) => [row, i + 1]));
+    const pdf: PdfReport<PersonalTaquilla> = {
+        title: 'CATÁLOGO DE PERSONAL DE TAQUILLA',
+        subtitle: report.subtitle,
+        footerTitle: 'RptPersonalTaq',
+        columns: [
+            { header: 'Rep', cell: (r) => repOf.get(r), fit: true },
+            ...COLUMNS.map((c) => ({ ...c, header: PDF_HEADERS[c.header] ?? c.header })),
+            { header: 'Provcnal', cell: () => '' },
+        ],
+        rows: pdfRows,
+        countText: (r) => `Total de ${r.length} Expedientes en el Catálogo del Personal de Taquilla`,
+        countBold: true,
+        countUnderline: false,
+        sortById: false,
+        centered: true,
+        oneLineHeaders: true,
+    };
+
     return (
         <CatalogoLayout
             tabLabel="Personal de Taquilla"
-            statusLabel="Catálogo de Personal de Taquilla"
+            statusLabel="CatPersonalTaq"
             count={rows.length}
             {...actions}
             onClear={() => {
@@ -218,7 +252,22 @@ export default function CatalogoPersonal() {
                     />
                 )
             }
-            pdf={{ title: 'Catálogo de Personal de Taquilla', columns: COLUMNS, rows: displayedRows, countLabel: 'Personal' }}
+            reportActions={
+                <div className="stc-report-options">
+                    {REPORT_OPTIONS.map((label) => (
+                        <label key={label} className="stc-report-option">
+                            <input
+                                type="radio"
+                                name="reporte-personal"
+                                checked={reportOption === label}
+                                onChange={() => setReportOption(label)}
+                            />
+                            {label}
+                        </label>
+                    ))}
+                </div>
+            }
+            pdf={pdf}
         >
             <DataTable
                 title="Personal de Taquilla"
