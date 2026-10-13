@@ -75,8 +75,8 @@
 .stc-status-square {
   background: #f5f4f2;
   border: 1px solid #9aa0a6;
-  padding: 2px 20px;
-    min-width: 260px;
+  padding: 2px 70px;
+    min-width: 270px;
 }
 
 .stc-status-row-lower .stc-status-square {

@@ -29,7 +29,6 @@ export interface PdfSection<R> {
 
 export interface PdfReport<R> {
     title: string;
-    // Second line under the title, e.g. the order of the report.
     subtitle?: string;
     footerTitle?: string;
     columns: Column<R>[];
@@ -53,12 +52,10 @@ export interface PdfReport<R> {
     showCount?: boolean;
     unofficialNotes?: boolean;
     inset?: number;
-    // False keeps the rows in the given order instead of sorting them by the first column.
     sortById?: boolean;
-    // Centers every column's title and its rows.
     centered?: boolean;
-    // Widens each column enough to keep its title on one line.
     oneLineHeaders?: boolean;
+    columnPadding?: number;
 }
 
 const byCode = (a: string, b: string) =>
@@ -66,15 +63,13 @@ const byCode = (a: string, b: string) =>
         ? a < b ? -1 : a > b ? 1 : 0
         : a.localeCompare(b, undefined, { numeric: true });
 
-// hh:mm:ss am/pm, built by hand: locale formats add "a. m." or narrow spaces the PDF font can't show.
 const clockTime = (date: Date) => {
     const pad = (n: number) => String(n).padStart(2, '0');
     const hours = date.getHours();
     return `${pad(hours % 12 || 12)}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ${hours < 12 ? 'am' : 'pm'}`;
 };
 
-// Where tables start below the page header (more when there is a subtitle).
-const TABLE_TOP = 78;
+const TABLE_TOP = 75;
 const GROUP_TABLE_TOP = 76;
 const COUNT_PAGE_TOP = 96;
 const SUBTITLE_SPACE = 14;
@@ -118,6 +113,7 @@ export function buildCatalogoPdfBlob<R>({
     sortById = true,
     centered = false,
     oneLineHeaders = false,
+    columnPadding = 4,
 }: PdfReport<R>): Blob {
     const idColumn = columns[0];
     const sortKeys = [...(group ? [group.key] : []), ...sections.map((s) => s.key)];
@@ -189,13 +185,17 @@ export function buildCatalogoPdfBlob<R>({
 
     const headerWidth = (column: Column<R>) => textWidth(column.header, fontSize, 'bold');
     const fittedWidth = (column: Column<R>) =>
-        Math.max(headerWidth(column), ...rows.map((row) => doc.getTextWidth(cellText(column, row)))) + 8 + (column.indent ?? 0);
-    const columnStyles = Object.fromEntries([
-        ...(oneLineHeaders ? tableColumns.map((c, i) => [i, { minCellWidth: headerWidth(c) + 8 }]) : []),
-        ...(leftSpacer ? [[0, { cellWidth: leftSpacer }]] : []),
-        ...(inset ? [[tableColumns.length - 1, { cellWidth: inset }]] : []),
-        ...tableColumns.flatMap((c, i) => (c.fit ? [[i, { cellWidth: fittedWidth(c) }]] : [])),
-    ]);
+        Math.max(headerWidth(column), ...rows.map((row) => doc.getTextWidth(cellText(column, row)))) + 2 * columnPadding + (column.indent ?? 0);
+    const columnStyles: Record<number, Partial<Styles>> = {};
+    tableColumns.forEach((c, i) => {
+        columnStyles[i] = {
+            ...(oneLineHeaders && { minCellWidth: headerWidth(c) + 2 * columnPadding }),
+            ...(c.fit && { cellWidth: fittedWidth(c) }),
+            ...(c.left && { halign: 'left' as const }),
+        };
+    });
+    if (leftSpacer) columnStyles[0] = { cellWidth: leftSpacer };
+    if (inset) columnStyles[tableColumns.length - 1] = { cellWidth: inset };
 
     const tableBody = (tableRows: R[], headed: boolean) => {
         const body: RowInput[] = [];
@@ -254,9 +254,9 @@ export function buildCatalogoPdfBlob<R>({
         body,
         foot,
         showFoot: 'lastPage',
-        styles: { fontSize, cellPadding: 4, lineColor: [0, 0, 0], ...(centered && { halign: 'center' as const }) },
+        styles: { fontSize, cellPadding: { top: 4, right: columnPadding, bottom: 4, left: columnPadding }, lineColor: [0, 0, 0], ...(centered && { halign: 'center' as const }) },
         columnStyles: styles,
-        bodyStyles: { cellPadding: { top: rowPadding, right: 4, bottom: rowPadding, left: 4 } },
+        bodyStyles: { cellPadding: { top: rowPadding, right: columnPadding, bottom: rowPadding, left: columnPadding } },
         headStyles: {
             fillColor: false,
             textColor: [0, 0, 0],

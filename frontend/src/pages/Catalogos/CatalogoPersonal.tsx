@@ -64,9 +64,11 @@ const todayIso = () => new Date().toLocaleDateString('en-CA');
 
 const formatDate = (iso: string) => iso.split('-').reverse().join('/');
 
+const withDots = (n: number) => String(n).replace(/\B(?=(\d{3})+$)/g, '.');
+
 const COLUMNS: Column<PersonalTaquilla>[] = [
     { header: 'Expediente', cell: (r) => r.id_expediente },
-    { header: 'Nombre', cell: (r) => r.nombre },
+    { header: 'Nombre', cell: (r) => r.nombre, left: true },
     { header: 'Fecha de Ingreso', cell: (r) => r.fecha_ingreso },
     { header: 'Prejubilación', cell: (r) => r.prejubilacion },
     { header: 'FoM', cell: (r) => r.sexo },
@@ -83,7 +85,7 @@ const REPORTS: Record<string, { subtitle: string; rows: (rows: PersonalTaquilla[
     },
     Alfabetico: { subtitle: 'Clasificado Alfabéticamente', rows: (rows) => [...rows].sort(byNombre) },
     'En Prejubilación': {
-        subtitle: 'En Jubilacion',
+        subtitle: 'En Prejubilacion',
         rows: (rows) => rows.filter((r) => r.prejubilacion === 'S').sort(byNombre),
     },
 };
@@ -193,23 +195,25 @@ export default function CatalogoPersonal() {
 
     const report = REPORTS[reportOption];
     const pdfRows = report.rows(displayedRows);
-    const repOf = new Map(pdfRows.map((row, i) => [row, i + 1]));
+    const repOf = new Map(pdfRows.map((row, i) => [row, withDots(i + 1)]));
     const pdf: PdfReport<PersonalTaquilla> = {
         title: 'CATÁLOGO DE PERSONAL DE TAQUILLA',
         subtitle: report.subtitle,
         footerTitle: 'RptPersonalTaq',
         columns: [
-            { header: 'Rep', cell: (r) => repOf.get(r), fit: true },
+            { header: 'Reg', cell: (r) => repOf.get(r), fit: true },
             ...COLUMNS.map((c) => ({ ...c, header: PDF_HEADERS[c.header] ?? c.header })),
             { header: 'Provcnal', cell: () => '' },
         ],
         rows: pdfRows,
-        countText: (r) => `Total de ${r.length} Expedientes en el Catálogo del Personal de Taquilla`,
+        countText: (r) => `Total de ${withDots(r.length)} Expedientes en el Catálogo del Personal de Taquilla`,
         countBold: true,
         countUnderline: false,
         sortById: false,
         centered: true,
         oneLineHeaders: true,
+        rowPadding: 2.5,
+        columnPadding: 2,
     };
 
     return (

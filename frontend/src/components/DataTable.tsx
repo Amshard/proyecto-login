@@ -7,6 +7,7 @@ export interface Column<R> {
     indent?: number;
     fit?: boolean;
     center?: boolean;
+    left?: boolean;
     repeatKey?: (row: R) => string;
 }
 
