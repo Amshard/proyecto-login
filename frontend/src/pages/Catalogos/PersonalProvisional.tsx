@@ -2,7 +2,11 @@ import {
     createPersonalGaceta,
     deletePersonalGaceta,
     getPersonalGaceta,
+    getPersonalTaquilla,
+    getRolTaquilla,
     type PersonalGaceta,
+    type PersonalTaquilla,
+    type RolTaquilla,
     updatePersonalGaceta,
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
@@ -19,7 +23,7 @@ type ProvisionalForm = Record<ProvisionalKey, string>;
 
 const EMPTY_FORM: ProvisionalForm = {
     expediente: '',
-    permiso: '',
+    permiso: 'L00',
     nombre: '',
     jub: '',
     genero: '',
@@ -38,12 +42,13 @@ const EMPTY_FORM: ProvisionalForm = {
 
 const SMALL = { width: 60, wrap: 70 };
 
+// Expediente, Permiso and Ingreso are typed in; the rest are looked up.
 const MAIN_FIELDS = [
     { ...expedienteField('expediente'), isKey: true },
-    codeField('permiso', 'Permiso', 1, { wrap: 70 }),
-    textField('nombre', 'Nombre', 280, { maxLength: 50 }),
-    codeField('jub', 'Jub', 1, { wrap: 70 }),
-    codeField('genero', 'Genero', 1, { wrap: 70 }),
+    codeField('permiso', 'Permiso', 5, { width: 27, wrap: 70 }),
+    { ...textField('nombre', 'Nombre', 280, { maxLength: 50 }), readOnly: true },
+    { ...codeField('jub', 'Jub', 1, { wrap: 70 }), readOnly: true },
+    { ...codeField('genero', 'Genero', 1, { wrap: 70 }), readOnly: true },
     dateField('ingreso', 'Ingreso'),
 ];
 
@@ -60,7 +65,25 @@ const SMALL_FIELDS = [
     codeField('calificacion', 'Calificacion', 4, SMALL),
     codeField('turno', 'Turno', 4, SMALL),
     codeField('perm', 'Perm', 4, SMALL),
-];
+].map((f) => ({ ...f, readOnly: true }));
+
+const text = (value: unknown) => (value == null ? '' : String(value));
+
+const lookedUp = (person: PersonalTaquilla | undefined, rol: RolTaquilla | undefined): Partial<ProvisionalForm> => ({
+    nombre: text(person?.nombre),
+    jub: text(person?.prejubilacion),
+    genero: text(person?.sexo),
+    posicionRol: text(rol?.numero),
+    tramo: text(rol?.id_tramo),
+    faltas: text(rol?.faltas),
+    taquilla: text(rol?.id_taquilla),
+    categoria: text(rol?.categoria),
+    descansos: text(rol?.id_descansos),
+    lugar: text(rol?.lugar),
+    calificacion: text(rol?.calificacion),
+    turno: text(rol?.turno),
+    perm: text(rol?.id_permanencia),
+});
 
 function gacetaToForm(g: PersonalGaceta): ProvisionalForm {
     return {
@@ -94,14 +117,38 @@ const COLUMNS: Column<ProvisionalForm>[] = [
 
 export default function PersonalProvisional() {
     const [rows, setRows] = useCatalogoRows(loadGaceta);
-    const catalogoForm = useCatalogoForm(EMPTY_FORM, { noUpper: ['ingreso'], fields: [...MAIN_FIELDS, ...SMALL_FIELDS] });
-    const { form, selected, updateField, clear, fill, keyChange } = catalogoForm;
-    const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
-        create: (r) => createPersonalGaceta(formToGaceta(r)),
-        update: (r) => updatePersonalGaceta(formToGaceta(r)),
-        remove: (r) => deletePersonalGaceta(Number(r.expediente)),
+    const [personal] = useCatalogoRows(getPersonalTaquilla);
+    const [rolRows] = useCatalogoRows(getRolTaquilla);
+    const catalogoForm = useCatalogoForm(EMPTY_FORM, {
+        required: ['expediente', 'permiso'],
+        noUpper: ['ingreso'],
+        fields: [...MAIN_FIELDS, ...SMALL_FIELDS],
     });
+    const { form, selected, updateField, clear, fill, keyChange } = catalogoForm;
+    const personOf = (expediente: string) => personal.find((p) => String(p.id_expediente) === expediente);
+    // Ingreso starts as the person's Fecha de Ingreso and can be changed.
+    const fechaIngreso = (expediente: string) => text(personOf(expediente)?.fecha_ingreso).slice(0, 10);
+    const actions = catalogoActions(
+        setRows,
+        catalogoForm,
+        (f) => ({ ...f, ingreso: f.ingreso || fechaIngreso(f.expediente) }),
+        {
+            create: (r) => createPersonalGaceta(formToGaceta(r)),
+            update: (r) => updatePersonalGaceta(formToGaceta(r)),
+            remove: (r) => deletePersonalGaceta(Number(r.expediente)),
+        }
+    );
     const onFieldChange = keyChange(['expediente'], (f) => rows.find((r) => r.expediente === f.expediente));
+
+    const expediente = Number(form.expediente);
+    const shown = {
+        ...form,
+        ingreso: form.ingreso || fechaIngreso(form.expediente),
+        ...lookedUp(
+            personOf(form.expediente),
+            expediente ? rolRows.find((r) => r.id_expediente === expediente) : undefined
+        ),
+    };
 
     return (
         <CatalogoLayout
@@ -115,10 +162,10 @@ export default function PersonalProvisional() {
             pdf={{ title: 'Catálogo de Personal Provisional', columns: COLUMNS, rows, countLabel: 'Personal Provisional' }}
         >
             <div className="stc-provisional-form">
-                <ManualFields fields={MAIN_FIELDS} form={form} onChange={onFieldChange} />
+                <ManualFields fields={MAIN_FIELDS} form={shown} onChange={onFieldChange} />
                 <ManualFields
                     fields={SMALL_FIELDS}
-                    form={form}
+                    form={shown}
                     onChange={updateField}
                     className="stc-manual-fields stc-manual-fields-small"
                 />

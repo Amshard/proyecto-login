@@ -54,6 +54,12 @@
   text-transform: uppercase;
 }
 
+.stc-confirm-message {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
 .stc-search-input {
   width: 100%;
   height: 36px;
@@ -247,8 +253,10 @@
 }
 
 .stc-manual-fields-small {
-  margin-top: 20px;
   gap: 12px clamp(32px, 5vw, 80px);
+  border-top: none;
+  border-bottom: black;
+  padding-top: 4px;
 }
 
 .stc-manual-fields-small .stc-manual-field {

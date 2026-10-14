@@ -126,6 +126,21 @@ class TaquillaOperacionView(APIView):
         return Response(rows)
 
 
+class SinCtoView(APIView):
+    """GET each expediente's SinCto from rol_taquilla_trabajo."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT id_expediente, RTRIM(SinCto) FROM rol_taquilla_trabajo '
+                "WHERE id_expediente <> 0 AND RTRIM(ISNULL(SinCto, '')) <> ''"
+            )
+            rows = [{'id_expediente': exp, 'sincto': sincto} for exp, sincto in cursor.fetchall()]
+        return Response(rows)
+
+
 class RolTaquillaView(APIView):
     """GET the rol_taquilla positions; id_expediente 0 marks a free one."""
 

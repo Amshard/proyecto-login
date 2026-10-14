@@ -4,6 +4,7 @@ import {
     deletePersonalTaquilla,
     getPersonalTaquilla,
     getRolTaquilla,
+    getSinCto,
     type PersonalTaquilla,
     type RolTaquilla,
     updatePersonalTaquilla,
@@ -18,7 +19,7 @@ type PersonalForm = Record<keyof PersonalTaquilla, string>;
 
 const EMPTY_FORM: PersonalForm = { id_expediente: '', nombre: '', fecha_ingreso: '', prejubilacion: '', sexo: '' };
 
-const NOMBRE_RE = /^[A-ZÁÉÍÓÚÜÑ ]+$/i;
+const NOMBRE_RE = /^[A-ZÑ ]+$/i;
 const notZero = (v: string) => v !== '0';
 
 const FIELDS = [
@@ -32,7 +33,7 @@ const FIELDS = [
 const ROL_MESSAGE = 'Debe asignar a un Rol disponible';
 const ROL_OCUPADO_MESSAGE = 'Esta Posición esta ocupada en el ROL Verifique';
 
-type RolKey = keyof RolTaquilla | 'jubdo';
+type RolKey = keyof RolTaquilla | '';
 
 const rolField = (key: RolKey, label: string, maxLength: number, width = 50) => ({
     ...codeField(key, label, maxLength, { width, wrap: width + 30 }),
@@ -52,11 +53,10 @@ const ROL_FIELDS = [
     rolField('calificacion', 'Calificación', 6, 60),
     rolField('turno', 'Turno', 1, 30),
     rolField('id_permanencia', 'Perm.', 1, 30),
-    rolField('jubdo', 'Jubdo', 5),
 ];
 
 const rolForm = (numero: string, rol: RolTaquilla | undefined) => {
-    const values: Partial<Record<RolKey, unknown>> = { ...rol, numero, jubdo: '' };
+    const values: Partial<Record<RolKey, unknown>> = { ...rol, numero };
     return Object.fromEntries(ROL_FIELDS.map(({ key }) => [key, String(values[key] ?? '')])) as Record<RolKey, string>;
 };
 
@@ -76,7 +76,7 @@ const COLUMNS: Column<PersonalTaquilla>[] = [
 
 const PDF_HEADERS: Record<string, string> = { 'Fecha de Ingreso': 'Fecha Ingreso', Prejubilación: 'Pre-Jub', FoM: 'Genero' };
 
-const byNombre = (a: PersonalTaquilla, b: PersonalTaquilla) => a.nombre.localeCompare(b.nombre, 'es');
+const byNombre = (a: PersonalTaquilla, b: PersonalTaquilla) => (a.nombre ?? '').localeCompare(b.nombre ?? '', 'es');
 
 const REPORTS: Record<string, { subtitle: string; rows: (rows: PersonalTaquilla[]) => PersonalTaquilla[] }> = {
     'Por Expediente': {
@@ -126,12 +126,40 @@ function SearchModal({ initial, onApply, onClose }: { initial: string; onApply: 
     );
 }
 
+function ConfirmModal({ message, onYes, onNo }: { message: string; onYes: () => void; onNo: () => void }) {
+    return (
+        <div className="stc-search-overlay" onClick={onNo}>
+            <div
+                className="stc-search-modal"
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                    if (e.key === 'Escape') onNo();
+                }}
+            >
+                <div className="stc-confirm-message">{message}</div>
+                <div className="stc-search-modal-actions">
+                    <button type="button" className="stc-btn stc-search-modal-btn" autoFocus onClick={onYes}>
+                        Si
+                    </button>
+                    <button type="button" className="stc-btn stc-search-modal-btn" onClick={onNo}>
+                        No
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+const focusField = (id: string) => setTimeout(() => document.getElementById(id)?.focus());
+
 export default function CatalogoPersonal() {
     const [rows, setRows] = useCatalogoRows(getPersonalTaquilla);
     const [rolRows, setRolRows] = useCatalogoRows(getRolTaquilla);
+    const [sinCtoRows] = useCatalogoRows(getSinCto);
     const [numero, setNumero] = useState('');
     const [showRol, setShowRol] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
+    const [askAdd, setAskAdd] = useState(false);
     const [search, setSearch] = useState('');
     const [reportOption, setReportOption] = useState(REPORT_OPTIONS[0]);
 
@@ -140,9 +168,9 @@ export default function CatalogoPersonal() {
         const fecha = String(r.fecha_ingreso ?? '').slice(0, 10);
         return fecha && (!oldest || fecha < oldest) ? fecha : oldest;
     }, undefined);
-    const fields = FIELDS.map((f) => (f.key === 'fecha_ingreso' ? { ...f, minDate, maxDate } : f));
 
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
+        required: ['id_expediente'],
         noUpper: ['fecha_ingreso'],
         fields: FIELDS,
         checks: {
@@ -160,7 +188,13 @@ export default function CatalogoPersonal() {
     const patchRol = (match: (r: RolTaquilla) => boolean, changes: Partial<RolTaquilla>) =>
         setRolRows((prev) => prev.map((r) => (match(r) ? { ...r, ...changes } : r)));
 
-    const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f, id_expediente: Number(f.id_expediente) }), {
+    const actions = catalogoActions(setRows, catalogoForm, (f) => ({
+        id_expediente: Number(f.id_expediente),
+        nombre: f.nombre || null,
+        fecha_ingreso: f.fecha_ingreso || null,
+        prejubilacion: f.prejubilacion || null,
+        sexo: f.sexo || null,
+    }), {
         create: (row) => createPersonalTaquilla(row, Number(numero)),
         update: updatePersonalTaquilla,
         remove: async (row) => {
@@ -168,6 +202,17 @@ export default function CatalogoPersonal() {
             patchRol((r) => r.id_expediente === row.id_expediente, { id_expediente: 0, faltas: 0, calificacion: '0.00' });
         },
     });
+    const onExpedienteEnter = (value: string) => {
+        if (!value) return window.alert('El campo Expediente está vacío.');
+        if (Number(value) < 1) return window.alert('El campo Expediente debe ser un número mayor a 0.');
+        if (!rows.some((r) => String(r.id_expediente) === value)) void onSave();
+    };
+    const fields = FIELDS.map((f) => {
+        if (f.key === 'fecha_ingreso') return { ...f, minDate, maxDate };
+        if (f.key === 'id_expediente') return { ...f, onEnter: onExpedienteEnter };
+        return f;
+    });
+
     const onFieldChange = keyChange(['id_expediente'], (f) => rows.find((r) => String(r.id_expediente) === f.id_expediente));
 
     const hideRol = () => {
@@ -177,8 +222,11 @@ export default function CatalogoPersonal() {
 
     const onSave = async () => {
         if (!validate()) return false;
+        if (!showRol) {
+            setAskAdd(true);
+            return false;
+        }
         if (rol?.id_expediente !== 0) {
-            setShowRol(true);
             window.alert(rol ? ROL_OCUPADO_MESSAGE : ROL_MESSAGE);
             return false;
         }
@@ -190,12 +238,13 @@ export default function CatalogoPersonal() {
 
     const term = search.toUpperCase();
     const displayedRows = term
-        ? rows.filter((row) => Object.values(row).some((value) => String(value).toUpperCase().includes(term)))
+        ? rows.filter((row) => Object.values(row).some((value) => String(value ?? '').toUpperCase().includes(term)))
         : rows;
 
     const report = REPORTS[reportOption];
     const pdfRows = report.rows(displayedRows);
     const repOf = new Map(pdfRows.map((row, i) => [row, withDots(i + 1)]));
+    const sinCtoOf = new Map(sinCtoRows.map((r) => [r.id_expediente, r.sincto]));
     const pdf: PdfReport<PersonalTaquilla> = {
         title: 'CATÁLOGO DE PERSONAL DE TAQUILLA',
         subtitle: report.subtitle,
@@ -203,7 +252,8 @@ export default function CatalogoPersonal() {
         columns: [
             { header: 'Reg', cell: (r) => repOf.get(r), fit: true },
             ...COLUMNS.map((c) => ({ ...c, header: PDF_HEADERS[c.header] ?? c.header })),
-            { header: 'Provcnal', cell: () => '' },
+            // SinCto from rol_taquilla_trabajo.
+            { header: 'Provcnal', cell: (r) => sinCtoOf.get(r.id_expediente) },
         ],
         rows: pdfRows,
         countText: (r) => `Total de ${withDots(r.length)} Expedientes en el Catálogo del Personal de Taquilla`,
@@ -238,14 +288,14 @@ export default function CatalogoPersonal() {
                     <ManualFields fields={fields} form={form} onChange={onFieldChange} />
                     <ManualFields
                         className={`stc-manual-fields stc-rol-fields${showRol && !selected ? '' : ' stc-rol-fields-hidden'}`}
-                        fields={ROL_FIELDS}
+                        fields={ROL_FIELDS.map((f) => (f.key === 'numero' ? { ...f, onEnter: () => void onSave() } : f))}
                         form={rolForm(numero, rol)}
                         onChange={(key, value) => key === 'numero' && setNumero(value)}
                     />
                 </>
             }
             overlay={
-                searchOpen && (
+                searchOpen ? (
                     <SearchModal
                         initial={search}
                         onApply={(value) => {
@@ -254,6 +304,21 @@ export default function CatalogoPersonal() {
                         }}
                         onClose={() => setSearchOpen(false)}
                     />
+                ) : (
+                    askAdd && (
+                        <ConfirmModal
+                            message="El Expediente no existe ¿Desea agregarlo?"
+                            onYes={() => {
+                                setAskAdd(false);
+                                setShowRol(true);
+                                focusField('rol-numero');
+                            }}
+                            onNo={() => {
+                                setAskAdd(false);
+                                focusField('filtro-id_expediente');
+                            }}
+                        />
+                    )
                 )
             }
             reportActions={

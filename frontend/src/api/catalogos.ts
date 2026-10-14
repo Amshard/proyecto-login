@@ -37,10 +37,10 @@ export interface Descanso {
 
 export interface PersonalTaquilla {
     id_expediente: number;
-    nombre: string;
-    fecha_ingreso: string;
-    prejubilacion: string;
-    sexo: string;
+    nombre: string | null;
+    fecha_ingreso: string | null;
+    prejubilacion: string | null;
+    sexo: string | null;
 }
 
 // A position in the rol de taquilla; id_expediente 0 marks a free one.
@@ -101,6 +101,8 @@ export const getTaquillasOperacion = getRows<TaquillaOperacion>('taquillas/opera
 export const getPersonalTaquilla = getRows<PersonalTaquilla>('personal-taquilla');
 export const getPersonalGaceta = getRows<PersonalGaceta>('personal-gaceta');
 export const getRolTaquilla = getRows<RolTaquilla>('rol-taquilla');
+// SinCto of each expediente in rol_taquilla_trabajo; blank ones are left out.
+export const getSinCto = getRows<{ id_expediente: number; sincto: string }>('rol-taquilla/sincto');
 
 export const createPermanencia = (data: Permanencia) => createRow('permanencias', data);
 export const createLinea = (data: Linea) => createRow('lineas', data);

@@ -20,6 +20,8 @@ export interface ManualFieldConfig<T extends string = string> {
     isKey?: boolean;
     options?: { value: string; label: string }[];
     accept?: (value: string) => boolean;
+    // Called with the field's value when Enter is pressed in it.
+    onEnter?: (value: string) => void;
 }
 
 interface ManualFieldProps<T extends string> {
@@ -66,6 +68,10 @@ function ManualField<T extends string>({ config, value, onChange, readOnly }: Ma
                 onKeyDown={(e) => {
                     if (e.key === 'Escape') setOpen(false);
                     if (e.key === 'ArrowDown') setOpen(true);
+                    if (e.key === 'Enter' && config.onEnter) {
+                        e.preventDefault();
+                        config.onEnter(value);
+                    }
                 }}
                 onBlur={() => {
                     setOpen(false);

@@ -64,11 +64,19 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
 
     // Checks the fields in order and alerts about the first one that is empty or not valid.
     // `onlyKeys` limits it to the key fields, which is all a delete needs.
+    // Optional fields are only checked when they are filled in.
     const validate = (onlyKeys = false) => {
-        const fields = onlyKeys ? keyFields : required;
+        const optional = (Object.keys(form) as (keyof T)[]).filter((field) => !required.includes(field));
+        const fields = onlyKeys ? keyFields : [...required, ...optional];
         for (const field of fields) {
             const value = form[field].trim();
-            const error = value === '' ? `El campo ${label(field)} está vacío.` : options.checks?.[field]?.(value, form);
+            const mustFill = onlyKeys || required.includes(field);
+            const error =
+                value === ''
+                    ? mustFill
+                        ? `El campo ${label(field)} está vacío.`
+                        : undefined
+                    : options.checks?.[field]?.(value, form);
             if (error) {
                 window.alert(error);
                 return false;
@@ -109,6 +117,8 @@ interface Persistence<R> {
     describe?: (row: R) => string;
     // Extra line for the save message, e.g. a reminder about an optional field left empty.
     savedNote?: (row: R) => string | undefined;
+    // False deletes without asking for confirmation first.
+    confirmDelete?: boolean;
 }
 
 async function persisted(action: Promise<void>, failure: string) {
@@ -129,7 +139,7 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
     setRows: Dispatch<SetStateAction<R[]>>,
     { form, selected, setSelected, clear, fill, validate }: CatalogoForm<T>,
     toRow: (form: T, previous?: R) => R,
-    { create, update, remove, describe, savedNote }: Persistence<R>
+    { create, update, remove, describe, savedNote, confirmDelete = true }: Persistence<R>
 ) {
     return {
         onSave: async () => {
@@ -158,7 +168,7 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
                 return;
             }
             const deleted = describe?.(selected as R);
-            if (!window.confirm(deleted ? `¿Desea eliminar el registro ${deleted}?` : '¿Desea eliminar el registro seleccionado?')) return;
+            if (confirmDelete && !window.confirm(deleted ? `¿Desea eliminar el registro ${deleted}?` : '¿Desea eliminar el registro seleccionado?')) return;
             if (!(await persisted(remove(selected as R).catch(ignoreNotFound), 'No se pudo eliminar el registro.'))) return;
             setRows((prev) => prev.filter((row) => row !== selected));
             clear();
