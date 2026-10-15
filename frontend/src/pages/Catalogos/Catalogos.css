@@ -463,3 +463,8 @@
 .stc-table-provisional td {
   white-space: nowrap;
 }
+
+.stc-table-personal tr:not(.stc-table-row-active) td:first-child:not(.stc-table-cell-selected),
+.stc-table-provisional tr:not(.stc-table-row-active) td:first-child:not(.stc-table-cell-selected) {
+  background: #ce723d;
+}

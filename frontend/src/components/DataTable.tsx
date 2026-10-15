@@ -8,6 +8,8 @@ export interface Column<R> {
     fit?: boolean;
     center?: boolean;
     left?: boolean;
+    // Centers this column's title in the PDF.
+    centerHeader?: boolean;
     repeatKey?: (row: R) => string;
 }
 

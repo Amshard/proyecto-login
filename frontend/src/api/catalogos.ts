@@ -130,6 +130,9 @@ export const deleteTaquilla = (id: string, turno: string) => deleteRow('taquilla
 export const deletePersonalTaquilla = (expediente: number) => deleteRow('personal-taquilla', expediente);
 export const deletePersonalGaceta = (exp: number) => deleteRow('personal-gaceta', exp);
 
+// Sets roles en línea and en turno to 4 in calificacion_taq for every provisional expediente; returns how many rows changed.
+export const calificaProvisional = async () => (await api.post<{ updated: number }>('/personal-gaceta/califica/')).data.updated;
+
 export const isNotFound = (error: unknown) => axios.isAxiosError(error) && error.response?.status === 404;
 
 export function apiErrorMessage(error: unknown, fallback: string): string {

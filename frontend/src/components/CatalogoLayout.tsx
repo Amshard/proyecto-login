@@ -18,6 +18,8 @@ interface CatalogoLayoutProps<R> {
     editing: boolean;
     actions?: ReactNode;
     reportButton?: string;
+    // What reportButton does; without it the button opens the Reporte tab.
+    onReportButton?: () => void;
     // Extra buttons shown in the Reporte tab, below Generar reporte.
     reportActions?: ReactNode;
     // Text of the button that generates the catalog's PDF.
@@ -54,6 +56,7 @@ export default function CatalogoLayout<R>({
     editing,
     actions,
     reportButton,
+    onReportButton,
     reportActions,
     reportLabel = 'Generar reporte',
     fields,
@@ -100,7 +103,7 @@ export default function CatalogoLayout<R>({
                             <button
                                 type="button"
                                 className="stc-btn stc-exit-btn stc-report-ops-btn"
-                                onClick={() => setActiveTab('nuevo')}
+                                onClick={onReportButton ?? (() => setActiveTab('nuevo'))}
                             >
                                 {reportButton}
                             </button>

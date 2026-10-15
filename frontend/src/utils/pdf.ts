@@ -35,7 +35,8 @@ export interface PdfReport<R> {
     rows: R[];
     countLabel?: string;
     countTitle?: string;
-    countText?: (rows: R[]) => string;
+    // One line, or several lines drawn one under another in the same style.
+    countText?: (rows: R[]) => string | string[];
     noteLabel?: string;
     noteById?: boolean;
     countBold?: boolean;
@@ -73,6 +74,7 @@ const TABLE_TOP = 75;
 const GROUP_TABLE_TOP = 76;
 const COUNT_PAGE_TOP = 96;
 const SUBTITLE_SPACE = 14;
+const COUNT_LINE_GAP = 18;
 
 type TableLabel = { content: string; styles: Partial<Styles>; fromSection: boolean };
 
@@ -248,7 +250,7 @@ export function buildCatalogoPdfBlob<R>({
     ): UserOptions => ({
         theme: 'plain',
         head: [
-            tableColumns.map((c) => c.header),
+            tableColumns.map((c) => (c.centerHeader ? { content: c.header, styles: { halign: 'center' as const } } : c.header)),
             ...(label ? [[{ content: label.content, colSpan: tableColumns.length, styles: label.styles }]] : []),
         ],
         body,
@@ -386,56 +388,62 @@ export function buildCatalogoPdfBlob<R>({
     }
 
     if (showCount) {
-        const countLabelText = countText ? countText(rows) : `${countTitle}: ${rows.length}`;
+        const countLines = [countText ? countText(rows) : `${countTitle}: ${rows.length}`].flat();
+        const lastLineOffset = (countLines.length - 1) * COUNT_LINE_GAP;
         let countLabelY = finalY + 18;
-        if (countLabelY > pageHeight - BOTTOM_MARGIN) {
+        if (countLabelY + lastLineOffset > pageHeight - BOTTOM_MARGIN) {
             doc.addPage();
             countLabelY = COUNT_PAGE_TOP + headerShift;
         }
         doc.setFontSize(fontSize - 1);
         doc.setFont('helvetica', countBold || countUnderlineSplit ? 'bold' : 'normal');
-        doc.text(countLabelText, pageCenter, countLabelY, { align: 'center' });
+        let countNumberX = pageCenter;
 
-        const countLabelWidth = doc.getTextWidth(countLabelText);
-        const countStartX = pageCenter - countLabelWidth / 2;
-        const countEndX = pageCenter + countLabelWidth / 2;
-        const countNumberX = countStartX + doc.getTextWidth(`${countTitle}: `);
+        countLines.forEach((countLabelText, line) => {
+            const lineY = countLabelY + line * COUNT_LINE_GAP;
+            doc.text(countLabelText, pageCenter, lineY, { align: 'center' });
 
-        const countSegments = (() => {
-            const match = countSplitNumber ? /\d+/.exec(countLabelText) : null;
-            if (!match) return [[countStartX, countEndX]];
-            const before = countLabelText.slice(0, match.index);
-            const after = countLabelText.slice(match.index + match[0].length);
-            const numberStartX = countStartX + doc.getTextWidth(before);
-            const numberEndX = numberStartX + doc.getTextWidth(match[0]);
-            return [
-                [countStartX, countStartX + doc.getTextWidth(before.trimEnd())],
-                [numberStartX, numberEndX],
-                [countEndX - doc.getTextWidth(after.trimStart()), countEndX],
-            ].filter(([startX, endX]) => endX > startX);
-        })();
+            const countLabelWidth = doc.getTextWidth(countLabelText);
+            const countStartX = pageCenter - countLabelWidth / 2;
+            const countEndX = pageCenter + countLabelWidth / 2;
+            if (line === 0) countNumberX = countStartX + doc.getTextWidth(`${countTitle}: `);
 
-        if (countRule) {
-            const ruleY = countLabelY - fontSize - 2;
-            doc.setLineWidth(0.75);
-            countSegments.forEach(([startX, endX]) => doc.line(startX, ruleY, endX, ruleY));
-        }
+            const countSegments = (() => {
+                const match = countSplitNumber ? /\d+/.exec(countLabelText) : null;
+                if (!match) return [[countStartX, countEndX]];
+                const before = countLabelText.slice(0, match.index);
+                const after = countLabelText.slice(match.index + match[0].length);
+                const numberStartX = countStartX + doc.getTextWidth(before);
+                const numberEndX = numberStartX + doc.getTextWidth(match[0]);
+                return [
+                    [countStartX, countStartX + doc.getTextWidth(before.trimEnd())],
+                    [numberStartX, numberEndX],
+                    [countEndX - doc.getTextWidth(after.trimStart()), countEndX],
+                ].filter(([startX, endX]) => endX > startX);
+            })();
 
-        if (countUnderline) {
-            const doubleUnderline = (startX: number, endX: number) => {
-                doc.line(startX, countLabelY + 3, endX, countLabelY + 3);
-                doc.line(startX, countLabelY + 5, endX, countLabelY + 5);
-            };
-            doc.setLineWidth(0.75);
-            if (countUnderlineSplit) {
-                doubleUnderline(countStartX, countStartX + doc.getTextWidth(countTitle));
-                doubleUnderline(countNumberX, countEndX);
-            } else {
-                countSegments.forEach(([startX, endX]) => doubleUnderline(startX, endX));
+            if (countRule) {
+                const ruleY = lineY - fontSize - 2;
+                doc.setLineWidth(0.75);
+                countSegments.forEach(([startX, endX]) => doc.line(startX, ruleY, endX, ruleY));
             }
-        }
 
-        let noteY = countLabelY + 20;
+            if (countUnderline) {
+                const doubleUnderline = (startX: number, endX: number) => {
+                    doc.line(startX, lineY + 3, endX, lineY + 3);
+                    doc.line(startX, lineY + 5, endX, lineY + 5);
+                };
+                doc.setLineWidth(0.75);
+                if (countUnderlineSplit) {
+                    doubleUnderline(countStartX, countStartX + doc.getTextWidth(countTitle));
+                    doubleUnderline(countNumberX, countEndX);
+                } else {
+                    countSegments.forEach(([startX, endX]) => doubleUnderline(startX, endX));
+                }
+            }
+        });
+
+        let noteY = countLabelY + lastLineOffset + 20;
         let unofficialCount = 0;
         doc.setFontSize(8);
         doc.setFont('helvetica', countUnderlineSplit ? 'bold' : 'normal');

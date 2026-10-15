@@ -10,6 +10,7 @@ import {
     updatePersonalTaquilla,
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
+import ConfirmModal from '../../components/ConfirmModal';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
 import type { PdfReport } from '../../utils/pdf';
@@ -126,30 +127,6 @@ function SearchModal({ initial, onApply, onClose }: { initial: string; onApply: 
     );
 }
 
-function ConfirmModal({ message, onYes, onNo }: { message: string; onYes: () => void; onNo: () => void }) {
-    return (
-        <div className="stc-search-overlay" onClick={onNo}>
-            <div
-                className="stc-search-modal"
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => {
-                    if (e.key === 'Escape') onNo();
-                }}
-            >
-                <div className="stc-confirm-message">{message}</div>
-                <div className="stc-search-modal-actions">
-                    <button type="button" className="stc-btn stc-search-modal-btn" autoFocus onClick={onYes}>
-                        Si
-                    </button>
-                    <button type="button" className="stc-btn stc-search-modal-btn" onClick={onNo}>
-                        No
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 const focusField = (id: string) => setTimeout(() => document.getElementById(id)?.focus());
 
 export default function CatalogoPersonal() {
@@ -252,7 +229,6 @@ export default function CatalogoPersonal() {
         columns: [
             { header: 'Reg', cell: (r) => repOf.get(r), fit: true },
             ...COLUMNS.map((c) => ({ ...c, header: PDF_HEADERS[c.header] ?? c.header })),
-            // SinCto from rol_taquilla_trabajo.
             { header: 'Provcnal', cell: (r) => sinCtoOf.get(r.id_expediente) },
         ],
         rows: pdfRows,

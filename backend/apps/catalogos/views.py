@@ -126,6 +126,23 @@ class TaquillaOperacionView(APIView):
         return Response(rows)
 
 
+class CalificaProvisionalView(APIView):
+    """POST sets roles en línea and en turno to 4 in calificacion_taq for every provisional expediente."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        table = models.PersonalGaceta._meta.db_table
+        exp = models.PersonalGaceta._meta.get_field('exp').column
+        with transaction.atomic(), connection.cursor() as cursor:
+            cursor.execute(
+                'UPDATE calificacion_taq SET id_roles_enlinea = 4, id_roles_enturno = 4 '
+                f'WHERE id_expediente IN (SELECT {exp} FROM {table} WHERE {exp} <> 0)'
+            )
+            updated = cursor.rowcount
+        return Response({'updated': updated})
+
+
 class SinCtoView(APIView):
     """GET each expediente's SinCto from rol_taquilla_trabajo."""
 
