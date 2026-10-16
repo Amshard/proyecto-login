@@ -23,10 +23,7 @@ export function useCatalogoRows<R>(load: () => Promise<R[]>) {
 interface FormOptions<T> {
     required?: (keyof T)[];
     noUpper?: (keyof T)[];
-    // The catalog's field configs: their labels name the field in validation messages, and the
-    // isKey ones are the only fields checked before a delete.
     fields?: { key: string; label: string; isKey?: boolean }[];
-    // Extra check of a filled-in field, given the whole form; returns the message to show when its value is not valid.
     checks?: Partial<Record<keyof T, (value: string, form: T) => string | undefined>>;
 }
 
@@ -62,9 +59,6 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
     const label = (field: keyof T) => options.fields?.find((f) => f.key === field)?.label ?? String(field);
     const keyFields = (options.fields ?? []).filter((f) => f.isKey && f.key in empty).map((f) => f.key as keyof T);
 
-    // Checks the fields in order and alerts about the first one that is empty or not valid.
-    // `onlyKeys` limits it to the key fields, which is all a delete needs.
-    // Optional fields are only checked when they are filled in.
     const validate = (onlyKeys = false) => {
         const optional = (Object.keys(form) as (keyof T)[]).filter((field) => !required.includes(field));
         const fields = onlyKeys ? keyFields : [...required, ...optional];
@@ -85,10 +79,6 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
         return true;
     };
 
-    // Change handler that loads the record whose key fields match what is typed in them; `find` gets
-    // the form as it will be and returns that record, if any. The typed key values are kept so a code
-    // can still be extended ("1" → "12"). With no match a loaded record is dropped, keeping the keys.
-    // `patch` sets other fields along with the change (e.g. clearing Estación when Línea changes).
     const keyChange =
         <R extends object>(keys: (keyof T)[], find: (next: T) => R | undefined) =>
         (field: keyof T, value: string, patch: Partial<T> = {}) => {
@@ -110,14 +100,10 @@ type CatalogoForm<T> = ReturnType<typeof useCatalogoForm<T & { [K in keyof T]: s
 
 interface Persistence<R> {
     create: (row: R) => Promise<void>;
-    // Without it the catalogo offers no Modificar button.
     update?: (row: R) => Promise<void>;
     remove: (row: R) => Promise<void>;
-    // Names the record in the modify/delete messages, e.g. "Línea 3".
     describe?: (row: R) => string;
-    // Extra line for the save message, e.g. a reminder about an optional field left empty.
     savedNote?: (row: R) => string | undefined;
-    // False deletes without asking for confirmation first.
     confirmDelete?: boolean;
 }
 
@@ -147,7 +133,6 @@ export function catalogoActions<R, T extends { [K in keyof T]: string }>(
             const row = toRow(form);
             if (!(await persisted(create(row), 'No se pudo guardar el registro.'))) return false;
             setRows((prev) => [...prev, row]);
-            // Selects the new row, so the table highlights it and scrolls to it.
             fill(row as object);
             const saved = describe ? `Se guardó correctamente: ${describe(row)}.` : 'Registro guardado correctamente.';
             window.alert([saved, savedNote?.(row)].filter(Boolean).join('\n'));
@@ -189,17 +174,13 @@ function fluidStyles(width: number, wrap: number, input: CSSProperties) {
     };
 }
 
-// Characters allowed in Línea/Estación codes: digits plus the lettered lines (0A, 0B).
 export const CODE_CHARS = '0123456789AB';
 
 export const padCode = (value: string) => (value ? value.padStart(2, '0') : '');
 
-// "Terminal 1-Terminal 2" name of a línea, as shown next to its code.
 export const lineaName = (linea: Linea | undefined) =>
     linea ? [linea.nombre_dirlin1, linea.nombre_dirlin2].filter(Boolean).join('-') : '';
 
-// True when some existing code can still be reached from what has been typed so far.
-// A single character also matches its padded form, so "A" is accepted for 0A.
 export const isCodePrefix = (typed: string, codes: string[]) => {
     const value = typed.toUpperCase();
     return codes.some((code) => code.startsWith(value) || code === padCode(value));

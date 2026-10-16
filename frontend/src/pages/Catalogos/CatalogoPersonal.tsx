@@ -10,7 +10,6 @@ import {
     updatePersonalTaquilla,
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
-import ConfirmModal from '../../components/ConfirmModal';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
 import type { PdfReport } from '../../utils/pdf';
@@ -136,7 +135,6 @@ export default function CatalogoPersonal() {
     const [numero, setNumero] = useState('');
     const [showRol, setShowRol] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const [askAdd, setAskAdd] = useState(false);
     const [search, setSearch] = useState('');
     const [reportOption, setReportOption] = useState(REPORT_OPTIONS[0]);
 
@@ -200,7 +198,12 @@ export default function CatalogoPersonal() {
     const onSave = async () => {
         if (!validate()) return false;
         if (!showRol) {
-            setAskAdd(true);
+            if (window.confirm('El Expediente no existe ¿Desea agregarlo?')) {
+                setShowRol(true);
+                focusField('rol-numero');
+            } else {
+                focusField('filtro-id_expediente');
+            }
             return false;
         }
         if (rol?.id_expediente !== 0) {
@@ -271,7 +274,7 @@ export default function CatalogoPersonal() {
                 </>
             }
             overlay={
-                searchOpen ? (
+                searchOpen && (
                     <SearchModal
                         initial={search}
                         onApply={(value) => {
@@ -280,25 +283,11 @@ export default function CatalogoPersonal() {
                         }}
                         onClose={() => setSearchOpen(false)}
                     />
-                ) : (
-                    askAdd && (
-                        <ConfirmModal
-                            message="El Expediente no existe ¿Desea agregarlo?"
-                            onYes={() => {
-                                setAskAdd(false);
-                                setShowRol(true);
-                                focusField('rol-numero');
-                            }}
-                            onNo={() => {
-                                setAskAdd(false);
-                                focusField('filtro-id_expediente');
-                            }}
-                        />
-                    )
                 )
             }
             reportActions={
-                <div className="stc-report-options">
+                <fieldset className="stc-report-options">
+                    <legend className="stc-report-options-title">Catálogo de Personal de Taquilla</legend>
                     {REPORT_OPTIONS.map((label) => (
                         <label key={label} className="stc-report-option">
                             <input
@@ -310,7 +299,7 @@ export default function CatalogoPersonal() {
                             {label}
                         </label>
                     ))}
-                </div>
+                </fieldset>
             }
             pdf={pdf}
         >

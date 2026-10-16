@@ -54,12 +54,6 @@
   text-transform: uppercase;
 }
 
-.stc-confirm-message {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-}
-
 .stc-search-input {
   width: 100%;
   height: 36px;
@@ -237,19 +231,9 @@
   cursor: default;
 }
 
-.stc-provisional-form {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 16px 24px;
-}
-
 .stc-field-break {
   flex-basis: 100%;
   height: 0;
-}
-
-.stc-provisional-form .stc-manual-fields {
-  padding: 16px 24px;
 }
 
 .stc-manual-fields-small {
@@ -289,8 +273,20 @@
   box-sizing: border-box;
   width: min(1000px, 100%);
   gap: 10px;
+  margin: 0;
+  min-inline-size: 0;
   padding: 50px 40px;
   border: 1px solid black;
+}
+
+.stc-report-options-title {
+  margin-left: -300px;
+  padding: 0 8px;
+  color: #1a2fa0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .stc-report-option {
