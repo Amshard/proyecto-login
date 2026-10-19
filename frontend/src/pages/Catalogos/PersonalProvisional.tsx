@@ -16,37 +16,14 @@ import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
 import { catalogoActions, codeField, dateField, expedienteField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
-type ProvisionalKey =
-    | 'expediente' | 'permiso' | 'nombre' | 'jub' | 'genero' | 'ingreso'
-    | 'fecha' | 'posicionRol' | 'tramo' | 'faltas' | 'taquilla' | 'categoria'
-    | 'descansos' | 'lugar' | 'calificacion' | 'turno' | 'perm';
+type GacetaForm = Record<keyof PersonalGaceta, string>;
 
-type ProvisionalForm = Record<ProvisionalKey, string>;
-
-const EMPTY_FORM: ProvisionalForm = {
-    expediente: '',
-    permiso: 'L00',
-    nombre: '',
-    jub: '',
-    genero: '',
-    ingreso: '',
-    fecha: '',
-    posicionRol: '',
-    tramo: '',
-    faltas: '',
-    taquilla: '',
-    categoria: '',
-    descansos: '',
-    lugar: '',
-    calificacion: '',
-    turno: '',
-    perm: '',
-};
+const EMPTY_FORM: GacetaForm = { exp: '', permiso: 'L00', fecha: '' };
 
 const SMALL = { width: 60, wrap: 70 };
 
 const MAIN_FIELDS = [
-    { ...expedienteField('expediente'), isKey: true, accept: (v: string) => v !== '0' },
+    { ...expedienteField('exp'), isKey: true, accept: (v: string) => v !== '0' },
     codeField('permiso', 'Permiso', 5, { width: 57, wrap: 70 }),
     { ...textField('nombre', 'Nombre', 280, { maxLength: 50 }), readOnly: true },
     { ...codeField('jub', 'Jub', 1, { wrap: 70 }), readOnly: true },
@@ -71,12 +48,13 @@ const ROL_FIELDS = [
 ].map((f) => ({ ...f, readOnly: true }));
 
 const text = (value: unknown) => (value == null ? '' : String(value));
+const day = (value: unknown) => text(value).slice(0, 10);
 
-const lookedUp = (person: PersonalTaquilla | undefined, rol: RolTaquilla | undefined): Partial<ProvisionalForm> => ({
+const lookedUp = (person: PersonalTaquilla | undefined, rol: RolTaquilla | undefined) => ({
     nombre: text(person?.nombre),
     jub: text(person?.prejubilacion),
     genero: text(person?.sexo),
-    ingreso: text(person?.fecha_ingreso).slice(0, 10),
+    ingreso: day(person?.fecha_ingreso),
     posicionRol: text(rol?.numero),
     tramo: text(rol?.id_tramo),
     faltas: text(rol?.faltas),
@@ -89,87 +67,42 @@ const lookedUp = (person: PersonalTaquilla | undefined, rol: RolTaquilla | undef
     perm: text(rol?.id_permanencia),
 });
 
-function gacetaToForm(g: PersonalGaceta): ProvisionalForm {
-    return {
-        ...EMPTY_FORM,
-        expediente: g.exp != null ? String(g.exp) : '',
-        permiso: g.permiso ?? '',
-        fecha: g.fecha ?? '',
-    };
-}
+const formatFecha = (value: unknown) => day(value).split('-').reverse().join('/');
 
-const formToGaceta = (f: ProvisionalForm): PersonalGaceta => ({
-    exp: Number(f.expediente),
-    permiso: f.permiso || null,
-    fecha: f.fecha || null,
-});
-
-const loadGaceta = async () => (await getPersonalGaceta()).map(gacetaToForm);
-
-function formatFecha(value: string): string {
-    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-    return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
-}
-
-const COLUMNS: Column<ProvisionalForm>[] = [
-    { header: 'Expediente', cell: (r) => r.expediente },
+const COLUMNS: Column<PersonalGaceta>[] = [
+    { header: 'Expediente', cell: (r) => r.exp },
     { header: 'Permiso', cell: (r) => r.permiso },
     { header: 'Fecha inicio', cell: (r) => formatFecha(r.fecha) },
 ];
 
 export default function PersonalProvisional() {
-    const [rows, setRows] = useCatalogoRows(loadGaceta);
+    const [rows, setRows] = useCatalogoRows(getPersonalGaceta);
     const [personal] = useCatalogoRows(getPersonalTaquilla);
     const [rolRows] = useCatalogoRows(getRolTaquilla);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
-        required: ['expediente', 'permiso'],
-        checks: {
-            expediente: (v) => (Number(v) >= 1 ? undefined : 'El campo Expediente debe ser un número mayor a 0.'),
-        },
+        required: ['exp', 'permiso'],
+        checks: { exp: (v) => (Number(v) >= 1 ? undefined : 'El campo Expediente debe ser un número mayor a 0.') },
         noUpper: ['fecha'],
         fields: [...MAIN_FIELDS, ...ROL_FIELDS],
     });
-    const { form, selected, updateField, clear, fill, keyChange, validate } = catalogoForm;
-    const personOf = (expediente: string) => personal.find((p) => String(p.id_expediente) === expediente);
-    const fechaIngreso = (expediente: string) => text(personOf(expediente)?.fecha_ingreso).slice(0, 10);
+    const { form, selected, clear, fill, keyChange, validate } = catalogoForm;
+
+    const personOf = (exp: number) => personal.find((p) => p.id_expediente === exp);
+    const exp = Number(form.exp);
+    const rol = exp ? rolRows.find((r) => r.id_expediente === exp) : undefined;
+    const shown = { ...form, ...lookedUp(personOf(exp), rol) };
+
     const actions = catalogoActions(
         setRows,
         catalogoForm,
-        (f) => ({ ...f }),
+        (f): PersonalGaceta => ({ exp: Number(f.exp), permiso: f.permiso || null, fecha: f.fecha || null }),
         {
-            create: (r) => createPersonalGaceta(formToGaceta(r)),
-            update: (r) => updatePersonalGaceta(formToGaceta(r)),
-            remove: (r) => deletePersonalGaceta(Number(r.expediente)),
+            create: createPersonalGaceta,
+            update: updatePersonalGaceta,
+            remove: (r) => deletePersonalGaceta(r.exp),
         }
     );
-    const onFieldChange = keyChange(['expediente'], (f) => rows.find((r) => r.expediente === f.expediente));
-
-    const expediente = Number(form.expediente);
-    const mainFields = MAIN_FIELDS.map((f) => (f.key === 'permiso' ? { ...f, readOnly: selected === null } : f));
-
-    const rol = expediente ? rolRows.find((r) => r.id_expediente === expediente) : undefined;
-    const shown = {
-        ...form,
-        ...lookedUp(personOf(form.expediente), rol),
-    };
-
-    const califica = async () => {
-        if (!window.confirm('¿ACTUALIZA CALIFICACIONES A PERSONAL PROVISIONAL?')) return;
-        try {
-            const updated = await calificaProvisional();
-            window.alert(`Calificación actualizada: Turnos=4 y Líneas=4 en ${updated} expediente(s).`);
-        } catch (error) {
-            window.alert(apiErrorMessage(error, 'No se pudo actualizar la calificación.'));
-        }
-    };
-
-    const pdfColumns: Column<ProvisionalForm>[] = [
-        { header: 'Expediente', cell: (r) => r.expediente },
-        { header: 'Linea', cell: (r) => r.permiso },
-        { header: 'Fecha', cell: (r) => r.fecha.slice(0, 10) },
-        { header: 'Nombre', cell: (r) => personOf(r.expediente)?.nombre, centerHeader: true },
-        { header: 'Fecha Ing', cell: (r) => fechaIngreso(r.expediente) },
-    ];
+    const onFieldChange = keyChange(['exp'], (f) => rows.find((r) => String(r.exp) === f.exp));
 
     const onSave = async () => {
         if (!validate()) return false;
@@ -179,6 +112,26 @@ export default function PersonalProvisional() {
         }
         return actions.onSave();
     };
+
+    const califica = async () => {
+        if (!window.confirm('¿Actualiza calificaciónes a Personal Provisional?')) return;
+        try {
+            const updated = await calificaProvisional();
+            window.alert(`Calificación actualizada: Turnos=4 y Líneas=4 en ${updated} expediente(s).`);
+        } catch (error) {
+            window.alert(apiErrorMessage(error, 'No se pudo actualizar la calificación.'));
+        }
+    };
+
+    const mainFields = MAIN_FIELDS.map((f) => (f.key === 'permiso' ? { ...f, readOnly: selected === null } : f));
+
+    const pdfColumns: Column<PersonalGaceta>[] = [
+        { header: 'Expediente', cell: (r) => r.exp },
+        { header: 'Linea', cell: (r) => r.permiso },
+        { header: 'Fecha', cell: (r) => day(r.fecha) },
+        { header: 'Nombre', cell: (r) => personOf(r.exp)?.nombre, centerHeader: true },
+        { header: 'Fecha Ing', cell: (r) => day(personOf(r.exp)?.fecha_ingreso) },
+    ];
 
     return (
         <CatalogoLayout
@@ -193,11 +146,15 @@ export default function PersonalProvisional() {
             onReportButton={califica}
             fields={
                 <>
-                    <ManualFields fields={mainFields} form={shown} onChange={onFieldChange} />
+                    <ManualFields
+                        fields={mainFields}
+                        form={shown}
+                        onChange={(key, value) => onFieldChange(key as keyof GacetaForm, value)}
+                    />
                     <ManualFields
                         fields={ROL_FIELDS}
                         form={shown}
-                        onChange={updateField}
+                        onChange={() => {}}
                         className="stc-manual-fields stc-manual-fields-small"
                     />
                 </>
@@ -218,7 +175,7 @@ export default function PersonalProvisional() {
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}
-                activeRow={selected as ProvisionalForm | null}
+                activeRow={selected as PersonalGaceta | null}
             />
         </CatalogoLayout>
     );

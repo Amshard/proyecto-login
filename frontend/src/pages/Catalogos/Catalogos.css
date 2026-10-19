@@ -107,7 +107,7 @@
 }
 
 .stc-header-registros .stc-registros-label {
-  color: #470404;
+  color: #380303;
 }
 
 .stc-registros-label {
@@ -315,7 +315,7 @@
 
 .stc-table-frame-title {
   padding: 0 8px;
-  margin-left: -400px;
+  margin-left: -500px;
   color: #1a2fa0;
   font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 14px;
