@@ -18,11 +18,8 @@ interface CatalogoLayoutProps<R> {
     editing: boolean;
     actions?: ReactNode;
     reportButton?: string;
-    // What reportButton does; without it the button opens the Reporte tab.
     onReportButton?: () => void;
-    // Extra buttons shown in the Reporte tab, below Generar reporte.
     reportActions?: ReactNode;
-    // Text of the button that generates the catalog's PDF.
     reportLabel?: string;
     fields?: ReactNode;
     overlay?: ReactNode;
@@ -30,8 +27,6 @@ interface CatalogoLayoutProps<R> {
     pdf: PdfReport<R>;
 }
 
-// Up/Down move through the left button column; Up from the top one goes back to the navbar
-// and Right jumps to the navbar too. Enter presses the button as usual.
 const onSideKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     const buttons = sideButtons();
     const index = buttons.indexOf(e.target as HTMLButtonElement);

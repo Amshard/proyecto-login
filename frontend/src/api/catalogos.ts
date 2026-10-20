@@ -43,7 +43,6 @@ export interface PersonalTaquilla {
     sexo: string | null;
 }
 
-// A position in the rol de taquilla; id_expediente 0 marks a free one.
 export interface RolTaquilla {
     numero: number;
     id_expediente: number;
@@ -101,7 +100,6 @@ export const getTaquillasOperacion = getRows<TaquillaOperacion>('taquillas/opera
 export const getPersonalTaquilla = getRows<PersonalTaquilla>('personal-taquilla');
 export const getPersonalGaceta = getRows<PersonalGaceta>('personal-gaceta');
 export const getRolTaquilla = getRows<RolTaquilla>('rol-taquilla');
-// SinCto of each expediente in rol_taquilla_trabajo; blank ones are left out.
 export const getSinCto = getRows<{ id_expediente: number; sincto: string }>('rol-taquilla/sincto');
 
 export const createPermanencia = (data: Permanencia) => createRow('permanencias', data);
@@ -109,7 +107,6 @@ export const createLinea = (data: Linea) => createRow('lineas', data);
 export const createEstacion = (data: Estacion) => createRow('estaciones', data);
 export const createDescanso = (data: Descanso) => createRow('descansos', data);
 export const createTaquilla = (data: Taquilla) => createRow('taquillas', data);
-// `numero` is the free rol_taquilla position assigned to the new person.
 export const createPersonalTaquilla = (data: PersonalTaquilla, numero: number) =>
     createRow('personal-taquilla', { ...data, numero });
 export const createPersonalGaceta = (data: PersonalGaceta) => createRow('personal-gaceta', data);
@@ -130,7 +127,6 @@ export const deleteTaquilla = (id: string, turno: string) => deleteRow('taquilla
 export const deletePersonalTaquilla = (expediente: number) => deleteRow('personal-taquilla', expediente);
 export const deletePersonalGaceta = (exp: number) => deleteRow('personal-gaceta', exp);
 
-// Sets roles en línea and en turno to 4 in calificacion_taq for every provisional expediente; returns how many rows changed.
 export const calificaProvisional = async () => (await api.post<{ updated: number }>('/personal-gaceta/califica/')).data.updated;
 
 export const isNotFound = (error: unknown) => axios.isAxiosError(error) && error.response?.status === 404;

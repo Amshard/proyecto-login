@@ -18,7 +18,6 @@ async function refreshAccessToken(): Promise<string> {
     return data.access;
 }
 
-// Axios instance that sends the access token and retries once with a refreshed one on 401.
 export function createApi(path: string) {
     const api = axios.create({ baseURL: `${API_URL}/${path}` });
 

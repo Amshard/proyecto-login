@@ -24,7 +24,7 @@ const SMALL = { width: 60, wrap: 70 };
 
 const MAIN_FIELDS = [
     { ...expedienteField('exp'), isKey: true, accept: (v: string) => v !== '0' },
-    codeField('permiso', 'Permiso', 5, { width: 57, wrap: 70 }),
+    codeField('permiso', 'Permiso', 4, { width: 57, wrap: 70 }),
     { ...textField('nombre', 'Nombre', 280, { maxLength: 50 }), readOnly: true },
     { ...codeField('jub', 'Jub', 1, { wrap: 70 }), readOnly: true },
     { ...codeField('genero', 'Genero', 1, { wrap: 70 }), readOnly: true },

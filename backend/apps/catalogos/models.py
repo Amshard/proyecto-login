@@ -85,7 +85,6 @@ class Taquilla(models.Model):
 
 class PersonalTaquilla(models.Model):
     id_expediente = models.IntegerField(primary_key=True)
-    # Only the expediente is required; the rest can be filled in later.
     nombre = models.CharField(max_length=50, null=True, blank=True)
     fecha_ingreso = models.DateField(null=True, blank=True)
     prejubilacion = models.CharField(max_length=1, null=True, blank=True)
