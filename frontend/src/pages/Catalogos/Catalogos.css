@@ -142,7 +142,7 @@
   padding: 8px 22px;
   text-align: center;
   color: #1a2fa0;
-  background: #f5f4f2;
+  background: rgb(228, 228, 228);
   border: 1px solid black;
   border-bottom: none;
   border-radius: 4px 4px 0 0;
@@ -152,7 +152,13 @@
   cursor: pointer;
 }
 
+.stc-tab-btn:not(.stc-tab-btn-active) {
+  background: rgb(202, 202, 202);
+  color: #1c2763;
+}
+
 .stc-manual-fields {
+  background-color: rgb(255, 255, 255);
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -227,7 +233,7 @@
 }
 
 .stc-manual-field .stc-field-input:read-only {
-  background: rgb(235, 235, 235);
+  background: rgb(230, 230, 230);
   cursor: default;
 }
 
@@ -254,7 +260,7 @@
 .stc-tab-panel {
   align-items: flex-start;
   justify-content: flex-start;
-  background: rgb(224, 224, 224);
+  background: rgb(228, 228, 228);
   border: 1px solid black;
 }
 

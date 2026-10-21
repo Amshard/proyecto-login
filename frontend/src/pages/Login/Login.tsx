@@ -34,7 +34,7 @@ export default function Login() {
         e.preventDefault();
         authenticate((mustChange) => {
             if (mustChange) window.alert('Debe cambiar la contraseña');
-            navigate(mustChange ? '/cambio-password' : '/dashboard/catalogos/permanencias');
+            navigate(mustChange ? '/cambio-password' : '/catalogos/permanencias');
         });
     };
 

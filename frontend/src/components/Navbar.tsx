@@ -67,7 +67,7 @@ export default function Navbar() {
 
     const go = (path: string, state: Record<string, string>) => {
         closeMenus();
-        navigate(`/dashboard/${path}`, { state });
+        navigate(`/${path}`, { state });
     };
 
     useEffect(() => {
@@ -152,7 +152,6 @@ export default function Navbar() {
                 else focusTop(wrap(tops.indexOf(topButton) - 1), true);
                 break;
             case 'Enter':
-                // A plain item keeps Enter's default click, which opens its page.
                 if (!target.dataset.submenu) return;
                 openFlyout(target);
                 break;

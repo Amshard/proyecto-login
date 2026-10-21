@@ -14,15 +14,15 @@ import SectionPage from './pages/SectionPage';
 
 const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/cambio-password', <ChangePassword />],
-  ['/dashboard/catalogos/permanencias', <CatalogoPermanencias />],
-  ['/dashboard/catalogos/lineas', <CatalogoLineas />],
-  ['/dashboard/catalogos/estaciones', <CatalogoEstaciones />],
-  ['/dashboard/catalogos/descansos', <CatalogoDescansos />],
-  ['/dashboard/catalogos/taquillas', <CatalogoTaquillas />],
-  ['/dashboard/catalogos/personal-de-taquilla', <CatalogoPersonal />],
-  ['/dashboard/catalogos/personal-provisional', <PersonalProvisional />],
-  ['/dashboard/:section/:item', <SectionPage />],
-  ['/dashboard/:section/:group/:item', <SectionPage />],
+  ['/catalogos/permanencias', <CatalogoPermanencias />],
+  ['/catalogos/lineas', <CatalogoLineas />],
+  ['/catalogos/estaciones', <CatalogoEstaciones />],
+  ['/catalogos/descansos', <CatalogoDescansos />],
+  ['/catalogos/taquillas', <CatalogoTaquillas />],
+  ['/catalogos/personal-de-taquilla', <CatalogoPersonal />],
+  ['/catalogos/personal-provisional', <PersonalProvisional />],
+  ['/:section/:item', <SectionPage />],
+  ['/:section/:group/:item', <SectionPage />],
 ];
 
 function App() {
