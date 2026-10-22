@@ -10,20 +10,17 @@ export default function Login() {
     const navigate = useNavigate();
     const [accessId, setAccessId] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
 
     const authenticate = async (onSuccess: (mustChangePassword: boolean) => void) => {
-        setError(null);
         setSubmitting(true);
         try {
             const user = await login({ id_usuario: accessId, password });
             onSuccess(user.must_change_password);
         } catch (err) {
-            setError(
-                axios.isAxiosError(err)
-                    ? (err.response?.data?.detail ?? 'Cuenta o contraseña incorrecta')
-                    : 'Ocurrió un error, intenta de nuevo'
+            const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+            window.alert(
+                status === 401 || status === 400 ? 'Cuenta o contraseña incorrecta' : 'Ocurrió un error, intenta de nuevo'
             );
         } finally {
             setSubmitting(false);
@@ -40,7 +37,7 @@ export default function Login() {
 
     const handleChangePasswordClick = () => {
         if (!accessId || !password) {
-            setError('Ingresa tu cuenta y contraseña para cambiar tu password');
+            window.alert('Ingresa tu cuenta y contraseña para cambiar tu password');
             return;
         }
         authenticate(() => navigate('/cambio-password'));
@@ -77,10 +74,8 @@ export default function Login() {
                                 </div>
                             ))}
 
-                            {error && <p className="stc-error">{error}</p>}
-
                             <button type="submit" className="stc-submit-btn" disabled={submitting}>
-                                {submitting ? 'Ingresar' : 'Ingresar'}
+                                Ingresar
                             </button>
                             <button
                                 type="button"

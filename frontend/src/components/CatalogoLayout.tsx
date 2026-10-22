@@ -1,11 +1,12 @@
-import { useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
 import '../pages/Login/Login.css';
 import '../pages/Catalogos/Catalogos.css';
 import { navbarTopButtons, sideButtons } from './keyboardNav';
 import Navbar from './Navbar';
 import PageHeader from './PageHeader';
 import StatusBar from './StatusBar';
-import { openPdf, type PdfReport } from '../utils/pdf';
+import { openPdf, preloadPdf } from '../utils/openPdf';
+import type { PdfReport } from '../utils/pdf';
 
 interface CatalogoLayoutProps<R> {
     tabLabel: string;
@@ -62,6 +63,10 @@ export default function CatalogoLayout<R>({
     const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo'>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
 
+    useEffect(() => {
+        if (!isCatalogo) preloadPdf();
+    }, [isCatalogo]);
+
     const tabs = [
         { key: 'catalogo', label: tabLabel },
         { key: 'nuevo', label: 'Reporte' },
@@ -103,13 +108,11 @@ export default function CatalogoLayout<R>({
                                 {reportButton}
                             </button>
                         )}
+                        <div className="stc-registros-row stc-header-registros">
+                            <span className="stc-registros-label">Registros</span>
+                            <div className="stc-registros-box">{count}</div>
+                        </div>
                     </>
-                )}
-                {isCatalogo && (
-                    <div className="stc-registros-row stc-header-registros">
-                        <span className="stc-registros-label">Registros</span>
-                        <div className="stc-registros-box">{count}</div>
-                    </div>
                 )}
             </PageHeader>
 

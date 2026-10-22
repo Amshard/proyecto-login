@@ -58,10 +58,7 @@ export default function CatalogoDescansos() {
     const onFieldChange = (field: keyof DescansoForm, value: string) => {
         onKeyChange(field, value);
         if (field !== 'id_descansos' || rows.some((r) => String(r.id_descansos) === value)) return;
-        const days = claveDays(value);
-        updateField('iniciales', days.iniciales);
-        updateField('descanso1', days.descanso1);
-        updateField('descanso2', days.descanso2);
+        for (const [key, day] of Object.entries(claveDays(value))) updateField(key as keyof DescansoForm, day);
     };
 
     return (

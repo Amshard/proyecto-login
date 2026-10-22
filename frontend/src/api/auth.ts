@@ -12,10 +12,7 @@ export const getMe = async (): Promise<User> => (await api.get<User>('/me/')).da
 export const logout = async (): Promise<void> => {
     const refresh = localStorage.getItem('refresh');
     if (!refresh) return;
-    try {
-        await api.post('/logout/', { refresh });
-    } catch {
-    }
+    await api.post('/logout/', { refresh }).catch(() => {});
 };
 
 export const changePassword = async (payload: ChangePasswordPayload): Promise<void> => {

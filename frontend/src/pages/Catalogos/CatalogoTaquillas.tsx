@@ -14,7 +14,8 @@ import {
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
-import { openPdf, type PdfSection } from '../../utils/pdf';
+import { openPdf } from '../../utils/openPdf';
+import type { PdfSection } from '../../utils/pdf';
 import {
     catalogoActions,
     CODE_CHARS,

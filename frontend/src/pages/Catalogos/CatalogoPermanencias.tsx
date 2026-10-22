@@ -45,13 +45,7 @@ export default function CatalogoPermanencias() {
             onClear={clear}
             {...actions}
             editing={selected !== null}
-            fields={
-                <ManualFields
-                    fields={FIELDS}
-                    form={form}
-                    onChange={onFieldChange}
-                />
-            }
+            fields={<ManualFields fields={FIELDS} form={form} onChange={onFieldChange} />}
             pdf={{
                 title: 'CATÁLOGO DE PERMANENCIAS',
                 footerTitle: 'RptCatPerma',
@@ -65,7 +59,10 @@ export default function CatalogoPermanencias() {
                 countUnderlineSplit: true,
             }}
         >
-            <DataTable title="Permanencias de la red" columns={COLUMNS}                 rows={rows}
+            <DataTable
+                title="Permanencias de la red"
+                columns={COLUMNS}
+                rows={rows}
                 onRowSelect={fill}
                 activeRow={selected as Permanencia | null}
             />

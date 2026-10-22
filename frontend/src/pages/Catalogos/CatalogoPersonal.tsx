@@ -26,8 +26,14 @@ const FIELDS = [
     { ...expedienteField('id_expediente'), isKey: true, accept: notZero },
     { ...textField('nombre', 'Nombre', 280, { maxLength: 50 }), accept: (v: string) => NOMBRE_RE.test(v) },
     dateField('fecha_ingreso', 'Fecha de Ingreso'),
-    codeField('prejubilacion', 'Jubilación', 1, { wrap: 90, allowedChars: 'SN' }),
-    codeField('sexo', 'Genero', 1, { wrap: 70, allowedChars: 'FM' }),
+    {
+        ...codeField('prejubilacion', 'Jubilación', 1, { wrap: 90, allowedChars: 'SN' }),
+        options: [{ value: 'S', label: 'Sí' }, { value: 'N', label: 'No' }],
+    },
+    {
+        ...codeField('sexo', 'Genero', 1, { wrap: 70, allowedChars: 'FM' }),
+        options: [{ value: 'F', label: 'Femenino' }, { value: 'M', label: 'Masculino' }],
+    },
 ];
 
 const ROL_MESSAGE = 'Debe asignar a un Rol disponible';

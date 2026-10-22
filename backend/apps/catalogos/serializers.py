@@ -1,18 +1,10 @@
+from functools import cache
+
 from rest_framework import serializers
 
-from apps.catalogos import models
 
-
-def _serializer(model):
+@cache
+def serializer_for(model):
+    """A ModelSerializer with all of the model's fields, made once per model."""
     meta = type('Meta', (), {'model': model, 'fields': '__all__'})
     return type(f'{model.__name__}Serializer', (serializers.ModelSerializer,), {'Meta': meta})
-
-
-PermanenciaSerializer = _serializer(models.Permanencia)
-LineaSerializer = _serializer(models.Linea)
-EstacionSerializer = _serializer(models.Estacion)
-DescansoSerializer = _serializer(models.Descanso)
-PersonalTaquillaSerializer = _serializer(models.PersonalTaquilla)
-PersonalRespaldoSerializer = _serializer(models.PersonalRespaldo)
-PersonalGacetaSerializer = _serializer(models.PersonalGaceta)
-TaquillaSerializer = _serializer(models.Taquilla)

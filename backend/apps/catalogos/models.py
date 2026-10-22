@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Min
 
 
 class Permanencia(models.Model):
@@ -71,7 +70,6 @@ class Taquilla(models.Model):
     extension_tel = models.CharField(max_length=10, null=True, blank=True)
     id_linea = models.CharField(max_length=2)
     id_estacion = models.CharField(max_length=2)
-    
 
     pk = models.CompositePrimaryKey('id_taquilla', 'turno')
 
@@ -95,7 +93,7 @@ class PersonalTaquilla(models.Model):
         db_table = 'cat_personal_taquilla'
 
     def __str__(self):
-        return self.nombre
+        return self.nombre or str(self.id_expediente)
 
 
 class PersonalRespaldo(models.Model):

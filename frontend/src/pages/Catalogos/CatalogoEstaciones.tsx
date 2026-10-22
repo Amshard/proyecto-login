@@ -49,8 +49,6 @@ const PDF = { title: 'CATÁLOGO DE ESTACIONES', footerTitle: 'RptCatEstaciones',
     countBold: true,
 };
 
-const toEstacion = (form: EstacionForm): Estacion => ({ ...form });
-
 export default function CatalogoEstaciones() {
     const [rows, setRows] = useCatalogoRows(getEstaciones);
     const [lineas] = useCatalogoRows(getLineas);
@@ -69,7 +67,7 @@ export default function CatalogoEstaciones() {
         },
     });
     const { form, selected, clear, fill, keyChange } = catalogoForm;
-    const actions = catalogoActions(setRows, catalogoForm, toEstacion, {
+    const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createEstacion,
         update: updateEstacion,
         remove: (r) => deleteEstacion(r.id_linea, r.id_estacion),
@@ -114,7 +112,7 @@ export default function CatalogoEstaciones() {
 
     return (
         <CatalogoLayout
-            tabLabel="Catálogo de Estacioness"
+            tabLabel="Catálogo de Estaciones"
             statusLabel="CatEstaciones"
             count={rows.length}
             onClear={clear}

@@ -1,45 +1,43 @@
 from django.db import connection, transaction
-from rest_framework import generics, permissions, status
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.catalogos import models, serializers
-
-
-KEYS = {
-    models.Permanencia: ('id_permanencia',),
-    models.Linea: ('id_linea',),
-    models.Estacion: ('id_linea', 'id_estacion'),
-    models.Descanso: ('id_descansos',),
-    models.Taquilla: ('id_taquilla', 'turno'),
-    models.PersonalTaquilla: ('id_expediente',),
-    models.PersonalGaceta: ('exp',),
-}
+from apps.catalogos import models
+from apps.catalogos.serializers import serializer_for
 
 UNAUDITED = {models.PersonalGaceta}
 
 
-def _where(columns):
-    return ' AND '.join(f'{column} = %s' for column in columns)
+def _keys(model):
+    return [field.name for field in model._meta.pk_fields]
 
 
 def _columns(model, names):
     return [model._meta.get_field(name).column for name in names]
 
 
+def _where(columns):
+    return ' AND '.join(f'{column} = %s' for column in columns)
+
+
+def _fetch(sql, params=()):
+    """Runs a query and returns its rows as dicts keyed by column name."""
+    with connection.cursor() as cursor:
+        cursor.execute(sql, params)
+        columns = [col[0] for col in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+
 class CatalogoListView(generics.ListAPIView):
     """GET the catalog; POST inserts a row, stamping usuario_alta / fecha_alta."""
 
-    permission_classes = [permissions.IsAuthenticated]
-
     def post(self, request):
         model = self.queryset.model
-        keys = KEYS.get(model)
-        if keys is None:
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        serializer = self.get_serializer(data=request.data)
+        keys = _keys(model)
         if model.objects.filter(**{key: request.data.get(key) for key in keys}).exists():
             return Response({'detail': 'Ya existe un registro con esa clave.'}, status=status.HTTP_409_CONFLICT)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
@@ -59,20 +57,24 @@ class CatalogoListView(generics.ListAPIView):
         return Response(self.get_serializer(created).data, status=status.HTTP_201_CREATED)
 
 
-def _list_view(model, serializer, *ordering):
-    return type(f'{model.__name__}ListView', (CatalogoListView,), {
+def _list_view(model, *ordering, base=CatalogoListView):
+    return type(f'{model.__name__}ListView', (base,), {
         'queryset': model.objects.order_by(*ordering) if ordering else model.objects.all(),
-        'serializer_class': serializer,
+        'serializer_class': serializer_for(model),
     })
 
 
-PermanenciaListView = _list_view(models.Permanencia, serializers.PermanenciaSerializer)
-LineaListView = _list_view(models.Linea, serializers.LineaSerializer, 'id_linea')
-EstacionListView = _list_view(models.Estacion, serializers.EstacionSerializer, 'id_linea', 'id_estacion')
-DescansoListView = _list_view(models.Descanso, serializers.DescansoSerializer, 'id_descansos')
+PermanenciaListView = _list_view(models.Permanencia)
+LineaListView = _list_view(models.Linea, 'id_linea')
+EstacionListView = _list_view(models.Estacion, 'id_linea', 'id_estacion')
+DescansoListView = _list_view(models.Descanso, 'id_descansos')
+PersonalGacetaListView = _list_view(models.PersonalGaceta, 'exp')
+TaquillaListView = _list_view(models.Taquilla, 'id_taquilla', 'turno')
+# Read only.
+PersonalRespaldoListView = _list_view(models.PersonalRespaldo, 'id_expediente', base=generics.ListAPIView)
 
 
-class PersonalTaquillaListView(_list_view(models.PersonalTaquilla, serializers.PersonalTaquillaSerializer, 'nombre')):
+class PersonalTaquillaListView(_list_view(models.PersonalTaquilla, 'nombre')):
     """POST also takes `numero`, the free rol_taquilla position the new person is assigned to,
     in the same transaction: without a free position nothing is saved."""
 
@@ -92,44 +94,57 @@ class PersonalTaquillaListView(_list_view(models.PersonalTaquilla, serializers.P
                     [response.data['id_expediente'], request.user.id_usuario, numero],
                 )
                 if cursor.rowcount == 0:
-                    transaction.set_rollback(True)
+                    # Look the position up before marking the rollback: no query can run after it.
                     cursor.execute('SELECT TOP 1 1 FROM rol_taquilla WHERE numero = %s', [numero])
                     message = (
                         'Esta Posición esta ocupada en el ROL Verifique'
                         if cursor.fetchone() else 'Debe asignar a un Rol disponible'
                     )
+                    transaction.set_rollback(True)
                     return Response({'detail': message}, status=status.HTTP_409_CONFLICT)
         return response
 
 
-PersonalRespaldoListView = _list_view(models.PersonalRespaldo, serializers.PersonalRespaldoSerializer, 'id_expediente')
-PersonalGacetaListView = _list_view(models.PersonalGaceta, serializers.PersonalGacetaSerializer, 'exp')
-TaquillaListView = _list_view(models.Taquilla, serializers.TaquillaSerializer, 'id_taquilla', 'turno')
+class QueryView(APIView):
+    """GET the rows of `sql`."""
 
-
-class TaquillaOperacionView(APIView):
-
-    permission_classes = [permissions.IsAuthenticated]
+    sql = ''
 
     def get(self, request):
-        with connection.cursor() as cursor:
-            cursor.execute(
-                'SELECT DISTINCT(id_taquilla) id_taquilla, turno, linea, nombre_estacion '
-                'FROM rol_taquilla_trabajo, cat_estaciones '
-                "WHERE id_taquilla <> '00000' "
-                'AND (id_estacion = substring(rol_taquilla_trabajo.id_taquilla,3,2)) '
-                'AND (rol_taquilla_trabajo.linea = cat_estaciones.id_linea) '
-                'ORDER BY id_taquilla, linea, rol_taquilla_trabajo.turno asc, nombre_estacion ASC'
-            )
-            columns = [col[0] for col in cursor.description]
-            rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        return Response(rows)
+        return Response(_fetch(self.sql))
+
+
+class TaquillaOperacionView(QueryView):
+    sql = (
+        'SELECT DISTINCT(id_taquilla) id_taquilla, turno, linea, nombre_estacion '
+        'FROM rol_taquilla_trabajo, cat_estaciones '
+        "WHERE id_taquilla <> '00000' "
+        'AND (id_estacion = substring(rol_taquilla_trabajo.id_taquilla,3,2)) '
+        'AND (rol_taquilla_trabajo.linea = cat_estaciones.id_linea) '
+        'ORDER BY id_taquilla, linea, rol_taquilla_trabajo.turno asc, nombre_estacion ASC'
+    )
+
+
+class RolTaquillaView(QueryView):
+    """The rol_taquilla positions; id_expediente 0 marks a free one."""
+
+    sql = (
+        'SELECT numero, id_expediente, id_tramo, faltas, id_taquilla, categoria, id_descansos, '
+        'lugar, calificacion, turno, id_permanencia FROM rol_taquilla ORDER BY numero'
+    )
+
+
+class SinCtoView(QueryView):
+    """Each expediente's SinCto from rol_taquilla_trabajo, leaving out blank ones."""
+
+    sql = (
+        'SELECT id_expediente, RTRIM(SinCto) AS sincto FROM rol_taquilla_trabajo '
+        "WHERE id_expediente <> 0 AND RTRIM(ISNULL(SinCto, '')) <> ''"
+    )
 
 
 class CalificaProvisionalView(APIView):
     """POST sets roles en línea and en turno to 4 in calificacion_taq for every provisional expediente."""
-
-    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         table = models.PersonalGaceta._meta.db_table
@@ -143,54 +158,24 @@ class CalificaProvisionalView(APIView):
         return Response({'updated': updated})
 
 
-class SinCtoView(APIView):
-    """GET each expediente's SinCto from rol_taquilla_trabajo."""
-
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        with connection.cursor() as cursor:
-            cursor.execute(
-                'SELECT id_expediente, RTRIM(SinCto) FROM rol_taquilla_trabajo '
-                "WHERE id_expediente <> 0 AND RTRIM(ISNULL(SinCto, '')) <> ''"
-            )
-            rows = [{'id_expediente': exp, 'sincto': sincto} for exp, sincto in cursor.fetchall()]
-        return Response(rows)
-
-
-class RolTaquillaView(APIView):
-    """GET the rol_taquilla positions; id_expediente 0 marks a free one."""
-
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        with connection.cursor() as cursor:
-            cursor.execute(
-                'SELECT numero, id_expediente, id_tramo, faltas, id_taquilla, categoria, id_descansos, '
-                'lugar, calificacion, turno, id_permanencia FROM rol_taquilla ORDER BY numero'
-            )
-            columns = [col[0] for col in cursor.description]
-            rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        return Response(rows)
-
-
 class CatalogoItemView(APIView):
-    """PUT (modify) or DELETE one catalog row, addressed by its key columns.
+    """PUT (modify) or DELETE one catalog row, addressed by its primary key columns.
 
-    URL kwargs are named after the KEYS fields. `links` are (table, columns, message) checked
+    URL kwargs are named after the key fields. `links` are (table, columns, message) checked
     in order with the same key values before a delete; the first table with a matching row
     refuses the delete with its message. A PUT also stamps usuario_modif with
     the user and fecha_modif with today (except UNAUDITED tables).
     """
 
-    permission_classes = [permissions.IsAuthenticated]
     model = None
-    serializer_class = None
     links: tuple[tuple[str, tuple[str, ...], str], ...] = ()
 
-    @property
-    def keys(self):
-        return KEYS[self.model]
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.keys = _keys(self.model)
+        self.serializer_class = serializer_for(self.model)
+        self.table = self.model._meta.db_table
+        self.where = _where(_columns(self.model, self.keys))
 
     def put(self, request, **kwargs):
         lookup = {key: kwargs[key] for key in self.keys}
@@ -200,19 +185,16 @@ class CatalogoItemView(APIView):
         serializer = self.serializer_class(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
-        fields = self.model._meta
-        assignments, values = [], []
-        for name, value in serializer.validated_data.items():
-            if name not in self.keys:
-                assignments.append(f'{fields.get_field(name).column} = %s')
-                values.append(value)
+        changes = {name: value for name, value in serializer.validated_data.items() if name not in self.keys}
+        assignments = [f'{column} = %s' for column in _columns(self.model, changes)]
+        values = list(changes.values())
         if self.model not in UNAUDITED:
             assignments += ['usuario_modif = %s', 'fecha_modif = GETDATE()']
             values.append(request.user.id_usuario)
         if assignments:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    f'UPDATE {self._table} SET {", ".join(assignments)} WHERE {self._where}',
+                    f'UPDATE {self.table} SET {", ".join(assignments)} WHERE {self.where}',
                     values + list(lookup.values()),
                 )
         return Response(self.serializer_class(self.model.objects.get(**lookup)).data)
@@ -224,51 +206,40 @@ class CatalogoItemView(APIView):
                 cursor.execute(f'SELECT TOP 1 1 FROM {table} WHERE {_where(columns)}', values)
                 if cursor.fetchone():
                     return Response({'detail': message}, status=status.HTTP_409_CONFLICT)
-            cursor.execute(f'DELETE FROM {self._table} WHERE {self._where}', values)
+            cursor.execute(f'DELETE FROM {self.table} WHERE {self.where}', values)
             if cursor.rowcount == 0:
                 return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @property
-    def _table(self):
-        return self.model._meta.db_table
 
-    @property
-    def _where(self):
-        return _where(_columns(self.model, self.keys))
-
-
-def _item_view(model, serializer, *links):
-    return type(f'{model.__name__}ItemView', (CatalogoItemView,), {
-        'model': model,
-        'serializer_class': serializer,
-        'links': links,
-    })
+def _item_view(model, *links):
+    return type(f'{model.__name__}ItemView', (CatalogoItemView,), {'model': model, 'links': links})
 
 
 PermanenciaItemView = _item_view(
-    models.Permanencia, serializers.PermanenciaSerializer,
+    models.Permanencia,
     ('cat_lineas', ('id_permanencia',), 'No procede la baja, esta asignada a líneas.'),
 )
 LineaItemView = _item_view(
-    models.Linea, serializers.LineaSerializer,
+    models.Linea,
     ('cat_taquillas', ('id_linea',), 'No procede la baja, hay taquillas con esta clave.'),
 )
 EstacionItemView = _item_view(
-    models.Estacion, serializers.EstacionSerializer,
+    models.Estacion,
     ('cat_taquillas', ('id_linea', 'id_estacion'), 'No procede la baja, hay taquillas con esta clave.'),
 )
 DescansoItemView = _item_view(
-    models.Descanso, serializers.DescansoSerializer,
+    models.Descanso,
     ('rol_taquilla', ('id_descansos',), 'No procede la baja, esta asignado en el rol de taquilla.'),
 )
 TaquillaItemView = _item_view(
-    models.Taquilla, serializers.TaquillaSerializer,
+    models.Taquilla,
     ('rol_taquilla', ('id_taquilla', 'turno'), 'Existe en el Rol de Taquilla, Primero debe darla de baja en el Rol'),
 )
+PersonalGacetaItemView = _item_view(models.PersonalGaceta)
 
 
-class PersonalTaquillaItemView(_item_view(models.PersonalTaquilla, serializers.PersonalTaquillaSerializer)):
+class PersonalTaquillaItemView(_item_view(models.PersonalTaquilla)):
     """DELETE also frees the person's rol_taquilla position, in the same transaction."""
 
     def delete(self, request, **kwargs):
@@ -282,6 +253,3 @@ class PersonalTaquillaItemView(_item_view(models.PersonalTaquilla, serializers.P
                         [request.user.id_usuario, kwargs['id_expediente']],
                     )
         return response
-
-
-PersonalGacetaItemView = _item_view(models.PersonalGaceta, serializers.PersonalGacetaSerializer)

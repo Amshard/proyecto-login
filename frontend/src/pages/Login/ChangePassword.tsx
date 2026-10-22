@@ -25,15 +25,14 @@ export default function ChangePassword() {
         changePassword(values)
             .then(() => navigate('/catalogos/permanencias'))
             .catch((err) => {
-                const data = axios.isAxiosError(err) ? err.response?.data : undefined;
+                if (!axios.isAxiosError(err)) return setError('Ocurrió un error, intenta de nuevo');
+                const data = err.response?.data;
                 setError(
-                    axios.isAxiosError(err)
-                        ? (data?.current_password?.[0]
-                            ?? data?.new_password?.[0]
-                            ?? data?.non_field_errors?.[0]
-                            ?? data?.detail
-                            ?? 'No se pudo cambiar la contraseña')
-                        : 'Ocurrió un error, intenta de nuevo'
+                    data?.current_password?.[0] ??
+                        data?.new_password?.[0] ??
+                        data?.non_field_errors?.[0] ??
+                        data?.detail ??
+                        'No se pudo cambiar la contraseña'
                 );
             });
     };
