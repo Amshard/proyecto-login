@@ -1,0 +1,44 @@
+.stc-field-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.stc-tab-panel:has(.stc-table-rol) {
+  background: rgb(221, 221, 221);
+}
+
+.stc-table-frame:has(.stc-table-rol) .stc-table-frame-title {
+  color: black;
+  font-style: italic;
+  margin: 0 auto;
+}
+
+.stc-table-rol {
+  table-layout: auto;
+}
+
+.stc-table-rol th,
+.stc-table-rol td {
+  white-space: nowrap;
+}
+
+.stc-tab-panel:has(.stc-rol-options) {
+  align-items: center;
+  justify-content: center;
+}
+
+.stc-rol-options {
+  color: black;
+  width: min(600px, 100%);
+  justify-items: center;
+}
+
+.stc-rol-options .stc-report-options-title {
+  margin: 0 auto;
+}
+
+.stc-rol-btn {
+  left: 20px;
+  top: 220px;
+}

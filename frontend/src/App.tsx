@@ -8,6 +8,8 @@ import CatalogoPermanencias from './pages/Catalogos/CatalogoPermanencias';
 import CatalogoPersonal from './pages/Catalogos/CatalogoPersonal';
 import CatalogoTaquillas from './pages/Catalogos/CatalogoTaquillas';
 import PersonalProvisional from './pages/Catalogos/PersonalProvisional';
+import RespaldaRolVigente from './pages/Procesos/RespaldaRolVigente';
+import RolDescansos from './pages/Procesos/RolDescansos';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
 import SectionPage from './pages/SectionPage';
@@ -21,6 +23,8 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/catalogos/taquillas', <CatalogoTaquillas />],
   ['/catalogos/personal-de-taquilla', <CatalogoPersonal />],
   ['/catalogos/personal-provisional', <PersonalProvisional />],
+  ['/procesos/respalda-rol-vigente', <RespaldaRolVigente />],
+  ['/procesos/rol-de-descansos', <RolDescansos />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];

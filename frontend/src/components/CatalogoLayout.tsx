@@ -11,12 +11,12 @@ import type { PdfReport } from '../utils/pdf';
 interface CatalogoLayoutProps<R> {
     tabLabel: string;
     statusLabel: string;
-    count: number;
-    onClear: () => void;
-    onSave: () => void;
+    count?: number;
+    onClear?: () => void;
+    onSave?: () => void;
     onModify?: () => void;
-    onDelete: () => void;
-    editing: boolean;
+    onDelete?: () => void;
+    editing?: boolean;
     actions?: ReactNode;
     reportButton?: string;
     onReportButton?: () => void;
@@ -25,7 +25,10 @@ interface CatalogoLayoutProps<R> {
     fields?: ReactNode;
     overlay?: ReactNode;
     children: ReactNode;
-    pdf: PdfReport<R>;
+    pdf?: PdfReport<R>;
+    // Replaces the Reporte tab with a tab of the page's own.
+    secondTab?: { label: string; content: ReactNode };
+    onTabChange?: () => void;
 }
 
 const onSideKeyDown = (e: KeyboardEvent<HTMLElement>) => {
@@ -59,17 +62,19 @@ export default function CatalogoLayout<R>({
     overlay,
     children,
     pdf,
+    secondTab,
+    onTabChange,
 }: CatalogoLayoutProps<R>) {
     const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo'>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
 
     useEffect(() => {
-        if (!isCatalogo) preloadPdf();
-    }, [isCatalogo]);
+        if (!isCatalogo && !secondTab) preloadPdf();
+    }, [isCatalogo, secondTab]);
 
     const tabs = [
         { key: 'catalogo', label: tabLabel },
-        { key: 'nuevo', label: 'Reporte' },
+        ...(secondTab || pdf ? [{ key: 'nuevo', label: secondTab?.label ?? 'Reporte' } as const] : []),
     ] as const;
 
     return (
@@ -79,9 +84,11 @@ export default function CatalogoLayout<R>({
             <PageHeader onKeyDown={onSideKeyDown}>
                 {isCatalogo && (
                     <>
-                        <button type="button" className="stc-btn stc-exit-btn stc-clear-btn" onClick={onClear}>
-                            Limpiar
-                        </button>
+                        {onClear && (
+                            <button type="button" className="stc-btn stc-exit-btn stc-clear-btn" onClick={onClear}>
+                                Limpiar
+                            </button>
+                        )}
                         {editing ? (
                             <>
                                 {onModify && (
@@ -89,14 +96,18 @@ export default function CatalogoLayout<R>({
                                         Modificar
                                     </button>
                                 )}
-                                <button type="button" className="stc-btn stc-exit-btn stc-delete-btn" onClick={onDelete}>
-                                    Eliminar
-                                </button>
+                                {onDelete && (
+                                    <button type="button" className="stc-btn stc-exit-btn stc-delete-btn" onClick={onDelete}>
+                                        Eliminar
+                                    </button>
+                                )}
                             </>
                         ) : (
-                            <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onSave}>
-                                Guardar
-                            </button>
+                            onSave && (
+                                <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onSave}>
+                                    Guardar
+                                </button>
+                            )
                         )}
                         {actions}
                         {reportButton && (
@@ -108,10 +119,12 @@ export default function CatalogoLayout<R>({
                                 {reportButton}
                             </button>
                         )}
-                        <div className="stc-registros-row stc-header-registros">
-                            <span className="stc-registros-label">Registros</span>
-                            <div className="stc-registros-box">{count}</div>
-                        </div>
+                        {count !== undefined && (
+                            <div className="stc-registros-row stc-header-registros">
+                                <span className="stc-registros-label">Registros</span>
+                                <div className="stc-registros-box">{count}</div>
+                            </div>
+                        )}
                     </>
                 )}
             </PageHeader>
@@ -126,7 +139,10 @@ export default function CatalogoLayout<R>({
                                         key={key}
                                         type="button"
                                         className={`stc-tab-btn${activeTab === key ? ' stc-tab-btn-active' : ''}`}
-                                        onClick={() => setActiveTab(key)}
+                                        onClick={() => {
+                                            if (key !== activeTab) onTabChange?.();
+                                            setActiveTab(key);
+                                        }}
                                     >
                                         {label}
                                     </button>
@@ -138,7 +154,9 @@ export default function CatalogoLayout<R>({
                             <div className="stc-changepw-body stc-tab-panel">
                                 {isCatalogo ? (
                                     children
-                                ) : (
+                                ) : secondTab ? (
+                                    secondTab.content
+                                ) : pdf ? (
                                     <div className="stc-report-panel">
                                         <button
                                             type="button"
@@ -149,7 +167,7 @@ export default function CatalogoLayout<R>({
                                         </button>
                                         {reportActions}
                                     </div>
-                                )}
+                                ) : null}
                             </div>
                         </div>
                     </div>

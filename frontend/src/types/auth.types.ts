@@ -1,8 +1,10 @@
 export interface RolVigente {
+    id_rol_anual: number;
     nombre_rol: string;
     meses_q_califica: string | null;
     fecha_ini: string;
     fecha_fin: string;
+    estatus_roldescansos: string | null;
 }
 
 export interface User {

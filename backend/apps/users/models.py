@@ -68,6 +68,7 @@ class RolVigente(models.Model):
     meses_q_califica = models.CharField(max_length=12, blank=True, null=True)
     fecha_ini = models.DateTimeField()
     fecha_fin = models.DateTimeField()
+    estatus_roldescansos = models.CharField(max_length=10, blank=True, null=True)
     fecha_modif = models.DateTimeField(blank=True, null=True)
 
     class Meta:

@@ -136,7 +136,7 @@ export default function PersonalProvisional() {
     return (
         <CatalogoLayout
             tabLabel="Personal Provisional"
-            statusLabel="CatGaceta"
+            statusLabel="Catalogo de Personal Provisional"
             count={rows.length}
             onClear={clear}
             {...actions}

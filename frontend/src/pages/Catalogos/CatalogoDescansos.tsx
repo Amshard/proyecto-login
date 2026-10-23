@@ -64,7 +64,7 @@ export default function CatalogoDescansos() {
     return (
         <CatalogoLayout
             tabLabel="Catálogo de Descansos"
-            statusLabel="CatDescansos"
+            statusLabel="Catálogo de Descansos"
             count={rows.length}
             onClear={clear}
             {...actions}

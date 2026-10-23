@@ -12,7 +12,10 @@ User = get_user_model()
 class RolVigenteSerializer(serializers.ModelSerializer):
     class Meta:
         model = RolVigente
-        fields = ['nombre_rol', 'meses_q_califica', 'fecha_ini', 'fecha_fin']
+        fields = [
+            'id_rol_anual', 'nombre_rol', 'meses_q_califica', 'fecha_ini', 'fecha_fin',
+            'estatus_roldescansos',
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):

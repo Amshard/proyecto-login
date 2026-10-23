@@ -40,7 +40,7 @@ export default function CatalogoPermanencias() {
     return (
         <CatalogoLayout
             tabLabel="Catálogo de Permanencias"
-            statusLabel="CatPerma"
+            statusLabel="Catálogo de Permanencias"
             count={rows.length}
             onClear={clear}
             {...actions}

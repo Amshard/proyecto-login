@@ -75,12 +75,16 @@
 .stc-status-square {
   background: #f5f4f2;
   border: 1px solid #9aa0a6;
-  padding: 2px 70px;
-    min-width: 270px;
+  padding: 2px clamp(4px, 4vw, 70px);
+  flex: 0 1 270px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .stc-status-row-lower .stc-status-square {
-  min-width: 360px;
+  flex-basis: 360px;
 }
 
 .stc-form-box {

@@ -31,7 +31,7 @@ interface ManualFieldProps<T extends string> {
     readOnly?: boolean;
 }
 
-function ManualField<T extends string>({ config, value, onChange, readOnly }: ManualFieldProps<T>) {
+export function ManualField<T extends string>({ config, value, onChange, readOnly }: ManualFieldProps<T>) {
     const [open, setOpen] = useState(false);
     const locked = config.readOnly || readOnly;
     const showOptions = open && !locked && !!config.options?.length;

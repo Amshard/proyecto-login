@@ -127,6 +127,8 @@ export const deleteTaquilla = (id: string, turno: string) => deleteRow('taquilla
 export const deletePersonalTaquilla = (expediente: number) => deleteRow('personal-taquilla', expediente);
 export const deletePersonalGaceta = (exp: number) => deleteRow('personal-gaceta', exp);
 
+export const respaldaRolVigente = async () => (await api.post<{ respaldados: number }>('/rol-taquilla/respalda/')).data.respaldados;
+
 export const calificaProvisional = async () => (await api.post<{ updated: number }>('/personal-gaceta/califica/')).data.updated;
 
 export const isNotFound = (error: unknown) => axios.isAxiosError(error) && error.response?.status === 404;

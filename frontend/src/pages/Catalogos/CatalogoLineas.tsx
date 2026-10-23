@@ -159,7 +159,7 @@ export default function CatalogoLineas() {
     return (
         <CatalogoLayout
             tabLabel="Catálogo de Líneas"
-            statusLabel="CatLineas"
+            statusLabel="Catálogo de Líneas"
             count={rows.length}
             onClear={clear}
             {...actions}

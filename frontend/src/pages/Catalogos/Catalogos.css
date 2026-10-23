@@ -1,9 +1,9 @@
 .stc-clear-btn {
-  top: 275px;
+  top:220px;
 }
 
 .stc-save-btn {
-  top: 330px;
+  top: 285px;
 }
 
 .stc-search-btn {
@@ -233,8 +233,9 @@
 }
 
 .stc-manual-field .stc-field-input:read-only {
+  font-weight: 500px;
+  color: rgb(60, 60, 60);
   background: rgb(230, 230, 230);
-  cursor: default;
 }
 
 .stc-field-break {

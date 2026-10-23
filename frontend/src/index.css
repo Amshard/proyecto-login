@@ -113,7 +113,7 @@ p {
 }
 
 .stc-btn:active {
-  background: #804327;
+  background: #c55c2b;
   border: 1px solid #613521;
   color: black;
 }
@@ -233,6 +233,7 @@ p {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  box-sizing: border-box;
   width: 100%;
   background: lightgray;
   color: black;
