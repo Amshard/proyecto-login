@@ -24,8 +24,11 @@
 }
 
 .stc-tab-panel:has(.stc-rol-options) {
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 24px;
+  padding-top: 72px;
 }
 
 .stc-rol-options {
@@ -34,11 +37,244 @@
   justify-items: center;
 }
 
+.stc-rol-options .stc-report-option {
+  color: black;
+  font-size: 18px;
+}
+
+.stc-rol-options:disabled {
+  border-color: gray;
+}
+
+.stc-rol-options:disabled .stc-report-options-title,
+.stc-rol-options:disabled .stc-report-option,
+.stc-rol-options:disabled .stc-report-option input {
+  color: gray;
+  cursor: default;
+}
+
+.stc-tab-panel:has(.stc-rol-options-wide) {
+  padding: 8px;
+  gap: 8px;
+}
+
+/* Fills the panel, with its content at the top. */
+.stc-rol-options-wide {
+  flex: 1;
+  width: 100%;
+  border-color: gray;
+  align-content: start;
+  padding-top: 150px;
+}
+
+.stc-rol-options .stc-progress {
+  margin-top: 14px;
+}
+
 .stc-rol-options .stc-report-options-title {
   margin: 0 auto;
 }
 
+/* Near the square's left corner, past the fieldset's 40px side padding. */
+.stc-rol-options-wide .stc-report-options-title {
+  margin: 0 auto 0 -30px;
+}
+
+.stc-proceso-field {
+  width: min(600px, 100%);
+  height: auto;
+}
+
+.stc-proceso-field .stc-field-input {
+  height: 36px;
+}
+
+.stc-proceso-field .stc-field-input-sin-archivo {
+  color: gray;
+  font-weight: 700;
+}
+
+.stc-carga-btn {
+  box-sizing: border-box;
+  left: 10px;
+  width: 90px;
+  padding: 7px 4px;
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: normal;
+  text-align: center;
+}
+
+.stc-carga-btn-loaded {
+  background: #ffb48f;
+}
+
 .stc-rol-btn {
-  left: 20px;
+  box-sizing: border-box;
+  left: 10px;
   top: 220px;
+  width: 90px;
+  padding-inline: 0;
+}
+
+.stc-progress {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: min(600px, 100%);
+  height: 24px;
+  background: rgb(184, 184, 184);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.35);
+}
+
+.stc-progress-fill {
+  height: 100%;
+  background: #1a2fa0;
+  transition: width 0.2s ease;
+}
+
+/* The wide square: labels and the year box on one row above the line; under it, the rol boxes and the table. */
+.stc-roles-options {
+  /* Columns shared by the label row and the row under the line, so each label stays over its content. */
+  --stc-roles-columns: 230px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  align-content: stretch;
+  padding-top: 30px;
+  /* Lets the table run close to the square's right border, with a small margin. */
+  padding-right: 50px;
+}
+
+/* Full-width row whose bottom line separates the labels and year box from the table. */
+.stc-roles-anio {
+  justify-self: stretch;
+  padding-bottom: 6px;
+  border-bottom: 1px solid black;
+}
+
+/* Only as tall as its title and box, so the labels and line sit right below it. */
+.stc-roles-anio .stc-manual-field {
+  align-items: center;
+  height: auto;
+}
+
+.stc-roles-anio .stc-field-label {
+  color: black;
+  font-size: 18px;
+}
+
+.stc-roles-text {
+  color: black;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.stc-roles-labels {
+  display: grid;
+  grid-template-columns: var(--stc-roles-columns);
+  column-gap: 24px;
+  align-items: end;
+  align-self: stretch;
+  text-align: left;
+}
+
+/* Left column: the year box on top, "Seleccione Primer Rol" under it on the line.
+   Right column: the table label on the line, centered over the table. */
+.stc-roles-anio-field {
+  grid-area: 1 / 1;
+  justify-self: start;
+  margin-bottom: 25px;
+}
+
+.stc-roles-lines-label {
+  grid-area: 2 / 1;
+}
+
+.stc-roles-table-label {
+  grid-area: 2 / 2;
+  text-align: center;
+}
+
+/* Under the line: the rol boxes, then the table right beside them. */
+.stc-roles-body {
+  justify-self: stretch;
+  align-self: start;
+  display: grid;
+  grid-template-columns: var(--stc-roles-columns);
+  column-gap: 24px;
+  align-items: start;
+}
+
+.stc-roles-lines {
+  display: grid;
+  /* Label, a 1-digit box, a 4-digit box. */
+  grid-template-columns: auto 34px 64px;
+  align-items: center;
+  gap: 12px 10px;
+  justify-content: start;
+  padding-top: 8px;
+  text-align: left;
+}
+
+/* Each line's label and boxes become cells of the .stc-roles-lines grid. */
+.stc-roles-line {
+  display: contents;
+}
+
+.stc-roles-lines .stc-field-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  padding-inline: 4px;
+  text-align: center;
+}
+
+.stc-roles-table {
+  min-width: 0;
+}
+
+.stc-roles-table .stc-table-frame {
+  border: none;
+  padding-top: 0;
+}
+
+/* Inset by the table frame's 16px side padding so the bar lines up with the table. */
+.stc-roles-table .stc-progress {
+  width: calc(100% - 32px);
+  margin: 0 16px;
+}
+
+/* The label on the line above already names the table. */
+.stc-roles-table .stc-table-frame-title {
+  display: none;
+}
+
+/* Seven columns: size each to its header instead of the shared fixed widths. */
+.stc-table-roles {
+  table-layout: auto;
+}
+
+.stc-table-roles th,
+.stc-table-roles td {
+  white-space: nowrap;
+}
+
+/* Califica: the date field in its own outline, inside the wide square. */
+/* Same width as the progress bar under it. */
+.stc-califica-fecha {
+  box-sizing: border-box;
+  width: min(600px, 100%);
+  margin: 0;
+  padding: 36px 32px;
+  border: 1px solid black;
+}
+
+.stc-califica-fecha .stc-field-input {
+  box-sizing: border-box;
+  width: 180px;
+  height: 36px;
+}
+
+/* Near the inner outline's left corner, past its 32px side padding. */
+.stc-califica-fecha .stc-report-options-title {
+  margin: 0 auto 0 -24px;
 }

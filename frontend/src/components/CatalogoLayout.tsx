@@ -29,6 +29,7 @@ interface CatalogoLayoutProps<R> {
     // Replaces the Reporte tab with a tab of the page's own.
     secondTab?: { label: string; content: ReactNode };
     onTabChange?: () => void;
+    hideTabs?: boolean;
 }
 
 const onSideKeyDown = (e: KeyboardEvent<HTMLElement>) => {
@@ -64,6 +65,7 @@ export default function CatalogoLayout<R>({
     pdf,
     secondTab,
     onTabChange,
+    hideTabs,
 }: CatalogoLayoutProps<R>) {
     const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo'>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
@@ -133,21 +135,23 @@ export default function CatalogoLayout<R>({
                 <main className="stc-content">
                     <div className="stc-registros-wrapper">
                         <div className="stc-content-square stc-changepw-box">
-                            <div className="stc-tabs">
-                                {tabs.map(({ key, label }) => (
-                                    <button
-                                        key={key}
-                                        type="button"
-                                        className={`stc-tab-btn${activeTab === key ? ' stc-tab-btn-active' : ''}`}
-                                        onClick={() => {
-                                            if (key !== activeTab) onTabChange?.();
-                                            setActiveTab(key);
-                                        }}
-                                    >
-                                        {label}
-                                    </button>
-                                ))}
-                            </div>
+                            {!hideTabs && (
+                                <div className="stc-tabs">
+                                    {tabs.map(({ key, label }) => (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            className={`stc-tab-btn${activeTab === key ? ' stc-tab-btn-active' : ''}`}
+                                            onClick={() => {
+                                                if (key !== activeTab) onTabChange?.();
+                                                setActiveTab(key);
+                                            }}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
 
                             {isCatalogo && fields}
 

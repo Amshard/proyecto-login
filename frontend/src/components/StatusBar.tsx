@@ -8,7 +8,6 @@ const longDate = new Intl.DateTimeFormat('es-MX', {
     timeZone: 'UTC',
 });
 
-// The backend sends midnight UTC; formatting in UTC keeps the calendar day in Mexico City's time zone.
 const formatLongDate = (value: string | undefined) => (value ? longDate.format(new Date(value)) : '');
 
 interface StatusBarProps {
