@@ -19,7 +19,8 @@ export default function Califica() {
         <CatalogoLayout
             tabLabel="CALIFICA"
             hideTabs
-            statusLabel="Califica"
+            pageClassName="stc-para-calificacion"
+            statusLabel="Califica Expedientes"
             actions={
                 <button ref={buttonRef} type="button" className="stc-btn stc-exit-btn stc-rol-btn">
                     Califica

@@ -7,6 +7,7 @@ import SearchModal from '../../components/SearchModal';
 import { useAuth } from '../../context/AuthContext';
 import type { RolVigente } from '../../types/auth.types';
 import { codeField, dateField, textField } from '../Catalogos/useCatalogo';
+import ProgressBar from './ProgressBar';
 import './Procesos.css';
 
 type RespaldoKey = 'rol1' | 'rol2' | 'rol3' | 'fecha_inicial' | 'fecha_final' | 'meses_califica' | 'estado';
@@ -57,6 +58,7 @@ export default function RespaldaRolVigente() {
     const rows: RolTaquilla[] = [];
     const [searchOpen, setSearchOpen] = useState(false);
     const [search, setSearch] = useState('');
+    const [progress] = useState(0);
     const term = search.toUpperCase();
     const displayedRows = term
         ? rows.filter((row) => Object.values(row).some((value) => String(value ?? '').toUpperCase().includes(term)))
@@ -97,10 +99,12 @@ export default function RespaldaRolVigente() {
                 <div className="stc-manual-fields">
                     <div className="stc-field-group">{ROL_FIELDS.map(field)}</div>
                     {FIELDS.map(field)}
+                    <div className="stc-field-break" />
+                    <ProgressBar value={progress} />
                 </div>
             }
         >
-            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol" columns={COLUMNS} rows={displayedRows} />
+            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol" rowHeader columns={COLUMNS} rows={displayedRows} />
         </CatalogoLayout>
     );
 }

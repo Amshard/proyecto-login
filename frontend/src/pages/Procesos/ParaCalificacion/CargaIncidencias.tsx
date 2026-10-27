@@ -42,7 +42,8 @@ export default function CargaIncidencias() {
         <CatalogoLayout
             tabLabel="CARGA INCIDENCIAS"
             hideTabs
-            statusLabel="Carga Incidencias desde Archivos (Excel)"
+            pageClassName="stc-para-calificacion"
+            statusLabel="Carga Incidencias TXT"
             actions={
                 <>
                     {TIPOS.map((tipo, i) => (

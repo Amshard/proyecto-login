@@ -40,11 +40,7 @@ const BUTTON_STEP = 65;
 
 export default function RolesTurnoLinea() {
     const rows: RolHistorico[] = [];
-    const [anioActual] = useState(() => String(new Date().getFullYear()));
-    const [anio, setAnio] = useState(anioActual);
-    // Green while the box holds the current year.
-    const anioField =
-        anio === anioActual ? { ...ANIO_FIELD, inputStyle: { ...ANIO_FIELD.inputStyle, background: '#9be79b' } } : ANIO_FIELD;
+    const [anio, setAnio] = useState(() => String(new Date().getFullYear()));
     const [progress, setProgress] = useState(0);
     // Two boxes per rol line.
     const [roles, setRoles] = useState(emptyRoles);
@@ -68,7 +64,8 @@ export default function RolesTurnoLinea() {
         <CatalogoLayout
             tabLabel="ROLES POR TURNO Y LÍNEA"
             hideTabs
-            statusLabel="Roles por Turno y Línea (Promedia Calificación)"
+            pageClassName="stc-para-calificacion"
+            statusLabel="Roles por Turno y Línea"
             actions={buttons.map(({ label, onClick }, i) => (
                 <button
                     key={label}
@@ -88,7 +85,7 @@ export default function RolesTurnoLinea() {
                         <span className="stc-roles-text stc-roles-lines-label">Seleccione Primer Rol</span>
                         <span className="stc-roles-text stc-roles-table-label">Roles disponibles en el historico</span>
                         <div className="stc-roles-anio-field">
-                            <ManualField config={anioField} value={anio} onChange={setAnio} />
+                            <ManualField config={ANIO_FIELD} value={anio} onChange={setAnio} />
                         </div>
                     </div>
                 </div>
@@ -114,7 +111,7 @@ export default function RolesTurnoLinea() {
                         ))}
                     </div>
                     <div className="stc-roles-table">
-                        <DataTable title="Roles disponibles en el historico" className="stc-table-roles" columns={COLUMNS} rows={rows} />
+                        <DataTable title="Roles disponibles en el historico" className="stc-table-roles" rowHeader columns={COLUMNS} rows={rows} />
                         <ProgressBar value={progress} />
                     </div>
                 </div>

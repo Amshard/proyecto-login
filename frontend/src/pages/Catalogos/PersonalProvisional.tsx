@@ -172,6 +172,7 @@ export default function PersonalProvisional() {
             <DataTable
                 title="Personal Provisional"
                 className="stc-table-provisional"
+                rowHeader
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}

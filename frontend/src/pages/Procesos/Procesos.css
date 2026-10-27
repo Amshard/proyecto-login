@@ -278,3 +278,193 @@
 .stc-califica-fecha .stc-report-options-title {
   margin: 0 auto 0 -24px;
 }
+
+/* Actualiza Incidencias: all the content in one block at the top center of the wide square. */
+.stc-actualiza-options {
+  padding-top: 30px;
+}
+
+/* Centered as a whole; inside, everything stays left-aligned so it lines up. */
+.stc-actualiza-contenido {
+  justify-self: center;
+  display: grid;
+  gap: 10px;
+}
+
+.stc-actualiza-fields {
+  justify-self: start;
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+/* Each label sits to the left of its box. */
+.stc-actualiza-fields .stc-manual-field,
+.stc-actualiza-conceptos .stc-manual-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  height: auto;
+}
+
+.stc-actualiza-fields .stc-field-label,
+.stc-actualiza-conceptos .stc-field-label {
+  color: #1a2fa0;
+  font-size: 18px;
+}
+
+/* Same label width on every line so the boxes in the third column line up. */
+.stc-actualiza-conceptos .stc-field-label {
+  min-width: 150px;
+  text-align: left;
+}
+
+.stc-actualiza-heading {
+  justify-self: start;
+  margin: 16px 0 0;
+  color: #1a2fa0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 630;
+  letter-spacing: 0.5px;
+}
+
+/* One concepto per line under the heading: the blue name, its black percentage, and an optional note. */
+.stc-actualiza-conceptos {
+  justify-self: start;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 12px 60px;
+  text-align: left;
+}
+
+.stc-actualiza-conceptos .stc-roles-text {
+  font-size: 18px;
+}
+
+/* Each name starts a new line, whether or not the line above had a note. */
+.stc-actualiza-conceptos .stc-actualiza-concepto {
+  grid-column: 1;
+  color: #1a2fa0;
+}
+
+/* Under the percentage column, with a sum line above it. */
+.stc-actualiza-total {
+  grid-column: 2;
+  padding-top: 6px;
+  border-top: 2px solid black;
+}
+
+/* Space between the 100% total and the Meritos breakdown. */
+.stc-actualiza-separador {
+  grid-column: 1 / -1;
+  height: 8px;
+}
+
+/* Sits right of the Sanciones name, in the first column. */
+.stc-actualiza-conceptos .stc-actualiza-sanciones {
+  box-sizing: border-box;
+  width: 50px;
+  height: 30px;
+  margin-left: 40px;
+  padding-inline: 4px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Third column of the Meritos lines: text pieces, each followed by its box. */
+.stc-actualiza-partes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stc-actualiza-parte-texto {
+  color: #1a2fa0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Width comes inline from the digit count. */
+.stc-actualiza-conceptos .stc-actualiza-parte-input {
+  box-sizing: border-box;
+  height: 30px;
+  padding-inline: 4px;
+  text-align: center;
+}
+
+/* Actualiza Calificación: Nombre (3rd) takes the most room, the eight small columns share the rest. */
+.stc-table-actualiza th:nth-child(n) {
+  width: 8%;
+}
+
+.stc-table-actualiza th:nth-child(3) {
+  width: 36%;
+}
+
+/* Actualiza Calificación: each rango set is a title over its boxes, side by side. */
+.stc-rango-set {
+  height: auto;
+}
+
+.stc-rango-cajas {
+  display: flex;
+  gap: 8px;
+}
+
+/* Same height everywhere so each Rol box lines up with its line of dates. */
+.stc-rango-cajas .stc-field-input,
+.stc-rango-columna > .stc-field-input {
+  box-sizing: border-box;
+  height: 30px;
+  padding-inline: 4px;
+  text-align: center;
+}
+
+/* Second row: Rol boxes stacked, each beside its line of two dates, on a gray background. */
+.stc-rango-lineas {
+  border-top: 1px solid black;
+  background-color: rgb(211, 211, 211);
+}
+
+.stc-rango-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stc-rango-cajas .stc-rango-fecha {
+  width: 160px;
+}
+
+/* The loading bar sits right of the Rol and Fechas boxes, centered on their two lines. */
+.stc-rango-lineas .stc-progress {
+  align-self: center;
+  width: min(300px, 100%);
+}
+
+/* Actualiza Calificación: no outline or title around the table. */
+.stc-table-frame:has(.stc-table-actualiza) {
+  border: none;
+}
+
+.stc-table-frame:has(.stc-table-actualiza) .stc-table-frame-title {
+  display: none;
+}
+
+.stc-actualiza-header-text {
+  color: #1a2fa0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Para Calificación pages: no black border on the page box panel or the fields strip.
+   Actualiza Calificación (Lineas y Turnos por Expediente Completo) keeps the catálogo borders. */
+.stc-para-calificacion .stc-tab-panel,
+.stc-para-calificacion .stc-manual-fields {
+  border: none;
+}

@@ -22,6 +22,8 @@ interface CatalogoLayoutProps<R> {
     onReportButton?: () => void;
     reportActions?: ReactNode;
     reportLabel?: string;
+    // Title of the outline around the Reporte tab's buttons; defaults to statusLabel.
+    reportTitle?: string;
     fields?: ReactNode;
     overlay?: ReactNode;
     children: ReactNode;
@@ -30,6 +32,8 @@ interface CatalogoLayoutProps<R> {
     secondTab?: { label: string; content: ReactNode };
     onTabChange?: () => void;
     hideTabs?: boolean;
+    // Extra class on the page's root, for styles that apply to a group of pages.
+    pageClassName?: string;
 }
 
 const onSideKeyDown = (e: KeyboardEvent<HTMLElement>) => {
@@ -59,6 +63,7 @@ export default function CatalogoLayout<R>({
     onReportButton,
     reportActions,
     reportLabel = 'Generar reporte',
+    reportTitle = statusLabel,
     fields,
     overlay,
     children,
@@ -66,6 +71,7 @@ export default function CatalogoLayout<R>({
     secondTab,
     onTabChange,
     hideTabs,
+    pageClassName,
 }: CatalogoLayoutProps<R>) {
     const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo'>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
@@ -80,7 +86,7 @@ export default function CatalogoLayout<R>({
     ] as const;
 
     return (
-        <div className="stc-login-page">
+        <div className={`stc-login-page${pageClassName ? ` ${pageClassName}` : ''}`}>
             <Navbar />
 
             <PageHeader onKeyDown={onSideKeyDown}>
@@ -162,14 +168,17 @@ export default function CatalogoLayout<R>({
                                     secondTab.content
                                 ) : pdf ? (
                                     <div className="stc-report-panel">
-                                        <button
-                                            type="button"
-                                            className="stc-btn stc-generar-reporte-btn"
-                                            onClick={() => openPdf(pdf)}
-                                        >
-                                            {reportLabel}
-                                        </button>
-                                        {reportActions}
+                                        <fieldset className="stc-report-options stc-report-frame">
+                                            <legend className="stc-report-options-title">{reportTitle}</legend>
+                                            <button
+                                                type="button"
+                                                className="stc-btn stc-generar-reporte-btn"
+                                                onClick={() => openPdf(pdf)}
+                                            >
+                                                {reportLabel}
+                                            </button>
+                                            {reportActions}
+                                        </fieldset>
                                     </div>
                                 ) : null}
                             </div>

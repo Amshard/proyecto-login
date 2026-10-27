@@ -286,6 +286,20 @@
   border: 1px solid black;
 }
 
+/* Catálogos' Reporte tab: the report buttons centered in an outline titled with the catálogo's name. */
+.stc-report-frame {
+  justify-items: center;
+  width: min(600px, 100%);
+}
+
+/* Report options listed under the button, left-aligned among themselves. */
+.stc-report-option-list {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  margin-top: 10px;
+}
+
 /* margin-right: auto puts the title at the left; a fixed offset from the centered spot hid it on narrow windows. */
 .stc-report-options-title {
   margin: 0 auto 0 0;
@@ -314,7 +328,7 @@
 }
 
 .stc-table-frame {
-  border: 1px solid black;
+  border: 1px solid rgb(140, 140, 140);
   border-radius: 2px;
   margin: 0;
   padding: 16px;
@@ -381,8 +395,27 @@
 
 .stc-table td {
   padding: 8px 12px;
-  border: 1px solid black;
+  border: 1px solid rgb(140, 140, 140);
   cursor: default;
+}
+
+/* Inner cell lines are light gray; the table's outer edge stays black. */
+.stc-table th {
+  border-top-color: black;
+}
+
+.stc-table th:first-child,
+.stc-table td:first-child {
+  border-left-color: black;
+}
+
+.stc-table th:last-child,
+.stc-table td:last-child {
+  border-right-color: black;
+}
+
+.stc-table tbody tr:last-child td {
+  border-bottom-color: black;
 }
 
 .stc-table td:focus {
@@ -468,7 +501,17 @@
   white-space: nowrap;
 }
 
-.stc-table-personal tr:not(.stc-table-row-active) td:first-child:not(.stc-table-cell-selected),
-.stc-table-provisional tr:not(.stc-table-row-active) td:first-child:not(.stc-table-cell-selected) {
+/* DataTable's rowHeader: the first column in the header color; active and selected rows keep their highlight. */
+.stc-table-row-header tr:not(.stc-table-row-active, .stc-table-row-selected) td:first-child {
   background: #ce723d;
+  border-color: black;
+}
+
+/* A row picked by its row header is highlighted whole, so the cell needs no focus outline of its own. */
+.stc-table-row-selected td {
+  background: #dbe4ff;
+}
+
+.stc-table-row-selected td:focus {
+  outline: none;
 }

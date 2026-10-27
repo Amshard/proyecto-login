@@ -10,6 +10,8 @@ import CatalogoTaquillas from './pages/Catalogos/CatalogoTaquillas';
 import PersonalProvisional from './pages/Catalogos/PersonalProvisional';
 import RespaldaRolVigente from './pages/Procesos/RespaldaRolVigente';
 import RolesTurnoLinea from './pages/Procesos/ParaCalificacion/RolesTurnoLinea';
+import ActualizaCalificacion from './pages/Procesos/ParaCalificacion/ActualizaCalificacion';
+import ActualizaIncidencias from './pages/Procesos/ParaCalificacion/ActualizaIncidencias';
 import AsignacionIncidencias from './pages/Procesos/ParaCalificacion/AsignacionIncidencias';
 import Califica from './pages/Procesos/ParaCalificacion/Califica';
 import CargaIncidencias from './pages/Procesos/ParaCalificacion/CargaIncidencias';
@@ -35,6 +37,8 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/procesos/para-calificacion/asignacion-de-incidencias', <AsignacionIncidencias />],
   ['/procesos/para-calificacion/roles-por-turno-y-linea-promedia-calificacion', <RolesTurnoLinea />],
   ['/procesos/para-calificacion/califica', <Califica />],
+  ['/procesos/para-calificacion/actualiza-incidencias-x-expediente', <ActualizaIncidencias />],
+  ['/procesos/para-calificacion/actualiza-calificacion-x-rango-por-cambio-de-linea-y-turno', <ActualizaCalificacion />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];

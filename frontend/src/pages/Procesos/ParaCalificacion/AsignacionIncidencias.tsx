@@ -18,7 +18,12 @@ export default function AsignacionIncidencias() {
     }, []);
 
     return (
-        <CatalogoLayout tabLabel="ASIGNACIÓN DE INCIDENCIAS" hideTabs statusLabel="Asignación de Incidencias">
+        <CatalogoLayout
+            tabLabel="ASIGNACIÓN DE INCIDENCIAS"
+            hideTabs
+            pageClassName="stc-para-calificacion"
+            statusLabel="Asignación de Incidencias"
+        >
             {null}
         </CatalogoLayout>
     );

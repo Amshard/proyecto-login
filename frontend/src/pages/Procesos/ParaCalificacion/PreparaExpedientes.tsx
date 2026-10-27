@@ -16,7 +16,8 @@ export default function PreparaExpedientes() {
         <CatalogoLayout
             tabLabel="PREPARA EXPEDIENTES"
             hideTabs
-            statusLabel="Prepara Expedientes (Para Asignar Incidencias)"
+            pageClassName="stc-para-calificacion"
+            statusLabel="Prepara Expedientes"
             actions={
                 checked && (
                     <button ref={buttonRef} type="button" className="stc-btn stc-exit-btn stc-rol-btn">

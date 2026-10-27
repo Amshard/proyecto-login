@@ -221,6 +221,7 @@ export default function CatalogoPersonal() {
         <CatalogoLayout
             tabLabel="Personal de Taquilla"
             statusLabel="Catalogo Personal de Taquilla"
+            reportTitle="Catálogo de Personal de Taquilla"
             count={rows.length}
             {...actions}
             onClear={() => {
@@ -258,8 +259,7 @@ export default function CatalogoPersonal() {
                 )
             }
             reportActions={
-                <fieldset className="stc-report-options">
-                    <legend className="stc-report-options-title">Catálogo de Personal de Taquilla</legend>
+                <div className="stc-report-option-list">
                     {REPORT_OPTIONS.map((label) => (
                         <label key={label} className="stc-report-option">
                             <input
@@ -271,13 +271,14 @@ export default function CatalogoPersonal() {
                             {label}
                         </label>
                     ))}
-                </fieldset>
+                </div>
             }
             pdf={pdf}
         >
             <DataTable
                 title="Personal de Taquilla"
                 className="stc-table-personal"
+                rowHeader
                 columns={COLUMNS}
                 rows={displayedRows}
                 onRowSelect={fill}
