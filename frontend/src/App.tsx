@@ -8,6 +8,7 @@ import CatalogoPermanencias from './pages/Catalogos/CatalogoPermanencias';
 import CatalogoPersonal from './pages/Catalogos/CatalogoPersonal';
 import CatalogoTaquillas from './pages/Catalogos/CatalogoTaquillas';
 import PersonalProvisional from './pages/Catalogos/PersonalProvisional';
+import CambioPosiciones from './pages/Procesos/CambioPosiciones';
 import RespaldaRolVigente from './pages/Procesos/RespaldaRolVigente';
 import RolesTurnoLinea from './pages/Procesos/ParaCalificacion/RolesTurnoLinea';
 import ActualizaCalificacion from './pages/Procesos/ParaCalificacion/ActualizaCalificacion';
@@ -39,6 +40,7 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/procesos/para-calificacion/califica', <Califica />],
   ['/procesos/para-calificacion/actualiza-incidencias-x-expediente', <ActualizaIncidencias />],
   ['/procesos/para-calificacion/actualiza-calificacion-x-rango-por-cambio-de-linea-y-turno', <ActualizaCalificacion />],
+  ['/procesos/cambio-de-posiciones-en-el-rol', <CambioPosiciones />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];

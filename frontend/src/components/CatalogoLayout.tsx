@@ -18,6 +18,8 @@ interface CatalogoLayoutProps<R> {
     onDelete?: () => void;
     editing?: boolean;
     actions?: ReactNode;
+    // Shows `actions` on every tab, not just the first.
+    actionsOnAllTabs?: boolean;
     reportButton?: string;
     onReportButton?: () => void;
     reportActions?: ReactNode;
@@ -28,8 +30,8 @@ interface CatalogoLayoutProps<R> {
     overlay?: ReactNode;
     children: ReactNode;
     pdf?: PdfReport<R>;
-    // Replaces the Reporte tab with a tab of the page's own.
-    secondTab?: { label: string; content: ReactNode };
+    // Replace the Reporte tab with tabs of the page's own, after the first one.
+    extraTabs?: { label: string; content: ReactNode }[];
     onTabChange?: () => void;
     hideTabs?: boolean;
     // Extra class on the page's root, for styles that apply to a group of pages.
@@ -59,6 +61,7 @@ export default function CatalogoLayout<R>({
     onDelete,
     editing,
     actions,
+    actionsOnAllTabs,
     reportButton,
     onReportButton,
     reportActions,
@@ -68,22 +71,28 @@ export default function CatalogoLayout<R>({
     overlay,
     children,
     pdf,
-    secondTab,
+    extraTabs = [],
     onTabChange,
     hideTabs,
     pageClassName,
 }: CatalogoLayoutProps<R>) {
-    const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo'>('catalogo');
+    // 'catalogo' is the first tab, 'nuevo' the Reporte tab, and a number the index of one of extraTabs.
+    const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo' | number>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
+    const isReporte = activeTab === 'nuevo';
 
     useEffect(() => {
-        if (!isCatalogo && !secondTab) preloadPdf();
-    }, [isCatalogo, secondTab]);
+        if (isReporte) preloadPdf();
+    }, [isReporte]);
 
-    const tabs = [
+    const tabs: { key: typeof activeTab; label: string }[] = [
         { key: 'catalogo', label: tabLabel },
-        ...(secondTab || pdf ? [{ key: 'nuevo', label: secondTab?.label ?? 'Reporte' } as const] : []),
-    ] as const;
+        ...(extraTabs.length > 0
+            ? extraTabs.map(({ label }, i) => ({ key: i, label }))
+            : pdf
+              ? [{ key: 'nuevo' as const, label: 'Reporte' }]
+              : []),
+    ];
 
     return (
         <div className={`stc-login-page${pageClassName ? ` ${pageClassName}` : ''}`}>
@@ -135,6 +144,7 @@ export default function CatalogoLayout<R>({
                         )}
                     </>
                 )}
+                {!isCatalogo && actionsOnAllTabs && actions}
             </PageHeader>
 
             <div className="stc-body stc-catalogo-body">
@@ -164,8 +174,8 @@ export default function CatalogoLayout<R>({
                             <div className="stc-changepw-body stc-tab-panel">
                                 {isCatalogo ? (
                                     children
-                                ) : secondTab ? (
-                                    secondTab.content
+                                ) : typeof activeTab === 'number' ? (
+                                    extraTabs[activeTab]?.content
                                 ) : pdf ? (
                                     <div className="stc-report-panel">
                                         <fieldset className="stc-report-options stc-report-frame">

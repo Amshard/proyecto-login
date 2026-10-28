@@ -468,3 +468,116 @@
 .stc-para-calificacion .stc-manual-fields {
   border: none;
 }
+
+/* Cambio de Posiciones: 20 columns, each as wide as its header, scrolling sideways when they don't fit. */
+.stc-table-posiciones {
+  table-layout: auto;
+}
+
+.stc-table-posiciones th,
+.stc-table-posiciones td {
+  white-space: nowrap;
+}
+
+/* Cambio de Posiciones: Expediente, the middle boxes and the right boxes grouped together in the center,
+   with a wide margin between the three. */
+.stc-posiciones-fields {
+  justify-content: center;
+  column-gap: clamp(40px, 6vw, 100px);
+  /* Top-aligned, so the first row stays level while the middle and right sides have a second row under it. */
+  align-items: flex-start;
+}
+
+/* The middle and right sides: two rows of boxes each. */
+.stc-posiciones-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.stc-posiciones-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px 40px;
+}
+
+/* Only as tall as label + box: the usual fixed field height left a gap between the two rows. */
+.stc-posiciones-group .stc-manual-field {
+  height: auto;
+}
+
+/* Cambio de Posiciones: Nva Posicion on the left of the table, the table taking the rest of the width. */
+.stc-posiciones-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Nva Posicion with the Ver Cambios radio under it. */
+.stc-posiciones-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* A wide space between the box and the radio. */
+  gap: 150px;
+}
+
+.stc-posiciones-side .stc-manual-field {
+  height: auto;
+}
+
+.stc-posiciones-side .stc-report-option {
+  white-space: nowrap;
+}
+
+.stc-posiciones-body .stc-table-frame {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Cambio de Posiciones, Tramos sin Expediente tab: two radios with an untitled box between them, above the table. */
+/* Inside the table's outline, above the table. */
+.stc-tramos-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.stc-tramos-opciones {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.stc-tramos-opciones .stc-report-option {
+  white-space: nowrap;
+}
+
+/* The línea box between the radios: no title, only as tall as its box. */
+.stc-tramos-opciones .stc-manual-field {
+  height: auto;
+}
+
+.stc-tramos-opciones .stc-field-label {
+  display: none;
+}
+
+/* What the Tramos sin Expediente table holds: the chosen línea or the whole rol. */
+.stc-tramos-leyenda {
+  margin: 0;
+  text-align: center;
+  color: #1a2fa0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Posicion and Tramo, then the untitled box with its row of boxes under it: top-aligned so the first boxes stay level. */
+.stc-posiciones-middle {
+  align-items: flex-start;
+}

@@ -19,6 +19,8 @@ export interface ManualFieldConfig<T extends string = string> {
     readOnly?: boolean;
     isKey?: boolean;
     options?: { value: string; label: string }[];
+    // An arrow button beside the box that opens and closes the options list.
+    optionsButton?: boolean;
     accept?: (value: string) => boolean;
     // Called with the field's value when Enter is pressed in it.
     onEnter?: (value: string) => void;
@@ -36,51 +38,76 @@ export function ManualField<T extends string>({ config, value, onChange, readOnl
     const locked = config.readOnly || readOnly;
     const showOptions = open && !locked && !!config.options?.length;
 
+    const input = (
+        <input
+            id={config.id}
+            className="stc-field-input"
+            type={config.type ?? 'text'}
+            inputMode={config.inputMode}
+            maxLength={config.maxLength}
+            min={config.minDate}
+            max={config.maxDate}
+            readOnly={locked}
+            value={value}
+            onChange={(e) => {
+                let next = e.target.value;
+                if (config.inputMode === 'numeric') next = next.replace(/\D/g, '');
+                if (config.nonZero) next = next.replace(/^0+/, '');
+                if (config.max !== undefined && Number(next) > config.max) return;
+                const { allowedChars } = config;
+                if (allowedChars) {
+                    next = [...next].filter((c) => allowedChars.includes(c.toUpperCase())).join('');
+                }
+                if (config.accept && next && !config.accept(next)) return;
+                onChange(next);
+            }}
+            onFocus={() => setOpen(true)}
+            onClick={() => setOpen(true)}
+            onKeyDown={(e) => {
+                if (e.key === 'Escape') setOpen(false);
+                if (e.key === 'ArrowDown') setOpen(true);
+                if (e.key === 'Enter' && config.onEnter) {
+                    e.preventDefault();
+                    config.onEnter(value);
+                }
+            }}
+            onBlur={() => {
+                setOpen(false);
+                if (config.max !== undefined && value && Number(value) < 1) onChange('');
+                else if (config.padTo && value) onChange(value.padStart(config.padTo, '0'));
+            }}
+            style={config.inputStyle}
+            autoComplete={config.options ? 'off' : undefined}
+        />
+    );
+
     return (
         <div className="stc-manual-field" style={config.wrapStyle}>
             <label className="stc-field-label" htmlFor={config.id}>
                 {config.label}
             </label>
-            <input
-                id={config.id}
-                className="stc-field-input"
-                type={config.type ?? 'text'}
-                inputMode={config.inputMode}
-                maxLength={config.maxLength}
-                min={config.minDate}
-                max={config.maxDate}
-                readOnly={locked}
-                value={value}
-                onChange={(e) => {
-                    let next = e.target.value;
-                    if (config.inputMode === 'numeric') next = next.replace(/\D/g, '');
-                    if (config.nonZero) next = next.replace(/^0+/, '');
-                    if (config.max !== undefined && Number(next) > config.max) return;
-                    const { allowedChars } = config;
-                    if (allowedChars) {
-                        next = [...next].filter((c) => allowedChars.includes(c.toUpperCase())).join('');
-                    }
-                    if (config.accept && next && !config.accept(next)) return;
-                    onChange(next);
-                }}
-                onFocus={() => setOpen(true)}
-                onClick={() => setOpen(true)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Escape') setOpen(false);
-                    if (e.key === 'ArrowDown') setOpen(true);
-                    if (e.key === 'Enter' && config.onEnter) {
-                        e.preventDefault();
-                        config.onEnter(value);
-                    }
-                }}
-                onBlur={() => {
-                    setOpen(false);
-                    if (config.max !== undefined && value && Number(value) < 1) onChange('');
-                    else if (config.padTo && value) onChange(value.padStart(config.padTo, '0'));
-                }}
-                style={config.inputStyle}
-                autoComplete={config.options ? 'off' : undefined}
-            />
+            {config.optionsButton ? (
+                <div className="stc-field-combo">
+                    {input}
+                    <button
+                        type="button"
+                        className="stc-field-arrow"
+                        aria-label={`Lista de ${config.label || 'opciones'}`}
+                        tabIndex={-1}
+                        disabled={locked}
+                        // Keeps focus in the box, so its blur doesn't close the list being opened.
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            document.getElementById(config.id)?.focus();
+                            setOpen((wasOpen) => !wasOpen);
+                        }}
+                    >
+                        ▼
+                    </button>
+                </div>
+            ) : (
+                input
+            )}
             {showOptions && (
                 <ul className="stc-field-options">
                     {config.options!.map((option) => (

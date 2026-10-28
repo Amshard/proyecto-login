@@ -30,8 +30,11 @@ interface DataTableProps<R> {
     className?: string;
     onRowSelect?: (row: R) => void;
     activeRow?: R | null;
-    // The first column is a row header (in the header color): arrow keys skip it, and double-clicking it selects the whole row.
-    rowHeader?: boolean;
+    // The first column (or the first N, given a number) is a row header in the header color:
+    // arrow keys skip it, and double-clicking it selects the whole row.
+    rowHeader?: boolean | number;
+    // Shown inside the table's outline, above the table.
+    header?: ReactNode;
 }
 
 interface DataTableRowProps<R> {
@@ -39,15 +42,18 @@ interface DataTableRowProps<R> {
     rowIndex: number;
     columns: Column<R>[];
     highlighted: boolean;
+    headerCols: number;
 }
 
 // The selected cell (its class and tabIndex 0) is set straight on the DOM, not through React,
 // so moving with the arrow keys touches two cells instead of re-rendering every row.
-const DataTableRow = memo(function DataTableRow<R>({ row, rowIndex, columns, highlighted }: DataTableRowProps<R>) {
+const HEADER_CELL = 'stc-table-header-cell';
+
+const DataTableRow = memo(function DataTableRow<R>({ row, rowIndex, columns, highlighted, headerCols }: DataTableRowProps<R>) {
     return (
         <tr data-row={rowIndex} className={highlighted ? 'stc-table-row-active' : undefined}>
             {columns.map((col, colIndex) => (
-                <td key={colIndex} data-col={colIndex} tabIndex={-1}>
+                <td key={colIndex} data-col={colIndex} tabIndex={-1} className={colIndex < headerCols ? HEADER_CELL : undefined}>
                     {col.cell(row)}
                 </td>
             ))}
@@ -70,9 +76,10 @@ const cellPosition = (target: EventTarget): CellPos | null => {
     return { row: Number(tr.dataset.row), col: Number(cell.dataset.col) };
 };
 
-export default function DataTable<R>({ title, columns, rows, className, onRowSelect, activeRow, rowHeader }: DataTableProps<R>) {
+export default function DataTable<R>({ title, columns, rows, className, onRowSelect, activeRow, rowHeader, header }: DataTableProps<R>) {
+    const headerCols = rowHeader === true ? 1 : rowHeader || 0;
     // The first column arrow keys can reach.
-    const firstCol = rowHeader ? 1 : 0;
+    const firstCol = headerCols;
     const selectedRef = useRef<CellPos>({ row: 0, col: firstCol });
     const [syncedRow, setSyncedRow] = useState(activeRow);
     const bodyRef = useRef<HTMLTableSectionElement>(null);
@@ -95,7 +102,7 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
         if (!body) return;
         const tr = body.rows[pos.row]?.dataset.row != null ? body.rows[pos.row] : undefined;
         const cell = tr?.cells[pos.col];
-        const wholeRow = rowHeader === true && pos.col === 0;
+        const wholeRow = pos.col < headerCols;
         const prev = body.querySelector<HTMLTableCellElement>('td[tabindex="0"]');
         if (prev && prev !== cell) {
             prev.classList.remove(SELECTED);
@@ -162,14 +169,15 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
 
     // A single click on a row header does nothing: without the browser's focus on mousedown it isn't selected.
     const handleMouseDown = (e: MouseEvent<HTMLTableSectionElement>) => {
-        if (rowHeader && cellPosition(e.target)?.col === 0) e.preventDefault();
+        const pos = cellPosition(e.target);
+        if (pos && pos.col < headerCols) e.preventDefault();
     };
 
     // Double-clicking a row header also selects its whole row.
     const handleDoubleClick = (e: MouseEvent<HTMLTableSectionElement>) => {
         const pos = cellPosition(e.target);
         if (!pos) return;
-        if (rowHeader && pos.col === 0) bodyRef.current?.rows[pos.row]?.cells[0]?.focus({ preventScroll: true });
+        if (pos.col < headerCols) bodyRef.current?.rows[pos.row]?.cells[pos.col]?.focus({ preventScroll: true });
         loadRow(pos.row);
     };
 
@@ -196,7 +204,7 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
                 nextCol = col < firstCol ? col : Math.max(firstCol, col - 1);
                 break;
             case 'ArrowRight':
-                nextCol = Math.min(columns.length - 1, col + 1);
+                nextCol = col < firstCol ? firstCol : Math.min(columns.length - 1, col + 1);
                 break;
             default:
                 return;
@@ -212,9 +220,11 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
 
     return (
         <fieldset className="stc-table-frame">
-            <legend className="stc-table-frame-title">{title}</legend>
+            {/* No legend for an empty title: its padding would still cut a gap in the outline's top edge. */}
+            {title && <legend className="stc-table-frame-title">{title}</legend>}
+            {header}
             <div className="stc-table-scroll" ref={scrollRef}>
-                <table className={`stc-table${rowHeader ? ' stc-table-row-header' : ''}${className ? ` ${className}` : ''}`}>
+                <table className={`stc-table${className ? ` ${className}` : ''}`}>
                     <thead>
                         <tr>
                             {columns.map((col, i) => (
@@ -236,6 +246,7 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
                                 rowIndex={rowIndex}
                                 columns={columns}
                                 highlighted={highlightedRow === rowIndex}
+                                headerCols={headerCols}
                             />
                         ))}
                         {rows.length === 0 && (
@@ -243,7 +254,9 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
                             // It has no data-row, so it can't be selected or loaded.
                             <tr className="stc-table-empty-row" aria-hidden="true">
                                 {columns.map((_, colIndex) => (
-                                    <td key={colIndex}>{' '}</td>
+                                    <td key={colIndex} className={colIndex < headerCols ? HEADER_CELL : undefined}>
+                                        {' '}
+                                    </td>
                                 ))}
                             </tr>
                         )}

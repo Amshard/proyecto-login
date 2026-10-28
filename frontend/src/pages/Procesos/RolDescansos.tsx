@@ -19,17 +19,19 @@ export default function RolDescansos() {
             tabLabel="ROL DEL PERSONAL DE TAQUILLA"
             statusLabel="Rolamiento del personal de taquilla"
             onTabChange={() => setOption('')}
-            secondTab={{
-                label: 'REGRESA EL ROL ANTERIOR',
-                content: (
-                    <ProcesoOption
-                        label={REGRESA}
-                        checked={option === REGRESA}
-                        onCheck={() => setOption(REGRESA)}
-                        disabled
-                    />
-                ),
-            }}
+            extraTabs={[
+                {
+                    label: 'REGRESA EL ROL ANTERIOR',
+                    content: (
+                        <ProcesoOption
+                            label={REGRESA}
+                            checked={option === REGRESA}
+                            onCheck={() => setOption(REGRESA)}
+                            disabled
+                        />
+                    ),
+                },
+            ]}
             actions={
                 showRol && (
                     <button ref={buttonRef} type="button" className="stc-btn stc-exit-btn stc-rol-btn">

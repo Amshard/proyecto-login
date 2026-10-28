@@ -158,7 +158,7 @@
 }
 
 .stc-manual-fields {
-  background-color: rgb(255, 255, 255);
+  background-color: rgb(228, 228, 228);
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -186,6 +186,34 @@
   gap: 5px;
   height: 70px;
   min-width: 0;
+}
+
+/* A box with an arrow button on its right that opens its list. */
+.stc-field-combo {
+  display: flex;
+  align-items: stretch;
+}
+
+.stc-field-combo .stc-field-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.stc-field-arrow {
+  flex: none;
+  width: 24px;
+  padding: 0;
+  font-size: 10px;
+  color: black;
+  background: rgb(228, 228, 228);
+  border: 1px solid #9aa0a6;
+  border-left: none;
+  cursor: pointer;
+}
+
+.stc-field-arrow:disabled {
+  color: rgb(150, 150, 150);
+  cursor: default;
 }
 
 .stc-field-options {
@@ -261,7 +289,7 @@
 .stc-tab-panel {
   align-items: flex-start;
   justify-content: flex-start;
-  background: rgb(228, 228, 228);
+  background: rgb(255, 255, 255);
   border: 1px solid black;
 }
 
@@ -501,8 +529,8 @@
   white-space: nowrap;
 }
 
-/* DataTable's rowHeader: the first column in the header color; active and selected rows keep their highlight. */
-.stc-table-row-header tr:not(.stc-table-row-active, .stc-table-row-selected) td:first-child {
+/* DataTable's rowHeader: its header columns in the header color; active and selected rows keep their highlight. */
+.stc-table tr:not(.stc-table-row-active, .stc-table-row-selected) td.stc-table-header-cell {
   background: #ce723d;
   border-color: black;
 }
