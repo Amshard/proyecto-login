@@ -4,7 +4,6 @@ import ProgressBar from '../ProgressBar';
 import '../Procesos.css';
 import { useAlignButton } from '../useAlignButton';
 
-// Today as YYYY-MM-DD in local time; toISOString() would give tomorrow's date on Mexico City evenings.
 const hoy = () => {
     const d = new Date();
     return [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((n) => String(n).padStart(2, '0')).join('-');

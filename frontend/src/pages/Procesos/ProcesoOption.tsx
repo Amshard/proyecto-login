@@ -1,4 +1,5 @@
 import type { ReactNode, Ref } from 'react';
+import { RadioOption } from './ProcesoControls';
 
 interface ProcesoOptionProps {
     title?: string;
@@ -7,9 +8,7 @@ interface ProcesoOptionProps {
     onCheck: () => void;
     inputRef?: Ref<HTMLInputElement>;
     disabled?: boolean;
-    // Stretches the outline across the whole panel.
     wide?: boolean;
-    // Shown inside the outline, below the radio.
     children?: ReactNode;
 }
 
@@ -20,10 +19,7 @@ export default function ProcesoOption({ title, label, checked, onCheck, inputRef
             disabled={disabled}
         >
             {title && <legend className="stc-report-options-title">{title}</legend>}
-            <label className="stc-report-option">
-                <input ref={inputRef} type="radio" checked={checked} onChange={onCheck} />
-                {label}
-            </label>
+            <RadioOption label={label} checked={checked} onCheck={onCheck} inputRef={inputRef} />
             {children}
         </fieldset>
     );

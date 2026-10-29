@@ -9,7 +9,7 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields } from '../../components/ManualField';
+import { ManualFields, type ManualFieldConfig } from '../../components/ManualField';
 import {
     catalogoActions,
     CODE_CHARS,
@@ -26,11 +26,19 @@ type EstacionForm = Record<keyof Estacion, string>;
 
 const EMPTY_FORM: EstacionForm = { id_linea: '', id_estacion: '', nombre_estacion: '' };
 
+// Key box with its label at its left, as tall as the name box beside it.
+const keyField = <K extends string>(field: ManualFieldConfig<K>) => ({
+    ...field,
+    isKey: true,
+    labelLeft: true,
+    inputStyle: { ...field.inputStyle, height: 36 },
+});
+
 const FIELDS = [
-    { ...codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS }), isKey: true },
-    { ...textField('nombre_linea', 'Nombre', 280), readOnly: true, breakAfter: true },
-    { ...codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 }), isKey: true },
-    textField('nombre_estacion', 'Nombre', 280, { maxLength: 25 }),
+    keyField(codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS })),
+    { ...textField('nombre_linea', 'ㅤ', 280), readOnly: true, breakAfter: true },
+    keyField(codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 })),
+    textField('nombre_estacion', 'ㅤ', 280, { maxLength: 25 }),
 ];
 
 const COLUMNS: Column<Estacion>[] = [

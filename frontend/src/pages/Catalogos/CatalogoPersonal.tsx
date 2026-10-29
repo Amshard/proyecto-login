@@ -117,7 +117,8 @@ export default function CatalogoPersonal() {
     }, undefined);
 
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
-        required: ['id_expediente'],
+        // Expediente alone asks whether to add it; adding it to the rol needs the person's data too.
+        required: showRol ? ['id_expediente', 'nombre', 'fecha_ingreso', 'prejubilacion', 'sexo'] : ['id_expediente'],
         noUpper: ['fecha_ingreso'],
         fields: FIELDS,
         checks: {

@@ -104,7 +104,7 @@ export default function RespaldaRolVigente() {
                 </div>
             }
         >
-            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol" rowHeader columns={COLUMNS} rows={displayedRows} />
+            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol stc-table-fit" rowHeader columns={COLUMNS} rows={displayedRows} />
         </CatalogoLayout>
     );
 }

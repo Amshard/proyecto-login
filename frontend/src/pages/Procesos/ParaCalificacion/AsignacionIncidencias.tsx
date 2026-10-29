@@ -8,7 +8,6 @@ const CONFIRMA =
     '¿Quiere continuar?';
 
 export default function AsignacionIncidencias() {
-    // StrictMode runs effects twice in development; ask only once per visit.
     const asked = useRef(false);
 
     useEffect(() => {

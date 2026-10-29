@@ -19,11 +19,10 @@ export interface ManualFieldConfig<T extends string = string> {
     readOnly?: boolean;
     isKey?: boolean;
     options?: { value: string; label: string }[];
-    // An arrow button beside the box that opens and closes the options list.
     optionsButton?: boolean;
     accept?: (value: string) => boolean;
-    // Called with the field's value when Enter is pressed in it.
     onEnter?: (value: string) => void;
+    labelLeft?: boolean;
 }
 
 interface ManualFieldProps<T extends string> {
@@ -82,7 +81,10 @@ export function ManualField<T extends string>({ config, value, onChange, readOnl
     );
 
     return (
-        <div className="stc-manual-field" style={config.wrapStyle}>
+        <div
+            className={`stc-manual-field${config.labelLeft ? ' stc-manual-field-label-left' : ''}`}
+            style={config.labelLeft ? { ...config.wrapStyle, flex: '0 0 auto' } : config.wrapStyle}
+        >
             <label className="stc-field-label" htmlFor={config.id}>
                 {config.label}
             </label>
@@ -95,7 +97,6 @@ export function ManualField<T extends string>({ config, value, onChange, readOnl
                         aria-label={`Lista de ${config.label || 'opciones'}`}
                         tabIndex={-1}
                         disabled={locked}
-                        // Keeps focus in the box, so its blur doesn't close the list being opened.
                         onMouseDown={(e) => {
                             e.preventDefault();
                             document.getElementById(config.id)?.focus();

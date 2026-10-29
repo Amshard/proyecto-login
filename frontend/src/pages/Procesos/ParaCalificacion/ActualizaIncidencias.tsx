@@ -2,20 +2,18 @@ import { Fragment, useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
 import { ManualField, type ManualFieldConfig } from '../../../components/ManualField';
 import { codeField, dateField, textField } from '../../Catalogos/useCatalogo';
+import { DigitInput } from '../ProcesoControls';
+import { fixedField, useForm } from '../procesoFields';
 import '../Procesos.css';
 
-// With the label beside the box: the field sizes to label + box (the helpers' inline flex basis
-// only counts the box), and the box keeps its own width instead of stretching to the field's.
-const labelBeside = <T extends string>(field: ManualFieldConfig<T>) => ({
-    ...field,
-    wrapStyle: { flex: 'none' },
-    inputStyle: { ...field.inputStyle, width: field.inputStyle?.maxWidth },
-});
+const labelBeside = fixedField;
 
 const EXPEDIENTE_FIELD = labelBeside(codeField('expediente', 'Expediente', 5, { width: 90, numeric: true }));
 const NOMBRE_FIELD = labelBeside(textField('nombre', 'Nombre', 420, { maxLength: 50 }));
 
-type IncidenciaKey = 'fecha_ingreso' | 'faltas' | 'retardos' | 'roles_turno' | 'roles_linea';
+const INCIDENCIA_KEYS = ['fecha_ingreso', 'faltas', 'retardos', 'roles_turno', 'roles_linea'] as const;
+type IncidenciaKey = (typeof INCIDENCIA_KEYS)[number];
+const INCIDENCIAS = INCIDENCIA_KEYS.map((key) => ({ key }));
 
 const cuenta = (key: IncidenciaKey, label: string) => labelBeside(codeField(key, label, 3, { width: 50, numeric: true }));
 
@@ -30,8 +28,6 @@ const CONCEPTOS: { concepto: string; porcentaje: number; campo?: ManualFieldConf
 
 type MeritoKey = 'amones' | 'notas' | 'suspens' | 'monto' | 'veces';
 
-// What Meritos is made of, shown under the 100% total. Each line's third column is
-// a run of text pieces, each followed by a numbers-only box of the given digits.
 const MERITOS: { concepto: string; porcentaje: number; partes: { texto: string; key: MeritoKey; digitos: number }[] }[] = [
     {
         concepto: 'Sanciones',
@@ -46,32 +42,23 @@ const MERITOS: { concepto: string; porcentaje: number; partes: { texto: string; 
     { concepto: 'Frecuencia', porcentaje: 4, partes: [{ texto: 'Veces', key: 'veces', digitos: 2 }] },
 ];
 
-const EMPTY_MERITOS: Record<MeritoKey, string> = { amones: '', notas: '', suspens: '', monto: '', veces: '' };
-
-const EMPTY_INCIDENCIAS: Record<IncidenciaKey, string> = {
-    fecha_ingreso: '',
-    faltas: '',
-    retardos: '',
-    roles_turno: '',
-    roles_linea: '',
-};
+const PARTES = MERITOS.flatMap(({ partes }) => partes);
 
 export default function ActualizaIncidencias() {
     const [expediente, setExpediente] = useState('');
     const [nombre, setNombre] = useState('');
-    const [incidencias, setIncidencias] = useState(EMPTY_INCIDENCIAS);
+    const [incidencias, setIncidencia, resetIncidencias] = useForm(INCIDENCIAS);
     const [sanciones, setSanciones] = useState('');
-    const [meritos, setMeritos] = useState(EMPTY_MERITOS);
+    const [meritos, setMerito, resetMeritos] = useForm(PARTES);
 
     const limpiar = () => {
         setExpediente('');
         setNombre('');
-        setIncidencias(EMPTY_INCIDENCIAS);
+        resetIncidencias();
         setSanciones('');
-        setMeritos(EMPTY_MERITOS);
+        resetMeritos();
     };
 
-    // Guardar has no action yet.
     const guardar = () => {};
 
     return (
@@ -100,7 +87,7 @@ export default function ActualizaIncidencias() {
                                     <ManualField
                                         config={campo}
                                         value={incidencias[campo.key]}
-                                        onChange={(value) => setIncidencias((prev) => ({ ...prev, [campo.key]: value }))}
+                                        onChange={(value) => setIncidencia(campo.key, value)}
                                     />
                                 )}
                                 {nota && <span className="stc-roles-text">{nota}</span>}
@@ -113,13 +100,13 @@ export default function ActualizaIncidencias() {
                                 <span className="stc-roles-text stc-actualiza-concepto">
                                     {concepto}
                                     {concepto === 'Sanciones' && (
-                                        <input
-                                            className="stc-field-input stc-actualiza-sanciones"
-                                            aria-label="Sanciones"
-                                            inputMode="numeric"
-                                            maxLength={2}
+                                        <DigitInput
+                                            className="stc-actualiza-sanciones"
+                                            label="Sanciones"
+                                            digitos={2}
+                                            fit={false}
                                             value={sanciones}
-                                            onChange={(e) => setSanciones(e.target.value.replace(/\D/g, ''))}
+                                            onChange={setSanciones}
                                         />
                                     )}
                                 </span>
@@ -128,17 +115,12 @@ export default function ActualizaIncidencias() {
                                     {partes.map(({ texto, key, digitos }) => (
                                         <Fragment key={key}>
                                             <span className="stc-actualiza-parte-texto">{texto}</span>
-                                            <input
-                                                className="stc-field-input stc-actualiza-parte-input"
-                                                aria-label={`${concepto} ${texto.replace(/^[=+]\s*/, '')}`}
-                                                inputMode="numeric"
-                                                maxLength={digitos}
-                                                // About 1ch per digit, plus room for the padding and border.
-                                                style={{ width: `calc(${digitos}ch + 26px)` }}
+                                            <DigitInput
+                                                className="stc-actualiza-parte-input"
+                                                label={`${concepto} ${texto.replace(/^[=+]\s*/, '')}`}
+                                                digitos={digitos}
                                                 value={meritos[key]}
-                                                onChange={(e) =>
-                                                    setMeritos((prev) => ({ ...prev, [key]: e.target.value.replace(/\D/g, '') }))
-                                                }
+                                                onChange={(value) => setMerito(key, value)}
                                             />
                                         </Fragment>
                                     ))}

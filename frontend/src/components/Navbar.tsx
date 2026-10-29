@@ -33,7 +33,7 @@ const NAV_ITEMS = [
             'Rol de Descansos',
             { label: 'Para Calificación', items: ['Prepara Expedientes (Para Asignar Incidencias)', 'Carga Incidencias desde Archivos (Excel)', 'Asignación de Incidencias', 'Roles por Turno y Línea (Promedia Calificación)', 'Califica', 'Actualiza Incidencias (X Expediente)', 'Actualiza Calificacion ( X Rango ) Por cambio de Linea-y Turno'] },
             'Cambio de Posiciones en el Rol',
-            'Agrega un luga en el Rol',
+            'Agrega un lugar en el Rol',
             'Excel - Concentrado de Lineas-Turnos x Exp',
         ],
     },

@@ -3,6 +3,8 @@ import CatalogoLayout from '../../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../../components/DataTable';
 import { ManualField } from '../../../components/ManualField';
 import { codeField } from '../../Catalogos/useCatalogo';
+import { DigitInput, SideButtons } from '../ProcesoControls';
+import { NO_ROWS, replaceAt } from '../procesoFields';
 import ProgressBar from '../ProgressBar';
 import '../Procesos.css';
 
@@ -29,36 +31,22 @@ const COLUMNS: Column<RolHistorico>[] = [
 ];
 
 const ROLES = ['Primer Rol', 'Segundo Rol', 'Tercer Rol', 'Cuarto Rol'];
-// Digits allowed in each line's two boxes.
 const BOX_DIGITS = [1, 4];
 
-const emptyRoles = () => ROLES.map(() => ['', '']);
-
-// Header column slots, top to bottom.
-const BUTTON_TOP = 220;
-const BUTTON_STEP = 65;
+const EMPTY_ROLES = ROLES.map(() => ['', '']);
 
 export default function RolesTurnoLinea() {
-    const rows: RolHistorico[] = [];
     const [anio, setAnio] = useState(() => String(new Date().getFullYear()));
     const [progress, setProgress] = useState(0);
-    // Two boxes per rol line.
-    const [roles, setRoles] = useState(emptyRoles);
+    const [roles, setRoles] = useState(EMPTY_ROLES);
 
     const setRol = (line: number, box: number, value: string) =>
-        setRoles((prev) => prev.map((pair, i) => (i === line ? pair.map((v, j) => (j === box ? value : v)) : pair)));
+        setRoles((prev) => replaceAt(prev, line, replaceAt(prev[line], box, value)));
 
     const limpia = () => {
-        setRoles(emptyRoles());
+        setRoles(EMPTY_ROLES);
         setProgress(0);
     };
-
-    // Busca and Prepara Rol have no action yet.
-    const buttons = [
-        { label: 'Busca', onClick: undefined },
-        { label: 'Limpia', onClick: limpia },
-        { label: 'Prepara Rol', onClick: undefined },
-    ];
 
     return (
         <CatalogoLayout
@@ -66,17 +54,7 @@ export default function RolesTurnoLinea() {
             hideTabs
             pageClassName="stc-para-calificacion"
             statusLabel="Roles por Turno y Línea"
-            actions={buttons.map(({ label, onClick }, i) => (
-                <button
-                    key={label}
-                    type="button"
-                    className="stc-btn stc-exit-btn stc-carga-btn"
-                    style={{ top: BUTTON_TOP + i * BUTTON_STEP }}
-                    onClick={onClick}
-                >
-                    {label}
-                </button>
-            ))}
+            actions={<SideButtons buttons={[{ label: 'Busca' }, { label: 'Limpia', onClick: limpia }, { label: 'Prepara Rol' }]} />}
         >
             <fieldset className="stc-report-options stc-rol-options stc-rol-options-wide stc-roles-options">
                 <legend className="stc-report-options-title">Prepara Concentrado por Turno y Lines</legend>
@@ -95,15 +73,13 @@ export default function RolesTurnoLinea() {
                             <div key={rol} className="stc-roles-line">
                                 <span className="stc-roles-text">{rol}</span>
                                 {roles[line].map((value, box) => (
-                                    <input
+                                    <DigitInput
                                         key={box}
-                                        className="stc-field-input"
-                                        aria-label={`${rol} ${box + 1}`}
-                                        inputMode="numeric"
-                                        maxLength={BOX_DIGITS[box]}
+                                        label={`${rol} ${box + 1}`}
+                                        digitos={BOX_DIGITS[box]}
+                                        fit={false}
                                         value={value}
-                                        onChange={(e) => setRol(line, box, e.target.value.replace(/\D/g, ''))}
-                                        // An empty single-digit box fills in its rol number: 1 for Primer Rol, 2 for Segundo, ...
+                                        onChange={(v) => setRol(line, box, v)}
                                         onClick={box === 0 && !value ? () => setRol(line, 0, String(line + 1)) : undefined}
                                     />
                                 ))}
@@ -111,7 +87,7 @@ export default function RolesTurnoLinea() {
                         ))}
                     </div>
                     <div className="stc-roles-table">
-                        <DataTable title="Roles disponibles en el historico" className="stc-table-roles" rowHeader columns={COLUMNS} rows={rows} />
+                        <DataTable title="Roles disponibles en el historico" className="stc-table-fit" rowHeader columns={COLUMNS} rows={NO_ROWS} />
                         <ProgressBar value={progress} />
                     </div>
                 </div>

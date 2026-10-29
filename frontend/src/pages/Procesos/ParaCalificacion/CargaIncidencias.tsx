@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
+import { SideButtons } from '../ProcesoControls';
 import ProgressBar from '../ProgressBar';
 import '../Procesos.css';
 
 const TIPOS = ['Faltas Retardos', 'Faltantes y Frecuencia', 'Sanciones'];
-
-// Header column slots, top to bottom: the three file buttons, then Limpiar.
-const BUTTON_TOP = 220;
-const BUTTON_STEP = 65;
 
 const SIN_ARCHIVO = 'No se seleccionó ningún archivo';
 
@@ -18,7 +15,6 @@ export default function CargaIncidencias() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const tipoRef = useRef('');
 
-    // React has no prop for the file picker's `cancel` event (closed without choosing a file).
     useEffect(() => {
         const input = fileInputRef.current;
         if (!input) return;
@@ -45,27 +41,16 @@ export default function CargaIncidencias() {
             pageClassName="stc-para-calificacion"
             statusLabel="Carga Incidencias TXT"
             actions={
-                <>
-                    {TIPOS.map((tipo, i) => (
-                        <button
-                            key={tipo}
-                            type="button"
-                            className={`stc-btn stc-exit-btn stc-carga-btn${archivos[tipo] ? ' stc-carga-btn-loaded' : ''}`}
-                            style={{ top: BUTTON_TOP + i * BUTTON_STEP }}
-                            onClick={() => elegir(tipo)}
-                        >
-                            {tipo}
-                        </button>
-                    ))}
-                    <button
-                        type="button"
-                        className="stc-btn stc-exit-btn stc-carga-btn"
-                        style={{ top: BUTTON_TOP + TIPOS.length * BUTTON_STEP }}
-                        onClick={limpiar}
-                    >
-                        Limpiar
-                    </button>
-                </>
+                <SideButtons
+                    buttons={[
+                        ...TIPOS.map((tipo) => ({
+                            label: tipo,
+                            onClick: () => elegir(tipo),
+                            className: archivos[tipo] ? 'stc-carga-btn-loaded' : undefined,
+                        })),
+                        { label: 'Limpiar', onClick: limpiar },
+                    ]}
+                />
             }
         >
             <input

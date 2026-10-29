@@ -14,12 +14,16 @@
   margin: 0 auto;
 }
 
-.stc-table-rol {
+.stc-table-fit {
   table-layout: auto;
 }
 
-.stc-table-rol th,
-.stc-table-rol td {
+.stc-table-fit th,
+.stc-table-fit td {
+  white-space: nowrap;
+}
+
+.stc-proceso-radio {
   white-space: nowrap;
 }
 
@@ -58,7 +62,6 @@
   gap: 8px;
 }
 
-/* Fills the panel, with its content at the top. */
 .stc-rol-options-wide {
   flex: 1;
   width: 100%;
@@ -75,7 +78,6 @@
   margin: 0 auto;
 }
 
-/* Near the square's left corner, past the fieldset's 40px side padding. */
 .stc-rol-options-wide .stc-report-options-title {
   margin: 0 auto 0 -30px;
 }
@@ -132,25 +134,20 @@
   transition: width 0.2s ease;
 }
 
-/* The wide square: labels and the year box on one row above the line; under it, the rol boxes and the table. */
 .stc-roles-options {
-  /* Columns shared by the label row and the row under the line, so each label stays over its content. */
   --stc-roles-columns: 230px minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   align-content: stretch;
   padding-top: 30px;
-  /* Lets the table run close to the square's right border, with a small margin. */
   padding-right: 50px;
 }
 
-/* Full-width row whose bottom line separates the labels and year box from the table. */
 .stc-roles-anio {
   justify-self: stretch;
   padding-bottom: 6px;
   border-bottom: 1px solid black;
 }
 
-/* Only as tall as its title and box, so the labels and line sit right below it. */
 .stc-roles-anio .stc-manual-field {
   align-items: center;
   height: auto;
@@ -177,8 +174,6 @@
   text-align: left;
 }
 
-/* Left column: the year box on top, "Seleccione Primer Rol" under it on the line.
-   Right column: the table label on the line, centered over the table. */
 .stc-roles-anio-field {
   grid-area: 1 / 1;
   justify-self: start;
@@ -194,7 +189,6 @@
   text-align: center;
 }
 
-/* Under the line: the rol boxes, then the table right beside them. */
 .stc-roles-body {
   justify-self: stretch;
   align-self: start;
@@ -206,7 +200,6 @@
 
 .stc-roles-lines {
   display: grid;
-  /* Label, a 1-digit box, a 4-digit box. */
   grid-template-columns: auto 34px 64px;
   align-items: center;
   gap: 12px 10px;
@@ -215,7 +208,6 @@
   text-align: left;
 }
 
-/* Each line's label and boxes become cells of the .stc-roles-lines grid. */
 .stc-roles-line {
   display: contents;
 }
@@ -237,29 +229,15 @@
   padding-top: 0;
 }
 
-/* Inset by the table frame's 16px side padding so the bar lines up with the table. */
 .stc-roles-table .stc-progress {
   width: calc(100% - 32px);
   margin: 0 16px;
 }
 
-/* The label on the line above already names the table. */
 .stc-roles-table .stc-table-frame-title {
   display: none;
 }
 
-/* Seven columns: size each to its header instead of the shared fixed widths. */
-.stc-table-roles {
-  table-layout: auto;
-}
-
-.stc-table-roles th,
-.stc-table-roles td {
-  white-space: nowrap;
-}
-
-/* Califica: the date field in its own outline, inside the wide square. */
-/* Same width as the progress bar under it. */
 .stc-califica-fecha {
   box-sizing: border-box;
   width: min(600px, 100%);
@@ -274,17 +252,14 @@
   height: 36px;
 }
 
-/* Near the inner outline's left corner, past its 32px side padding. */
 .stc-califica-fecha .stc-report-options-title {
   margin: 0 auto 0 -24px;
 }
 
-/* Actualiza Incidencias: all the content in one block at the top center of the wide square. */
 .stc-actualiza-options {
   padding-top: 30px;
 }
 
-/* Centered as a whole; inside, everything stays left-aligned so it lines up. */
 .stc-actualiza-contenido {
   justify-self: center;
   display: grid;
@@ -298,7 +273,6 @@
   gap: 24px;
 }
 
-/* Each label sits to the left of its box. */
 .stc-actualiza-fields .stc-manual-field,
 .stc-actualiza-conceptos .stc-manual-field {
   flex-direction: row;
@@ -313,7 +287,6 @@
   font-size: 18px;
 }
 
-/* Same label width on every line so the boxes in the third column line up. */
 .stc-actualiza-conceptos .stc-field-label {
   min-width: 150px;
   text-align: left;
@@ -329,7 +302,6 @@
   letter-spacing: 0.5px;
 }
 
-/* One concepto per line under the heading: the blue name, its black percentage, and an optional note. */
 .stc-actualiza-conceptos {
   justify-self: start;
   display: grid;
@@ -342,26 +314,22 @@
   font-size: 18px;
 }
 
-/* Each name starts a new line, whether or not the line above had a note. */
 .stc-actualiza-conceptos .stc-actualiza-concepto {
   grid-column: 1;
   color: #1a2fa0;
 }
 
-/* Under the percentage column, with a sum line above it. */
 .stc-actualiza-total {
   grid-column: 2;
   padding-top: 6px;
   border-top: 2px solid black;
 }
 
-/* Space between the 100% total and the Meritos breakdown. */
 .stc-actualiza-separador {
   grid-column: 1 / -1;
   height: 8px;
 }
 
-/* Sits right of the Sanciones name, in the first column. */
 .stc-actualiza-conceptos .stc-actualiza-sanciones {
   box-sizing: border-box;
   width: 50px;
@@ -372,7 +340,6 @@
   vertical-align: middle;
 }
 
-/* Third column of the Meritos lines: text pieces, each followed by its box. */
 .stc-actualiza-partes {
   display: flex;
   align-items: center;
@@ -387,7 +354,6 @@
   white-space: nowrap;
 }
 
-/* Width comes inline from the digit count. */
 .stc-actualiza-conceptos .stc-actualiza-parte-input {
   box-sizing: border-box;
   height: 30px;
@@ -395,7 +361,6 @@
   text-align: center;
 }
 
-/* Actualiza Calificación: Nombre (3rd) takes the most room, the eight small columns share the rest. */
 .stc-table-actualiza th:nth-child(n) {
   width: 8%;
 }
@@ -404,7 +369,6 @@
   width: 36%;
 }
 
-/* Actualiza Calificación: each rango set is a title over its boxes, side by side. */
 .stc-rango-set {
   height: auto;
 }
@@ -414,7 +378,6 @@
   gap: 8px;
 }
 
-/* Same height everywhere so each Rol box lines up with its line of dates. */
 .stc-rango-cajas .stc-field-input,
 .stc-rango-columna > .stc-field-input {
   box-sizing: border-box;
@@ -423,7 +386,6 @@
   text-align: center;
 }
 
-/* Second row: Rol boxes stacked, each beside its line of two dates, on a gray background. */
 .stc-rango-lineas {
   border-top: 1px solid black;
   background-color: rgb(211, 211, 211);
@@ -439,13 +401,11 @@
   width: 160px;
 }
 
-/* The loading bar sits right of the Rol and Fechas boxes, centered on their two lines. */
 .stc-rango-lineas .stc-progress {
   align-self: center;
-  width: min(300px, 100%);
+  width: min(550px, 100%);
 }
 
-/* Actualiza Calificación: no outline or title around the table. */
 .stc-table-frame:has(.stc-table-actualiza) {
   border: none;
 }
@@ -462,33 +422,17 @@
   white-space: nowrap;
 }
 
-/* Para Calificación pages: no black border on the page box panel or the fields strip.
-   Actualiza Calificación (Lineas y Turnos por Expediente Completo) keeps the catálogo borders. */
 .stc-para-calificacion .stc-tab-panel,
 .stc-para-calificacion .stc-manual-fields {
   border: none;
 }
 
-/* Cambio de Posiciones: 20 columns, each as wide as its header, scrolling sideways when they don't fit. */
-.stc-table-posiciones {
-  table-layout: auto;
-}
-
-.stc-table-posiciones th,
-.stc-table-posiciones td {
-  white-space: nowrap;
-}
-
-/* Cambio de Posiciones: Expediente, the middle boxes and the right boxes grouped together in the center,
-   with a wide margin between the three. */
 .stc-posiciones-fields {
   justify-content: center;
   column-gap: clamp(40px, 6vw, 100px);
-  /* Top-aligned, so the first row stays level while the middle and right sides have a second row under it. */
   align-items: flex-start;
 }
 
-/* The middle and right sides: two rows of boxes each. */
 .stc-posiciones-group {
   display: flex;
   flex-direction: column;
@@ -502,12 +446,10 @@
   gap: 12px 40px;
 }
 
-/* Only as tall as label + box: the usual fixed field height left a gap between the two rows. */
 .stc-posiciones-group .stc-manual-field {
   height: auto;
 }
 
-/* Cambio de Posiciones: Nva Posicion on the left of the table, the table taking the rest of the width. */
 .stc-posiciones-body {
   display: flex;
   align-items: flex-start;
@@ -515,12 +457,10 @@
   width: 100%;
 }
 
-/* Nva Posicion with the Ver Cambios radio under it. */
 .stc-posiciones-side {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* A wide space between the box and the radio. */
   gap: 150px;
 }
 
@@ -528,17 +468,11 @@
   height: auto;
 }
 
-.stc-posiciones-side .stc-report-option {
-  white-space: nowrap;
-}
-
 .stc-posiciones-body .stc-table-frame {
   flex: 1;
   min-width: 0;
 }
 
-/* Cambio de Posiciones, Tramos sin Expediente tab: two radios with an untitled box between them, above the table. */
-/* Inside the table's outline, above the table. */
 .stc-tramos-panel {
   display: flex;
   flex-direction: column;
@@ -554,11 +488,6 @@
   gap: 40px;
 }
 
-.stc-tramos-opciones .stc-report-option {
-  white-space: nowrap;
-}
-
-/* The línea box between the radios: no title, only as tall as its box. */
 .stc-tramos-opciones .stc-manual-field {
   height: auto;
 }
@@ -567,7 +496,6 @@
   display: none;
 }
 
-/* What the Tramos sin Expediente table holds: the chosen línea or the whole rol. */
 .stc-tramos-leyenda {
   margin: 0;
   text-align: center;
@@ -577,7 +505,50 @@
   font-weight: 700;
 }
 
-/* Posicion and Tramo, then the untitled box with its row of boxes under it: top-aligned so the first boxes stay level. */
 .stc-posiciones-middle {
   align-items: flex-start;
+}
+
+.stc-agrega-fields {
+  align-items: flex-start;
+  column-gap: clamp(40px, 6vw, 100px);
+}
+
+.stc-agrega-busqueda {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.stc-agrega-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px 40px;
+}
+
+.stc-agrega-instruccion {
+  margin: 0;
+  text-align: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.stc-concentrado-pares {
+  display: flex;
+  gap: 24px;
+}
+
+.stc-concentrado-opciones {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: center;
+}
+
+.stc-concentrado-rango {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
 }

@@ -260,6 +260,24 @@
   min-width: 0;
 }
 
+/* Label beside the box, both resting on the bottom line like the fields around them. */
+.stc-manual-field-label-left {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* One width for every side label, so rows of boxes line up under each other. */
+.stc-manual-field-label-left .stc-field-label {
+  width: 70px;
+  text-align: right;
+  line-height: 36px;
+}
+
+.stc-manual-field-label-left .stc-field-input {
+  width: auto;
+}
+
 .stc-manual-field .stc-field-input:read-only {
   font-weight: 500px;
   color: rgb(60, 60, 60);
@@ -542,4 +560,40 @@
 
 .stc-table-row-selected td:focus {
   outline: none;
+}
+
+/* A table with boxes above some headers: both header rows stick together while the body scrolls. */
+.stc-table-has-above thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.stc-table-has-above th {
+  position: static;
+}
+
+/* The row above the headers: slim, borderless, in the panel's color. */
+.stc-table .stc-table-above-row th {
+  padding: 2px 4px;
+  border: none;
+  background: rgb(250, 250, 250);
+}
+
+.stc-table-above-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #1a2fa0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stc-table-above-field .stc-field-input {
+  box-sizing: border-box;
+  width: calc(1ch + 14px);
+  height: 22px;
+  padding: 0 4px;
+  font-size: 13px;
+  text-align: center;
 }

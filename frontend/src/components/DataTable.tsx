@@ -18,9 +18,9 @@ export interface Column<R> {
     fit?: boolean;
     center?: boolean;
     left?: boolean;
-    // Centers this column's title in the PDF.
     centerHeader?: boolean;
     repeatKey?: (row: R) => string;
+    above?: ReactNode;
 }
 
 interface DataTableProps<R> {
@@ -30,10 +30,7 @@ interface DataTableProps<R> {
     className?: string;
     onRowSelect?: (row: R) => void;
     activeRow?: R | null;
-    // The first column (or the first N, given a number) is a row header in the header color:
-    // arrow keys skip it, and double-clicking it selects the whole row.
     rowHeader?: boolean | number;
-    // Shown inside the table's outline, above the table.
     header?: ReactNode;
 }
 
@@ -45,8 +42,6 @@ interface DataTableRowProps<R> {
     headerCols: number;
 }
 
-// The selected cell (its class and tabIndex 0) is set straight on the DOM, not through React,
-// so moving with the arrow keys touches two cells instead of re-rendering every row.
 const HEADER_CELL = 'stc-table-header-cell';
 
 const DataTableRow = memo(function DataTableRow<R>({ row, rowIndex, columns, highlighted, headerCols }: DataTableRowProps<R>) {
@@ -78,7 +73,7 @@ const cellPosition = (target: EventTarget): CellPos | null => {
 
 export default function DataTable<R>({ title, columns, rows, className, onRowSelect, activeRow, rowHeader, header }: DataTableProps<R>) {
     const headerCols = rowHeader === true ? 1 : rowHeader || 0;
-    // The first column arrow keys can reach.
+    const hasAbove = columns.some((col) => col.above != null);
     const firstCol = headerCols;
     const selectedRef = useRef<CellPos>({ row: 0, col: firstCol });
     const [syncedRow, setSyncedRow] = useState(activeRow);
@@ -94,8 +89,6 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
         setLoadedFromTable(null);
     }
 
-    // Moves the selected mark to `pos`; on a row header it marks the whole row instead of the cell.
-    // The blank row of an empty table has no data-row and is skipped.
     const select = (pos: CellPos) => {
         selectedRef.current = pos;
         const body = bodyRef.current;
@@ -117,7 +110,6 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
         }
     };
 
-    // A row loaded from outside the table (e.g. a search) takes the selection.
     useLayoutEffect(() => {
         if (activeRow === movedToRow.current) return;
         movedToRow.current = activeRow;
@@ -125,10 +117,8 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
         if (index >= 0) selectedRef.current = { row: index, col: selectedRef.current.col };
     }, [activeRow, rows]);
 
-    // After every render, put the mark back on the selected cell: rows may have been added or removed.
     useLayoutEffect(() => select(selectedRef.current));
 
-    // Scrolls just enough to show the cell, keeping it clear of the sticky header.
     const scrollToCell = (cell: HTMLTableCellElement) => {
         const container = scrollRef.current;
         if (!container) return;
@@ -167,13 +157,11 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
         if (pos) select(pos);
     };
 
-    // A single click on a row header does nothing: without the browser's focus on mousedown it isn't selected.
     const handleMouseDown = (e: MouseEvent<HTMLTableSectionElement>) => {
         const pos = cellPosition(e.target);
         if (pos && pos.col < headerCols) e.preventDefault();
     };
 
-    // Double-clicking a row header also selects its whole row.
     const handleDoubleClick = (e: MouseEvent<HTMLTableSectionElement>) => {
         const pos = cellPosition(e.target);
         if (!pos) return;
@@ -199,7 +187,6 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
             case 'ArrowDown':
                 nextRow = Math.min(rows.length - 1, row + 1);
                 break;
-            // A row header stays out of reach; from a selected whole row, Left has nowhere to go and Right goes to its first cell.
             case 'ArrowLeft':
                 nextCol = col < firstCol ? col : Math.max(firstCol, col - 1);
                 break;
@@ -213,19 +200,25 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
         if (nextRow === row && nextCol === col) return;
         const cell = bodyRef.current?.rows[nextRow]?.cells[nextCol];
         if (!cell) return;
-        // The browser's own focus scroll can leave the row under the sticky header.
         cell.focus({ preventScroll: true });
         scrollToCell(cell);
     };
 
     return (
         <fieldset className="stc-table-frame">
-            {/* No legend for an empty title: its padding would still cut a gap in the outline's top edge. */}
+            {}
             {title && <legend className="stc-table-frame-title">{title}</legend>}
             {header}
             <div className="stc-table-scroll" ref={scrollRef}>
-                <table className={`stc-table${className ? ` ${className}` : ''}`}>
+                <table className={`stc-table${hasAbove ? ' stc-table-has-above' : ''}${className ? ` ${className}` : ''}`}>
                     <thead>
+                        {hasAbove && (
+                            <tr className="stc-table-above-row">
+                                {columns.map((col, i) => (
+                                    <th key={i}>{col.above}</th>
+                                ))}
+                            </tr>
+                        )}
                         <tr>
                             {columns.map((col, i) => (
                                 <th key={i}>{col.header}</th>
@@ -250,8 +243,6 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
                             />
                         ))}
                         {rows.length === 0 && (
-                            // A blank row so an empty table doesn't collapse to just its headers.
-                            // It has no data-row, so it can't be selected or loaded.
                             <tr className="stc-table-empty-row" aria-hidden="true">
                                 {columns.map((_, colIndex) => (
                                     <td key={colIndex} className={colIndex < headerCols ? HEADER_CELL : undefined}>
