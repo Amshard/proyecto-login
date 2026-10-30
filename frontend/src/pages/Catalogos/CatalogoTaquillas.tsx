@@ -13,13 +13,14 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields } from '../../components/ManualField';
+import { ManualFields, type ManualFieldConfig } from '../../components/ManualField';
 import { openPdf } from '../../utils/openPdf';
 import type { PdfSection } from '../../utils/pdf';
 import {
     catalogoActions,
     CODE_CHARS,
     codeField,
+    fieldLines,
     isCodePrefix,
     lineaName,
     padCode,
@@ -45,16 +46,23 @@ const EMPTY_FORM: TaquillaForm = {
 const KEY_FIELDS: (keyof TaquillaForm)[] = ['id_linea', 'id_estacion', 'id_taquilla', 'turno'];
 const REQUIRED = (Object.keys(EMPTY_FORM) as (keyof TaquillaForm)[]).filter((key) => key !== 'extension_tel');
 
+// Label at the box's left; every box as tall as the name boxes, so each line stays level.
+const labelLeft = <K extends string>(field: ManualFieldConfig<K>): ManualFieldConfig<K> => ({
+    ...field,
+    labelLeft: true,
+    inputStyle: { ...field.inputStyle, height: 36 },
+});
+const labelLeftKey = <K extends string>(field: ManualFieldConfig<K>) => ({ ...labelLeft(field), isKey: true });
+
 const FIELDS = [
-    { ...codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS }), isKey: true },
-    { ...textField('nombre_linea', 'Nombre', 280), readOnly: true, breakAfter: true },
-    { ...codeField('id_estacion', 'Estación', 2, { padTo: 2, allowedChars: CODE_CHARS }), isKey: true },
-    { ...textField('nombre_estacion', 'Nombre', 280), readOnly: true, breakAfter: true },
-    { ...codeField('id_taquilla', 'Taquilla', 1, { width: 60, wrap: 80, numeric: true }), isKey: true },
-    { ...codeField('turno', 'Turno', 1, { numeric: true }), isKey: true },
-    codeField('dirdelinea', 'Dir. Línea', 1, { width: 60, wrap: 90, numeric: true, allowedChars: '012' }),
-    { ...textField('nombre_direccion', 'Dirección', 150, { wrap: 170 }), readOnly: true },
-    textField('extension_tel', 'Extensión', 110, { maxLength: 10, wrap: 130 }),
+    labelLeftKey(codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS })),
+    { ...textField('nombre_linea', 'ㅤ', 280), readOnly: true, breakAfter: true },
+    labelLeftKey(codeField('id_estacion', 'Estación', 2, { padTo: 2, allowedChars: CODE_CHARS })),
+    { ...textField('nombre_estacion', 'ㅤ', 280), readOnly: true, breakAfter: true },
+    labelLeftKey(codeField('id_taquilla', 'Taquilla', 1, { width: 10, wrap: 80, numeric: true })),
+    labelLeftKey(codeField('turno', 'Turno', 1, { width: 10, numeric: true })),
+    labelLeft(codeField('dirdelinea', 'Dirección', 1, { width: 10, wrap: 90, numeric: true, allowedChars: '012' })),
+    labelLeft(textField('extension_tel', 'ExTel', 150, { maxLength: 50, wrap: 130 })),
 ];
 
 const taquillaCode = (linea: string, estacion: string, digit: string) =>
@@ -220,6 +228,14 @@ export default function CatalogoTaquillas() {
         taquillaChange(key as keyof TaquillaForm, value, lineaChanged ? { id_estacion: '' } : undefined);
     };
 
+    const fieldsForm = {
+        ...form,
+        id_taquilla: form.id_taquilla.slice(-1),
+        nombre_linea: lineaName(linea),
+        nombre_estacion: nombreEstacion,
+        nombre_direccion: form.dirdelinea ? direccionName(linea, Number(form.dirdelinea)) : '',
+    };
+
     return (
         <CatalogoLayout
             tabLabel="Catálogo Taquillas"
@@ -239,17 +255,17 @@ export default function CatalogoTaquillas() {
             }
             reportLabel="Reporte Taquillas y turnos"
             fields={
-                <ManualFields
-                    fields={fields}
-                    form={{
-                        ...form,
-                        id_taquilla: form.id_taquilla.slice(-1),
-                        nombre_linea: lineaName(linea),
-                        nombre_estacion: nombreEstacion,
-                        nombre_direccion: form.dirdelinea ? direccionName(linea, Number(form.dirdelinea)) : '',
-                    }}
-                    onChange={onFieldChange}
-                />
+                <div className="stc-manual-fields">
+                    {fieldLines(fields).map((lineaCampos) => (
+                        <ManualFields
+                            key={lineaCampos[0].key}
+                            className="stc-campos-outline"
+                            fields={lineaCampos}
+                            form={fieldsForm}
+                            onChange={onFieldChange}
+                        />
+                    ))}
+                </div>
             }
             pdf={pdf}
         >

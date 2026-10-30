@@ -45,7 +45,11 @@ export default function CatalogoPermanencias() {
             onClear={clear}
             {...actions}
             editing={selected !== null}
-            fields={<ManualFields fields={FIELDS} form={form} onChange={onFieldChange} />}
+            fields={
+                <div className="stc-manual-fields">
+                    <ManualFields className="stc-campos-outline stc-permanencias-campos" fields={FIELDS} form={form} onChange={onFieldChange} />
+                </div>
+            }
             pdf={{
                 title: 'CATÁLOGO DE PERMANENCIAS',
                 footerTitle: 'RptCatPerma',
@@ -61,6 +65,7 @@ export default function CatalogoPermanencias() {
         >
             <DataTable
                 title="Permanencias de la red"
+                className="stc-table-permanencias"
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}

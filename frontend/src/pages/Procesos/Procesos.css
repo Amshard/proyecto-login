@@ -122,7 +122,7 @@
 .stc-progress {
   box-sizing: border-box;
   flex-shrink: 0;
-  width: min(600px, 100%);
+  width: min(800px, 100%);
   height: 24px;
   background: rgb(184, 184, 184);
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.35);
@@ -130,7 +130,7 @@
 
 .stc-progress-fill {
   height: 100%;
-  background: #1a2fa0;
+  background: green;
   transition: width 0.2s ease;
 }
 
@@ -388,7 +388,6 @@
 
 .stc-rango-lineas {
   border-top: 1px solid black;
-  background-color: rgb(211, 211, 211);
 }
 
 .stc-rango-columna {
@@ -551,4 +550,14 @@
   display: flex;
   align-items: flex-end;
   gap: 16px;
+}
+
+.stc-table-tramos th:nth-child(n) {
+  width: 12.35%;
+}
+
+.stc-table-tramos th:nth-child(2),
+.stc-table-tramos th:nth-child(4),
+.stc-table-tramos th:nth-child(6) {
+  width: 8.65%;
 }

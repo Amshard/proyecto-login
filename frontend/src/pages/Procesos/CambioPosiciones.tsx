@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { getLineas } from '../../api/catalogos';
+import { getLineas, getRolTaquilla, type RolTaquilla } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
-import DataTable from '../../components/DataTable';
+import DataTable, { type Column } from '../../components/DataTable';
 import { ManualField, type ManualFieldConfig } from '../../components/ManualField';
 import { CODE_CHARS, codeField, isCodePrefix, lineaName, padCode, textField, useCatalogoRows } from '../Catalogos/useCatalogo';
 import { RadioOption, RadioOptions, SideButtons } from './ProcesoControls';
@@ -47,17 +47,17 @@ type FieldKey = (typeof FIELDS)[number]['key'];
 
 const COLUMNS = headersOnly(['Reg', 'Nva P', 'Exp', 'Tramo', 'Fat', 'Tquilla', 'Catg', 'Des', 'Lg', 'Calif', 'Tu', 'Pem', 'P Ant']);
 
-const TRAMOS_COLUMNS = headersOnly([
-    'Posicion',
-    'Tramo',
-    'Taquilla',
-    'Turno',
-    'Categoria',
-    'Lugar',
-    'Descanso',
-    'Expediente',
-    'Permanencia',
-]);
+const TRAMOS_COLUMNS: Column<RolTaquilla>[] = [
+    { header: 'Posicion', cell: (r) => r.numero, center: true },
+    { header: 'Tramo', cell: (r) => r.id_tramo, center: true },
+    { header: 'Taquilla', cell: (r) => r.id_taquilla, center: true },
+    { header: 'Turno', cell: (r) => r.turno, center: true },
+    { header: 'Categoria', cell: (r) => r.categoria, center: true },
+    { header: 'Lugar', cell: (r) => r.lugar, center: true },
+    { header: 'Descanso', cell: (r) => r.id_descansos, center: true },
+    { header: 'Expediente', cell: (r) => r.id_expediente, center: true },
+    { header: 'Permanencia', cell: (r) => r.id_permanencia, center: true },
+];
 const TRAMOS_HEADER_COLS = 7;
 const TRAMOS_LINEA_FIELD = {
     ...codeField('linea', '', 2, { width: 60, padTo: 2, allowedChars: CODE_CHARS }),
@@ -76,6 +76,9 @@ export default function CambioPosiciones() {
     const [tramosLinea, setTramosLinea] = useState('');
     const [sinLugarOpcion, setSinLugarOpcion] = useState('');
     const [lineas] = useCatalogoRows(getLineas);
+    const [rolTaquilla] = useCatalogoRows(getRolTaquilla);
+    const sinExpediente = useMemo(() => rolTaquilla.filter((r) => Number(r.id_expediente) === 0), [rolTaquilla]);
+    const tramosRows = tramosOpcion || tramosLinea ? sinExpediente : NO_ROWS;
 
     const tramosLineaField = useMemo(() => {
         const codes = lineas.map((l) => l.id_linea);
@@ -118,7 +121,7 @@ export default function CambioPosiciones() {
             actionsOnAllTabs
             actions={
                 <SideButtons
-                    step={55}
+                    step={120}
                     buttons={[
                         { label: 'Limpiar', onClick: limpiar },
                         { label: 'Guarda Los Cbios' },
@@ -133,10 +136,10 @@ export default function CambioPosiciones() {
                     content: (
                         <DataTable
                             title=""
-                            className="stc-table-fit"
+                            className="stc-table-tramos"
                             rowHeader={TRAMOS_HEADER_COLS}
                             columns={TRAMOS_COLUMNS}
-                            rows={NO_ROWS}
+                            rows={tramosRows}
                             header={
                                 <div className="stc-tramos-panel">
                                     <div className="stc-tramos-opciones">

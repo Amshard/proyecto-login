@@ -14,6 +14,7 @@ import {
     catalogoActions,
     CODE_CHARS,
     codeField,
+    fieldLines,
     isCodePrefix,
     lineaName,
     padCode,
@@ -127,11 +128,17 @@ export default function CatalogoEstaciones() {
             {...actions}
             editing={selected !== null}
             fields={
-                <ManualFields
-                    fields={fields}
-                    form={{ ...form, nombre_linea: nombreDeLinea(idLinea) }}
-                    onChange={(key: string, value) => keyFieldChange(key as keyof EstacionForm, value)}
-                />
+                <div className="stc-manual-fields">
+                    {fieldLines(fields).map((linea) => (
+                        <ManualFields
+                            key={linea[0].key}
+                            className="stc-campos-outline"
+                            fields={linea}
+                            form={{ ...form, nombre_linea: nombreDeLinea(idLinea) }}
+                            onChange={(key: string, value) => keyFieldChange(key as keyof EstacionForm, value)}
+                        />
+                    ))}
+                </div>
             }
             pdf={pdf}
         >

@@ -188,7 +188,6 @@
   min-width: 0;
 }
 
-/* A box with an arrow button on its right that opens its list. */
 .stc-field-combo {
   display: flex;
   align-items: stretch;
@@ -260,14 +259,12 @@
   min-width: 0;
 }
 
-/* Label beside the box, both resting on the bottom line like the fields around them. */
 .stc-manual-field-label-left {
   flex-direction: row;
   align-items: flex-end;
   gap: 8px;
 }
 
-/* One width for every side label, so rows of boxes line up under each other. */
 .stc-manual-field-label-left .stc-field-label {
   width: 70px;
   text-align: right;
@@ -332,13 +329,11 @@
   border: 1px solid black;
 }
 
-/* Catálogos' Reporte tab: the report buttons centered in an outline titled with the catálogo's name. */
 .stc-report-frame {
   justify-items: center;
   width: min(600px, 100%);
 }
 
-/* Report options listed under the button, left-aligned among themselves. */
 .stc-report-option-list {
   display: grid;
   justify-items: start;
@@ -346,7 +341,6 @@
   margin-top: 10px;
 }
 
-/* margin-right: auto puts the title at the left; a fixed offset from the centered spot hid it on narrow windows. */
 .stc-report-options-title {
   margin: 0 auto 0 0;
   padding: 0 8px;
@@ -445,7 +439,6 @@
   cursor: default;
 }
 
-/* Inner cell lines are light gray; the table's outer edge stays black. */
 .stc-table th {
   border-top-color: black;
 }
@@ -562,7 +555,6 @@
   outline: none;
 }
 
-/* A table with boxes above some headers: both header rows stick together while the body scrolls. */
 .stc-table-has-above thead {
   position: sticky;
   top: 0;
@@ -573,7 +565,6 @@
   position: static;
 }
 
-/* The row above the headers: slim, borderless, in the panel's color. */
 .stc-table .stc-table-above-row th {
   padding: 2px 4px;
   border: none;
@@ -596,4 +587,26 @@
   padding: 0 4px;
   font-size: 13px;
   text-align: center;
+}
+
+.stc-table-frame:has(.stc-table-permanencias) {
+  width: 75%;
+  margin: 0 auto;
+}
+
+.stc-campos-outline {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  gap: 12px clamp(36px, 7vw, 110px);
+  padding: 8px clamp(12px, 2vw, 24px);
+  border: 1px solid gray;
+}
+
+.stc-permanencias-campos {
+  flex-wrap: nowrap;
+  width: 85%;
 }

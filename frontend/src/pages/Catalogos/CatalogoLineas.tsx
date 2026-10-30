@@ -31,18 +31,18 @@ const EMPTY_FORM: LineaForm = {
     id_permanencia: '',
 };
 
-const COUNT = { width: 60, wrap: 80, numeric: true, nonZero: true };
+const COUNT = { width: 20, wrap: 80, numeric: true, nonZero: true };
 
 const FIELDS = [
     { ...codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS }), isKey: true },
-    { ...codeField('dirdelinea1', 'DirIni', 5, { width: 50, wrap: 70, numeric: true }), readOnly: true },
-    textField('nombre_dirlin1', 'Nombre Dirdelinea1', 150, { maxLength: 20 }),
-    { ...codeField('dirdelinea2', 'DirFin', 5, { width: 50, wrap: 70, numeric: true }), readOnly: true },
-    { ...textField('nombre_dirlin2', 'Nombre Dirdelinea2', 150, { maxLength: 20 }), breakAfter: true },
-    codeField('estaciones', 'Estaciones', 5, COUNT),
-    codeField('taquillas', 'Taquillas', 5, COUNT),
-    codeField('tramos', 'Tramos', 5, { ...COUNT, wrap: 70 }),
-    codeField('id_permanencia', 'Permanencia', 1, { width: 45, wrap: 80, numeric: true }),
+    { ...codeField('dirdelinea1', 'DirIni', 5, { width: 10, wrap: 10, numeric: true }), readOnly: true },
+    textField('nombre_dirlin1', 'Nombre Dirdelinea1', 250, { maxLength: 20 }),
+    { ...codeField('dirdelinea2', 'DirFin', 5, { width: 10, wrap: 10, numeric: true }), readOnly: true },
+    { ...textField('nombre_dirlin2', 'Nombre Dirdelinea2', 250, { maxLength: 20 }), breakAfter: true },
+    codeField('estaciones', 'Estaciones', 2, COUNT),
+    codeField('taquillas', 'Taquillas', 2, COUNT),
+    codeField('tramos', 'Tramos', 2, { ...COUNT, wrap: 10 }),
+    codeField('id_permanencia', 'Permanencia', 1, { width: 10, wrap: 10, numeric: true }),
 ];
 
 const REQUIRED = FIELDS.map((field) => field.key);
@@ -165,17 +165,20 @@ export default function CatalogoLineas() {
             {...actions}
             editing={selected !== null}
             fields={
-                <ManualFields
-                    fields={fields}
-                    form={{
-                        ...form,
-                        dirdelinea1: DIR_INI,
-                        dirdelinea2: DIR_FIN,
-                        nombre_perma: formPerma?.nombre_perma ?? '',
-                        descripcion: formPerma?.descripcion ?? '',
-                    }}
-                    onChange={(key: string, value) => lineaChange(key as keyof LineaForm, value)}
-                />
+                <div className="stc-manual-fields">
+                    <ManualFields
+                        className="stc-campos-outline"
+                        fields={fields}
+                        form={{
+                            ...form,
+                            dirdelinea1: DIR_INI,
+                            dirdelinea2: DIR_FIN,
+                            nombre_perma: formPerma?.nombre_perma ?? '',
+                            descripcion: formPerma?.descripcion ?? '',
+                        }}
+                        onChange={(key: string, value) => lineaChange(key as keyof LineaForm, value)}
+                    />
+                </div>
             }
             pdf={{ ...PDF, columns: pdfColumns, rows: sortedRows }}
         >

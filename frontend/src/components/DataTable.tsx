@@ -157,16 +157,9 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
         if (pos) select(pos);
     };
 
-    const handleMouseDown = (e: MouseEvent<HTMLTableSectionElement>) => {
-        const pos = cellPosition(e.target);
-        if (pos && pos.col < headerCols) e.preventDefault();
-    };
-
     const handleDoubleClick = (e: MouseEvent<HTMLTableSectionElement>) => {
         const pos = cellPosition(e.target);
-        if (!pos) return;
-        if (pos.col < headerCols) bodyRef.current?.rows[pos.row]?.cells[pos.col]?.focus({ preventScroll: true });
-        loadRow(pos.row);
+        if (pos) loadRow(pos.row);
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLTableSectionElement>) => {
@@ -228,7 +221,6 @@ export default function DataTable<R>({ title, columns, rows, className, onRowSel
                     <tbody
                         ref={bodyRef}
                         onFocus={handleFocus}
-                        onMouseDown={handleMouseDown}
                         onDoubleClick={handleDoubleClick}
                         onKeyDown={handleKeyDown}
                     >

@@ -178,6 +178,14 @@ export const CODE_CHARS = '0123456789AB';
 
 export const padCode = (value: string) => (value ? value.padStart(2, '0') : '');
 
+// The fields split into their lines: each line ends at a field with breakAfter.
+export const fieldLines = <F extends { breakAfter?: boolean }>(fields: F[]) =>
+    fields.reduce<F[][]>((lines, field, i) => {
+        if (i === 0 || fields[i - 1].breakAfter) lines.push([]);
+        lines[lines.length - 1].push(field);
+        return lines;
+    }, []);
+
 export const lineaName = (linea: Linea | undefined) =>
     linea ? [linea.nombre_dirlin1, linea.nombre_dirlin2].filter(Boolean).join('-') : '';
 
