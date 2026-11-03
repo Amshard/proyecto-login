@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
+import { RadioOptions, SideButtons } from '../ProcesoControls';
 import '../Procesos.css';
 
 const CONFIRMA =
@@ -7,13 +8,22 @@ const CONFIRMA =
     'Faltantes de Efectivo, Faltas y retardos y Sanciones\n' +
     '¿Quiere continuar?';
 
+const INCIDENCIAS = ['Faltante de Efectivo y Frecuencia', 'Faltas y Retardos', 'Sanciones'];
+const SETS = [
+    { titulo: 'Asignación', options: INCIDENCIAS },
+    { titulo: 'Reportes', options: INCIDENCIAS },
+];
+
 export default function AsignacionIncidencias() {
-    const asked = useRef(false);
+    const [confirmado, setConfirmado] = useState(false);
+    const [opciones, setOpciones] = useState(() => SETS.map(() => ''));
 
     useEffect(() => {
-        if (asked.current) return;
-        asked.current = true;
-        if (!window.confirm(CONFIRMA)) window.alert('Se cancela la asignación');
+        const timer = setTimeout(() => {
+            if (window.confirm(CONFIRMA)) setConfirmado(true);
+            else window.alert('Se cancela la asignación');
+        });
+        return () => clearTimeout(timer);
     }, []);
 
     return (
@@ -22,8 +32,23 @@ export default function AsignacionIncidencias() {
             hideTabs
             pageClassName="stc-para-calificacion"
             statusLabel="Asignación de Incidencias"
+            actions={confirmado && <SideButtons buttons={[{ label: 'Asignación' }, { label: 'Reporte' }]} />}
         >
-            {null}
+            {confirmado && (
+                <div className="stc-asignacion-sets">
+                    <h2 className="stc-asignacion-titulo">Incidencias</h2>
+                    {SETS.map(({ titulo, options }, i) => (
+                        <fieldset key={titulo} className="stc-report-options stc-asignacion-set">
+                            <legend className="stc-report-options-title">{titulo}</legend>
+                            <RadioOptions
+                                options={options}
+                                value={opciones[i]}
+                                onChange={(value) => setOpciones((prev) => prev.map((v, j) => (j === i ? value : v)))}
+                            />
+                        </fieldset>
+                    ))}
+                </div>
+            )}
         </CatalogoLayout>
     );
 }

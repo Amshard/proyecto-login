@@ -92,37 +92,39 @@ export default function ActualizaCalificacion() {
                         ))}
                     </div>
                     <div className="stc-manual-fields stc-rango-lineas">
-                        <div className="stc-manual-field stc-rango-set">
-                            <span className="stc-field-label">Rol</span>
-                            <div className="stc-rango-columna">
-                                {lineas.map(({ rol }, linea) => (
-                                    <DigitInput
-                                        key={linea}
-                                        label={`Rol ${linea + 1}`}
-                                        digitos={1}
-                                        value={rol}
-                                        onChange={(value) => setRol(linea, value)}
-                                    />
-                                ))}
+                        <div className="stc-rango-par">
+                            <div className="stc-manual-field stc-rango-set">
+                                <span className="stc-field-label">Rol</span>
+                                <div className="stc-rango-columna">
+                                    {lineas.map(({ rol }, linea) => (
+                                        <DigitInput
+                                            key={linea}
+                                            label={`Rol ${linea + 1}`}
+                                            digitos={1}
+                                            value={rol}
+                                            onChange={(value) => setRol(linea, value)}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                        <div className="stc-manual-field stc-rango-set">
-                            <span className="stc-field-label">Fechas</span>
-                            <div className="stc-rango-columna">
-                                {lineas.map(({ fechas }, linea) => (
-                                    <div key={linea} className="stc-rango-cajas">
-                                        {fechas.map((fecha, caja) => (
-                                            <input
-                                                key={caja}
-                                                type="date"
-                                                className="stc-field-input stc-rango-fecha"
-                                                aria-label={`Fecha ${caja + 1} del Rol ${linea + 1}`}
-                                                value={fecha}
-                                                onChange={(e) => setFecha(linea, caja, e.target.value)}
-                                            />
-                                        ))}
-                                    </div>
-                                ))}
+                            <div className="stc-manual-field stc-rango-set">
+                                <span className="stc-field-label">Fechas</span>
+                                <div className="stc-rango-columna">
+                                    {lineas.map(({ fechas }, linea) => (
+                                        <div key={linea} className="stc-rango-cajas">
+                                            {fechas.map((fecha, caja) => (
+                                                <input
+                                                    key={caja}
+                                                    type="date"
+                                                    className="stc-field-input stc-rango-fecha"
+                                                    aria-label={`Fecha ${caja + 1} del Rol ${linea + 1}`}
+                                                    value={fecha}
+                                                    onChange={(e) => setFecha(linea, caja, e.target.value)}
+                                                />
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                         <ProgressBar value={progress} />

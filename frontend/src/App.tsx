@@ -20,6 +20,8 @@ import Califica from './pages/Procesos/ParaCalificacion/Califica';
 import CargaIncidencias from './pages/Procesos/ParaCalificacion/CargaIncidencias';
 import PreparaExpedientes from './pages/Procesos/ParaCalificacion/PreparaExpedientes';
 import RolDescansos from './pages/Procesos/RolDescansos';
+import Calificaciones from './pages/Reportes/Calificaciones';
+import RolTaquilla from './pages/Reportes/RolTaquilla';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
 import SectionPage from './pages/SectionPage';
@@ -45,6 +47,8 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/procesos/cambio-de-posiciones-en-el-rol', <CambioPosiciones />],
   ['/procesos/agrega-un-lugar-en-el-rol', <AgregaLugar />],
   ['/procesos/excel-concentrado-de-lineas-turnos-x-exp', <ConcentradoLineas />],
+  ['/reportes/calificaciones', <Calificaciones />],
+  ['/reportes/rol-taquilla', <RolTaquilla />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];

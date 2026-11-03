@@ -135,8 +135,8 @@ export default function PersonalProvisional() {
 
     return (
         <CatalogoLayout
-            tabLabel="Personal Provisional"
-            statusLabel="Catalogo de Personal Provisional"
+            tabLabel="Personal de Taquilla Provisional"
+            statusLabel="Personal de Taquilla por Gaceta"
             count={rows.length}
             onClear={clear}
             {...actions}
@@ -145,19 +145,21 @@ export default function PersonalProvisional() {
             reportButton="Califica Turnos=4 Líneas=4"
             onReportButton={califica}
             fields={
-                <>
-                    <ManualFields
-                        fields={mainFields}
-                        form={shown}
-                        onChange={(key, value) => onFieldChange(key as keyof GacetaForm, value)}
-                    />
-                    <ManualFields
-                        fields={ROL_FIELDS}
-                        form={shown}
-                        onChange={() => {}}
-                        className="stc-manual-fields stc-manual-fields-small"
-                    />
-                </>
+                <div className="stc-manual-fields">
+                    <div className="stc-campos-outline stc-campos-stack">
+                        <ManualFields
+                            fields={mainFields}
+                            form={shown}
+                            onChange={(key, value) => onFieldChange(key as keyof GacetaForm, value)}
+                        />
+                        <ManualFields
+                            fields={ROL_FIELDS}
+                            form={shown}
+                            onChange={() => {}}
+                            className="stc-manual-fields stc-manual-fields-small"
+                        />
+                    </div>
+                </div>
             }
             pdf={{
                 title: 'PERSONAL PROVISIONAL POR CIERRE DE LINEA 1 Y 12',
@@ -170,8 +172,8 @@ export default function PersonalProvisional() {
             }}
         >
             <DataTable
-                title="Personal Provisional"
-                className="stc-table-provisional"
+                title="Personal"
+                className="stc-table-provisional stc-table-narrow"
                 rowHeader
                 columns={COLUMNS}
                 rows={rows}

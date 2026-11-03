@@ -27,7 +27,6 @@ type EstacionForm = Record<keyof Estacion, string>;
 
 const EMPTY_FORM: EstacionForm = { id_linea: '', id_estacion: '', nombre_estacion: '' };
 
-// Key box with its label at its left, as tall as the name box beside it.
 const keyField = <K extends string>(field: ManualFieldConfig<K>) => ({
     ...field,
     isKey: true,
@@ -132,7 +131,7 @@ export default function CatalogoEstaciones() {
                     {fieldLines(fields).map((linea) => (
                         <ManualFields
                             key={linea[0].key}
-                            className="stc-campos-outline"
+                            className="stc-campos-outline stc-campos-narrow"
                             fields={linea}
                             form={{ ...form, nombre_linea: nombreDeLinea(idLinea) }}
                             onChange={(key: string, value) => keyFieldChange(key as keyof EstacionForm, value)}
@@ -144,6 +143,7 @@ export default function CatalogoEstaciones() {
         >
             <DataTable
                 title="Estaciones"
+                className="stc-table-narrow"
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}

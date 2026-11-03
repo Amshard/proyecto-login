@@ -17,7 +17,7 @@ export default function RolDescansos() {
     return (
         <CatalogoLayout
             tabLabel="ROL DEL PERSONAL DE TAQUILLA"
-            statusLabel="Rolamiento del personal de taquilla"
+            statusLabel="Rolamiento del personal de Taquilla"
             onTabChange={() => setOption('')}
             extraTabs={[
                 {

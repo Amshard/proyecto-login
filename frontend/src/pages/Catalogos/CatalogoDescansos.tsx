@@ -10,7 +10,7 @@ const EMPTY_FORM: DescansoForm = { id_descansos: '', iniciales: '', descanso1: '
 
 const FIELDS = [
     {
-        ...codeField('id_descansos', 'Clave', 2, { numeric: true, allowedChars: '01234567' }),
+        ...codeField('id_descansos', 'Descansos', 2, { numeric: true, allowedChars: '01234567' }),
         isKey: true,
         accept: (v: string) => v.length < 2 || isValidClave(v),
     },
@@ -70,12 +70,22 @@ export default function CatalogoDescansos() {
             {...actions}
             onSave={onSave}
             editing={selected !== null}
-            fields={<ManualFields fields={FIELDS} form={form} onChange={onFieldChange} lockValues={selected !== null} />}
+            fields={
+                <div className="stc-manual-fields">
+                    <ManualFields
+                        className="stc-campos-outline stc-campos-narrow"
+                        fields={FIELDS}
+                        form={form}
+                        onChange={onFieldChange}
+                        lockValues={selected !== null}
+                    />
+                </div>
+            }
             pdf={{ title: 'CATÁLOGO DE DESCANSOS', footerTitle: 'RptCatDescansos', columns: COLUMNS, rows, countLabel: 'Total de Descansos', countText: (r) => `Total de Descansos      ${r.length}`, countSplitNumber: true, inset: 80 }}
         >
             <DataTable
-                title="Descansos de la red"
-                className="stc-table-descansos"
+                title="Descansos"
+                className="stc-table-descansos stc-table-narrow"
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
     createPersonalTaquilla,
     deletePersonalTaquilla,
@@ -78,7 +78,7 @@ const COLUMNS: Column<PersonalTaquilla>[] = [
     { header: 'Nombre', cell: (r) => r.nombre, left: true },
     { header: 'Fecha de Ingreso', cell: (r) => r.fecha_ingreso },
     { header: 'Prejubilación', cell: (r) => r.prejubilacion },
-    { header: 'FoM', cell: (r) => r.sexo },
+    { header: 'Genero', cell: (r) => r.sexo },
 ];
 
 const PDF_HEADERS: Record<string, string> = { 'Fecha de Ingreso': 'Fecha Ingreso', Prejubilación: 'Pre-Jub', FoM: 'Genero' };
@@ -117,7 +117,6 @@ export default function CatalogoPersonal() {
     }, undefined);
 
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
-        // Expediente alone asks whether to add it; adding it to the rol needs the person's data too.
         required: showRol ? ['id_expediente', 'nombre', 'fecha_ingreso', 'prejubilacion', 'sexo'] : ['id_expediente'],
         noUpper: ['fecha_ingreso'],
         fields: FIELDS,
@@ -190,16 +189,26 @@ export default function CatalogoPersonal() {
     };
 
     const term = search.toUpperCase();
-    const displayedRows = term
-        ? rows.filter((row) => Object.values(row).some((value) => String(value ?? '').toUpperCase().includes(term)))
-        : rows;
+    const displayedRows = useMemo(
+        () =>
+            (term
+                ? rows.filter((row) => Object.values(row).some((value) => String(value ?? '').toUpperCase().includes(term)))
+                : [...rows]
+            ).sort((a, b) => Number(a.id_expediente) - Number(b.id_expediente)),
+        [rows, term]
+    );
+
+    const tableColumns = useMemo<Column<PersonalTaquilla>[]>(() => {
+        const regOf = new Map(displayedRows.map((row, i) => [row, i + 1]));
+        return [{ header: 'Reg', cell: (r) => regOf.get(r), center: true }, ...COLUMNS];
+    }, [displayedRows]);
 
     const report = REPORTS[reportOption];
     const pdfRows = report.rows(displayedRows);
     const repOf = new Map(pdfRows.map((row, i) => [row, withDots(i + 1)]));
     const sinCtoOf = new Map(sinCtoRows.map((r) => [r.id_expediente, r.sincto]));
     const pdf: PdfReport<PersonalTaquilla> = {
-        title: 'CATÁLOGO DE PERSONAL DE TAQUILLA',
+        title: 'PERSONAL DE TAQUILLA',
         subtitle: report.subtitle,
         footerTitle: 'RptPersonalTaq',
         columns: [
@@ -237,15 +246,17 @@ export default function CatalogoPersonal() {
                 </button>
             }
             fields={
-                <>
-                    <ManualFields fields={fields} form={form} onChange={onFieldChange} />
-                    <ManualFields
-                        className={`stc-manual-fields stc-rol-fields${showRol && !selected ? '' : ' stc-rol-fields-hidden'}`}
-                        fields={ROL_FIELDS.map((f) => (f.key === 'numero' ? { ...f, onEnter: () => void onSave() } : f))}
-                        form={rolForm(numero, rol)}
-                        onChange={(key, value) => key === 'numero' && setNumero(value)}
-                    />
-                </>
+                <div className="stc-manual-fields">
+                    <div className="stc-campos-outline stc-campos-stack stc-campos-narrow">
+                        <ManualFields fields={fields} form={form} onChange={onFieldChange} />
+                        <ManualFields
+                            className={`stc-manual-fields stc-rol-fields${showRol && !selected ? '' : ' stc-rol-fields-hidden'}`}
+                            fields={ROL_FIELDS.map((f) => (f.key === 'numero' ? { ...f, onEnter: () => void onSave() } : f))}
+                            form={rolForm(numero, rol)}
+                            onChange={(key, value) => key === 'numero' && setNumero(value)}
+                        />
+                    </div>
+                </div>
             }
             overlay={
                 searchOpen && (
@@ -277,10 +288,10 @@ export default function CatalogoPersonal() {
             pdf={pdf}
         >
             <DataTable
-                title="Personal de Taquilla"
-                className="stc-table-personal"
+                title="Personal"
+                className="stc-table-personal stc-table-narrow"
                 rowHeader
-                columns={COLUMNS}
+                columns={tableColumns}
                 rows={displayedRows}
                 onRowSelect={fill}
                 activeRow={selected as PersonalTaquilla | null}

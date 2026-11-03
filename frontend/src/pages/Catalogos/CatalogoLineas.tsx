@@ -36,9 +36,9 @@ const COUNT = { width: 20, wrap: 80, numeric: true, nonZero: true };
 const FIELDS = [
     { ...codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS }), isKey: true },
     { ...codeField('dirdelinea1', 'DirIni', 5, { width: 10, wrap: 10, numeric: true }), readOnly: true },
-    textField('nombre_dirlin1', 'Nombre Dirdelinea1', 250, { maxLength: 20 }),
+    textField('nombre_dirlin1', 'Nombre Dirección de linea 1', 250, { maxLength: 20 }),
     { ...codeField('dirdelinea2', 'DirFin', 5, { width: 10, wrap: 10, numeric: true }), readOnly: true },
-    { ...textField('nombre_dirlin2', 'Nombre Dirdelinea2', 250, { maxLength: 20 }), breakAfter: true },
+    { ...textField('nombre_dirlin2', 'Nombre Dirección de linea 2', 250, { maxLength: 20 }), breakAfter: true },
     codeField('estaciones', 'Estaciones', 2, COUNT),
     codeField('taquillas', 'Taquillas', 2, COUNT),
     codeField('tramos', 'Tramos', 2, { ...COUNT, wrap: 10 }),

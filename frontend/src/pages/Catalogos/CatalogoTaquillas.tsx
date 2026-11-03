@@ -46,7 +46,6 @@ const EMPTY_FORM: TaquillaForm = {
 const KEY_FIELDS: (keyof TaquillaForm)[] = ['id_linea', 'id_estacion', 'id_taquilla', 'turno'];
 const REQUIRED = (Object.keys(EMPTY_FORM) as (keyof TaquillaForm)[]).filter((key) => key !== 'extension_tel');
 
-// Label at the box's left; every box as tall as the name boxes, so each line stays level.
 const labelLeft = <K extends string>(field: ManualFieldConfig<K>): ManualFieldConfig<K> => ({
     ...field,
     labelLeft: true,
@@ -183,7 +182,7 @@ export default function CatalogoTaquillas() {
         return {
             columns: [
                 { header: 'Taquilla', cell: (r) => r.id_taquilla },
-                { header: 'Estación', cell: (r) => r.id_estacion },
+                { header: 'Estación', cell: estacionDe },
                 { header: 'Turno', cell: (r) => r.turno },
                 { header: 'DirLin', cell: (r) => r.dirdelinea },
                 {
@@ -191,7 +190,6 @@ export default function CatalogoTaquillas() {
                     cell: (r) => direccionName(porId.get(r.id_linea), r.dirdelinea) || 'SIN DIRECCION DE LINEA',
                 },
                 { header: 'Ext_Tel', cell: (r) => r.extension_tel },
-                { header: 'Línea', cell: (r) => r.id_linea },
             ] as Column<Taquilla>[],
             pdf: { ...REPORT_PDF, columns: reportColumns, sections, rows: rows.filter((r) => r.id_linea !== '00') },
         };
@@ -238,7 +236,7 @@ export default function CatalogoTaquillas() {
 
     return (
         <CatalogoLayout
-            tabLabel="Catálogo Taquillas"
+            tabLabel="Catálogo de Taquillas y sus Turnos"
             statusLabel="Catálogo de Taquillas"
             count={rows.length}
             onClear={clear}
@@ -259,7 +257,7 @@ export default function CatalogoTaquillas() {
                     {fieldLines(fields).map((lineaCampos) => (
                         <ManualFields
                             key={lineaCampos[0].key}
-                            className="stc-campos-outline"
+                            className="stc-campos-outline stc-campos-narrow"
                             fields={lineaCampos}
                             form={fieldsForm}
                             onChange={onFieldChange}
@@ -270,8 +268,8 @@ export default function CatalogoTaquillas() {
             pdf={pdf}
         >
             <DataTable
-                title="Taquillas de la red"
-                className="stc-table-taquillas"
+                title="Estaciones"
+                className="stc-table-taquillas stc-table-narrow"
                 columns={columns}
                 rows={rows}
                 onRowSelect={fill}

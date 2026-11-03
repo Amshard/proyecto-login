@@ -47,7 +47,7 @@ export default function CatalogoPermanencias() {
             editing={selected !== null}
             fields={
                 <div className="stc-manual-fields">
-                    <ManualFields className="stc-campos-outline stc-permanencias-campos" fields={FIELDS} form={form} onChange={onFieldChange} />
+                    <ManualFields className="stc-campos-outline stc-campos-narrow" fields={FIELDS} form={form} onChange={onFieldChange} />
                 </div>
             }
             pdf={{
@@ -65,7 +65,7 @@ export default function CatalogoPermanencias() {
         >
             <DataTable
                 title="Permanencias de la red"
-                className="stc-table-permanencias"
+                className="stc-table-narrow"
                 columns={COLUMNS}
                 rows={rows}
                 onRowSelect={fill}

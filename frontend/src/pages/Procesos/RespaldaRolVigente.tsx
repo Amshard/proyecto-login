@@ -74,7 +74,7 @@ export default function RespaldaRolVigente() {
     return (
         <CatalogoLayout
             tabLabel="Respalda Rol Vigente"
-            statusLabel="Respalda Rol Vigente"
+            statusLabel="Respaldo Base de Datos"
             count={rows.length}
             reportButton="Grava Rol Vigente"
             onReportButton={respalda}

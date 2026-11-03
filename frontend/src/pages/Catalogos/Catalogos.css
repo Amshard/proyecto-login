@@ -106,9 +106,6 @@
   z-index: 5;
 }
 
-.stc-header-registros .stc-registros-label {
-  color: #380303;
-}
 
 .stc-registros-label {
   font-family: 'Segoe UI', Arial, sans-serif;
@@ -477,9 +474,12 @@
   width: 30%;
 }
 
-.stc-table-taquillas th:nth-child(1),
-.stc-table-taquillas th:nth-child(2) {
+.stc-table-taquillas th:nth-child(1) {
   width: 12%;
+}
+
+.stc-table-taquillas th:nth-child(2) {
+  width: 26%;
 }
 
 .stc-table-taquillas th:nth-child(3) {
@@ -494,8 +494,7 @@
   width: 30%;
 }
 
-.stc-table-taquillas th:nth-child(6),
-.stc-table-taquillas th:nth-child(7) {
+.stc-table-taquillas th:nth-child(6) {
   width: 14%;
 }
 
@@ -515,19 +514,23 @@
 }
 
 .stc-table-personal th:nth-child(1) {
-  width: 16%;
+  width: 8%;
 }
 
 .stc-table-personal th:nth-child(2) {
-  width: 38%;
+  width: 14%;
 }
 
 .stc-table-personal th:nth-child(3) {
-  width: 22%;
+  width: 36%;
 }
 
-.stc-table-personal th:nth-child(4),
-.stc-table-personal th:nth-child(5) {
+.stc-table-personal th:nth-child(4) {
+  width: 18%;
+}
+
+.stc-table-personal th:nth-child(5),
+.stc-table-personal th:nth-child(6) {
   width: 12%;
 }
 
@@ -589,7 +592,7 @@
   text-align: center;
 }
 
-.stc-table-frame:has(.stc-table-permanencias) {
+.stc-table-frame:has(.stc-table-narrow) {
   width: 75%;
   margin: 0 auto;
 }
@@ -606,7 +609,24 @@
   border: 1px solid gray;
 }
 
-.stc-permanencias-campos {
+.stc-campos-narrow {
   flex-wrap: nowrap;
-  width: 85%;
+  width: 76%;
+}
+
+/* A line break at the end of an outline has nothing to break; left in, it takes the width and pushes the boxes aside. */
+.stc-campos-outline > .stc-field-break:last-child {
+  display: none;
+}
+
+/* An outline around several rows of boxes, each row keeping its own layout without its strip's border. */
+.stc-campos-stack {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+.stc-campos-stack > .stc-manual-fields {
+  padding: 0;
+  border: none;
 }
