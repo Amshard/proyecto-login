@@ -79,7 +79,7 @@ export default function RespaldaRolVigente() {
             reportButton="Grava Rol Vigente"
             onReportButton={respalda}
             actions={
-                <button type="button" className="stc-btn stc-exit-btn stc-search-btn" onClick={() => setSearchOpen(true)}>
+                <button type="button" className="stc-btn stc-exit-btn" onClick={() => setSearchOpen(true)}>
                     Buscar
                 </button>
             }

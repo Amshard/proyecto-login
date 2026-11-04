@@ -35,7 +35,7 @@ export default function AsignacionIncidencias() {
             actions={confirmado && <SideButtons buttons={[{ label: 'Asignación' }, { label: 'Reporte' }]} />}
         >
             {confirmado && (
-                <div className="stc-asignacion-sets">
+                <div className="stc-asignacion-sets stc-asignacion-outline">
                     <h2 className="stc-asignacion-titulo">Incidencias</h2>
                     {SETS.map(({ titulo, options }, i) => (
                         <fieldset key={titulo} className="stc-report-options stc-asignacion-set">

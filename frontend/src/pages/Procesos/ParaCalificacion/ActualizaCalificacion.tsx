@@ -57,20 +57,17 @@ export default function ActualizaCalificacion() {
             tabLabel="TECLEA EL RANGO"
             statusLabel="Lineas y Turnos por Expediente Completo"
             actions={
-                <>
-                    <SideButtons
-                        step={70}
-                        buttons={[
-                            { label: 'Ver Concentrado' },
-                            { label: 'Limpiar', onClick: limpiar },
-                            { label: 'Genera en Excel' },
-                            { label: 'Ver Reporte' },
-                            { label: 'Actualiza Calificacion x Expediente' },
-                        ]}
-                    />
-                    <div className="stc-header-registros stc-actualiza-header-text">MUESTRA INFORMACION DE LOS ROLES</div>
-                </>
+                <SideButtons
+                    buttons={[
+                        { label: 'Ver Concentrado' },
+                        { label: 'Limpiar', onClick: limpiar },
+                        { label: 'Genera en Excel' },
+                        { label: 'Ver Reporte' },
+                        { label: 'Actualiza Calificacion x Expediente' },
+                    ]}
+                />
             }
+            headerText={<div className="stc-header-registros stc-actualiza-header-text">MUESTRA INFORMACION DE LOS ROLES</div>}
             fields={
                 <>
                     <div className="stc-manual-fields">
@@ -91,7 +88,8 @@ export default function ActualizaCalificacion() {
                             </div>
                         ))}
                     </div>
-                    <div className="stc-manual-fields stc-rango-lineas">
+                    <div className="stc-manual-fields stc-rango-lineas stc-rango-sin-division">
+                        <div className="stc-rango-outline">
                         <div className="stc-rango-par">
                             <div className="stc-manual-field stc-rango-set">
                                 <span className="stc-field-label">Rol</span>
@@ -128,6 +126,7 @@ export default function ActualizaCalificacion() {
                             </div>
                         </div>
                         <ProgressBar value={progress} />
+                        </div>
                     </div>
                 </>
             }

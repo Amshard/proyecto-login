@@ -1,5 +1,4 @@
 import { useLocation, useParams } from 'react-router-dom';
-import './Login/Login.css';
 import Navbar from '../components/Navbar';
 import PageHeader from '../components/PageHeader';
 import StatusBar from '../components/StatusBar';

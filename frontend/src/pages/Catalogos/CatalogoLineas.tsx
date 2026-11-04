@@ -2,13 +2,15 @@ import { useMemo } from 'react';
 import { createLinea, deleteLinea, getLineas, getPermanencias, type Linea, updateLinea } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields } from '../../components/ManualField';
+import { CamposOutline } from './CatalogoCampos';
 import {
     catalogoActions,
     CODE_CHARS,
     codeField,
     isCodePrefix,
+    layoutProps,
     padCode,
+    tablaProps,
     textField,
     useCatalogoForm,
     useCatalogoRows,
@@ -95,7 +97,7 @@ export default function CatalogoLineas() {
                     : `La permanencia "${v}" no existe en el catálogo de permanencias.`,
         },
     });
-    const { form, selected, clear, fill, keyChange } = catalogoForm;
+    const { form, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, formToLinea, {
         create: createLinea,
         update: updateLinea,
@@ -159,26 +161,20 @@ export default function CatalogoLineas() {
     return (
         <CatalogoLayout
             tabLabel="Catálogo de Líneas"
-            statusLabel="Catálogo de Líneas"
-            count={rows.length}
-            onClear={clear}
-            {...actions}
-            editing={selected !== null}
+            {...layoutProps(rows, catalogoForm, actions)}
             fields={
-                <div className="stc-manual-fields">
-                    <ManualFields
-                        className="stc-campos-outline"
-                        fields={fields}
-                        form={{
-                            ...form,
-                            dirdelinea1: DIR_INI,
-                            dirdelinea2: DIR_FIN,
-                            nombre_perma: formPerma?.nombre_perma ?? '',
-                            descripcion: formPerma?.descripcion ?? '',
-                        }}
-                        onChange={(key: string, value) => lineaChange(key as keyof LineaForm, value)}
-                    />
-                </div>
+                <CamposOutline
+                    completo
+                    fields={fields}
+                    form={{
+                        ...form,
+                        dirdelinea1: DIR_INI,
+                        dirdelinea2: DIR_FIN,
+                        nombre_perma: formPerma?.nombre_perma ?? '',
+                        descripcion: formPerma?.descripcion ?? '',
+                    }}
+                    onChange={(key: string, value) => lineaChange(key as keyof LineaForm, value)}
+                />
             }
             pdf={{ ...PDF, columns: pdfColumns, rows: sortedRows }}
         >
@@ -187,8 +183,7 @@ export default function CatalogoLineas() {
                 className="stc-table-lineas"
                 columns={columns}
                 rows={sortedRows}
-                onRowSelect={fill}
-                activeRow={selected as Linea | null}
+                {...tablaProps<Linea>(catalogoForm)}
             />
         </CatalogoLayout>
     );

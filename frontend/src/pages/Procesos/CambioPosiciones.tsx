@@ -121,7 +121,6 @@ export default function CambioPosiciones() {
             actionsOnAllTabs
             actions={
                 <SideButtons
-                    step={120}
                     buttons={[
                         { label: 'Limpiar', onClick: limpiar },
                         { label: 'Guarda Los Cbios' },

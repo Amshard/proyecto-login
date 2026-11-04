@@ -67,6 +67,7 @@ export default function ActualizaIncidencias() {
             hideTabs
             pageClassName="stc-para-calificacion"
             statusLabel="Actualiza Incidencias X Expediente"
+            count={0}
             onClear={limpiar}
             onSave={guardar}
         >

@@ -7,15 +7,14 @@ interface SideButton {
     className?: string;
 }
 
-export function SideButtons({ buttons, step = 65 }: { buttons: SideButton[]; step?: number }) {
+export function SideButtons({ buttons }: { buttons: SideButton[] }) {
     return (
         <>
-            {buttons.map(({ label, onClick, className }, i) => (
+            {buttons.map(({ label, onClick, className }) => (
                 <button
                     key={label}
                     type="button"
                     className={`stc-btn stc-exit-btn stc-carga-btn${className ? ` ${className}` : ''}`}
-                    style={{ top: 220 + i * step }}
                     onClick={onClick}
                 >
                     {label}
@@ -30,22 +29,36 @@ interface RadioOptionProps {
     checked: boolean;
     onCheck: () => void;
     inputRef?: Ref<HTMLInputElement>;
+    disabled?: boolean;
 }
 
-export function RadioOption({ label, checked, onCheck, inputRef }: RadioOptionProps) {
+export function RadioOption({ label, checked, onCheck, inputRef, disabled }: RadioOptionProps) {
     return (
-        <label className="stc-report-option stc-proceso-radio">
-            <input ref={inputRef} type="radio" checked={checked} onChange={onCheck} />
+        <label className={`stc-report-option stc-proceso-radio${disabled ? ' stc-radio-bloqueado' : ''}`}>
+            <input ref={inputRef} type="radio" checked={checked} onChange={onCheck} disabled={disabled} />
             {label}
         </label>
     );
 }
 
-export function RadioOptions({ options, value, onChange }: { options: string[]; value: string; onChange: (value: string) => void }) {
+interface RadioOptionsProps {
+    options: string[];
+    value: string;
+    onChange: (value: string) => void;
+    disabled?: string[];
+}
+
+export function RadioOptions({ options, value, onChange, disabled }: RadioOptionsProps) {
     return (
         <>
             {options.map((label) => (
-                <RadioOption key={label} label={label} checked={value === label} onCheck={() => onChange(label)} />
+                <RadioOption
+                    key={label}
+                    label={label}
+                    checked={value === label}
+                    onCheck={() => onChange(label)}
+                    disabled={disabled?.includes(label)}
+                />
             ))}
         </>
     );

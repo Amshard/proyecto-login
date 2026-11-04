@@ -79,13 +79,11 @@ export default function ConcentradoLineas() {
             tabLabel="RANGO DE EXPEDIENTES"
             statusLabel="Rol de Lineas y Turnos por Expediente"
             actions={
-                <>
-                    <SideButtons
-                        buttons={[{ label: 'Muestra la Informacion' }, { label: 'Limpiar', onClick: limpiar }, { label: 'Genera en Excel' }]}
-                    />
-                    <div className="stc-header-registros stc-actualiza-header-text">CONCENTRADO POR EXPEDIENTE DE LINEAS Y TURNOS</div>
-                </>
+                <SideButtons
+                    buttons={[{ label: 'Muestra la Informacion' }, { label: 'Limpiar', onClick: limpiar }, { label: 'Genera en Excel' }]}
+                />
             }
+            headerText={<div className="stc-header-registros stc-actualiza-header-text">CONCENTRADO POR EXPEDIENTE DE LINEAS Y TURNOS</div>}
             fields={
                 <>
                     <div className="stc-manual-fields">
@@ -105,7 +103,8 @@ export default function ConcentradoLineas() {
                             <RadioOptions options={OPCIONES} value={opcion} onChange={setOpcion} />
                         </div>
                     </div>
-                    <div className="stc-manual-fields stc-rango-lineas">
+                    <div className="stc-manual-fields stc-rango-lineas stc-rango-sin-division">
+                        <div className="stc-rango-outline">
                         <div className="stc-manual-field stc-rango-set">
                             <span className="stc-field-label">Rol</span>
                             <div className="stc-rango-columna">
@@ -140,6 +139,7 @@ export default function ConcentradoLineas() {
                             </div>
                         </div>
                         <ProgressBar value={progress} />
+                        </div>
                     </div>
                 </>
             }

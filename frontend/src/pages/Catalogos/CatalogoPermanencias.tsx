@@ -7,8 +7,8 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields } from '../../components/ManualField';
-import { catalogoActions, codeField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { CamposOutline } from './CatalogoCampos';
+import { catalogoActions, codeField, layoutProps, tablaProps, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 const EMPTY_FORM: Permanencia = { id_permanencia: '', nombre_perma: '', descripcion: '', siglas: '' };
 
@@ -29,7 +29,7 @@ const COLUMNS: Column<Permanencia>[] = [
 export default function CatalogoPermanencias() {
     const [rows, setRows] = useCatalogoRows(getPermanencias);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { fields: FIELDS });
-    const { form, selected, clear, fill, keyChange } = catalogoForm;
+    const { form, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createPermanencia,
         update: updatePermanencia,
@@ -40,16 +40,8 @@ export default function CatalogoPermanencias() {
     return (
         <CatalogoLayout
             tabLabel="Catálogo de Permanencias"
-            statusLabel="Catálogo de Permanencias"
-            count={rows.length}
-            onClear={clear}
-            {...actions}
-            editing={selected !== null}
-            fields={
-                <div className="stc-manual-fields">
-                    <ManualFields className="stc-campos-outline stc-campos-narrow" fields={FIELDS} form={form} onChange={onFieldChange} />
-                </div>
-            }
+            {...layoutProps(rows, catalogoForm, actions)}
+            fields={<CamposOutline fields={FIELDS} form={form} onChange={onFieldChange} />}
             pdf={{
                 title: 'CATÁLOGO DE PERMANENCIAS',
                 footerTitle: 'RptCatPerma',
@@ -68,8 +60,7 @@ export default function CatalogoPermanencias() {
                 className="stc-table-narrow"
                 columns={COLUMNS}
                 rows={rows}
-                onRowSelect={fill}
-                activeRow={selected as Permanencia | null}
+                {...tablaProps<Permanencia>(catalogoForm)}
             />
         </CatalogoLayout>
     );

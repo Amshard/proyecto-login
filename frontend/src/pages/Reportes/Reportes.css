@@ -1,0 +1,75 @@
+.stc-sin-bordes .stc-tab-panel {
+  border: none;
+}
+
+.stc-tab-panel:has(.stc-reporte-outline) {
+  padding: 8px;
+}
+
+.stc-reporte-outline {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-self: stretch;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0 8px;
+  border: 1px solid var(--stc-borde-gris);
+}
+
+.stc-reporte-outline > .stc-report-options-title {
+  margin: 0 auto 0 0;
+  color: #1a2fa0;
+  font-style: italic;
+}
+
+.stc-reporte-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 40px auto auto;
+}
+
+.stc-reporte-set {
+  --stc-reporte-lado: 160px;
+  width: auto;
+  margin: 0;
+  padding: 50px var(--stc-reporte-lado);
+  row-gap: 22px;
+  justify-items: start;
+  border-color: var(--stc-borde-gris);
+}
+
+.stc-reporte-set > .stc-report-options-title {
+  margin: 0 auto 0 calc(8px - var(--stc-reporte-lado));
+  color: black;
+  font-style: italic;
+}
+
+.stc-reporte-set .stc-report-option {
+  font-size: 18px;
+}
+
+.stc-reporte-set .stc-radio-bloqueado {
+  color: gray;
+}
+
+.stc-pre-rol {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stc-pre-rol .stc-field-input {
+  width: 280px;
+}
+
+.stc-pre-rol .stc-field-label,
+.stc-pre-rol .stc-field-input {
+  color: black;
+}
+
+.stc-reporte-columna .stc-progress {
+  width: 100%;
+}

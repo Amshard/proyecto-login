@@ -9,6 +9,6 @@ export const navbarTopButtons = () =>
     );
 
 export const sideButtons = () =>
-    Array.from(document.querySelectorAll<HTMLButtonElement>('.stc-header > button:not(:disabled)')).sort(
+    Array.from(document.querySelectorAll<HTMLButtonElement>('.stc-header > button:not(:disabled), .stc-side-buttons > button:not(:disabled)')).sort(
         (a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
     );

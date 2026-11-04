@@ -47,7 +47,6 @@ export default function AgregaLugar() {
             statusLabel="Agrega Registro Al Rol de Taquilla"
             actions={
                 <SideButtons
-                    step={55}
                     buttons={[{ label: 'Limpiar', onClick: limpiar }, { label: 'Ver en Consulta' }, { label: 'Guarda Los Cbios' }]}
                 />
             }

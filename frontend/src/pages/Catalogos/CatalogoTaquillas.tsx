@@ -13,17 +13,20 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields, type ManualFieldConfig } from '../../components/ManualField';
 import { openPdf } from '../../utils/openPdf';
 import type { PdfSection } from '../../utils/pdf';
+import { CamposOutline } from './CatalogoCampos';
 import {
     catalogoActions,
     CODE_CHARS,
     codeField,
-    fieldLines,
     isCodePrefix,
+    labelKey,
+    labelLeft,
+    layoutProps,
     lineaName,
     padCode,
+    tablaProps,
     textField,
     useCatalogoForm,
     useCatalogoRows,
@@ -46,20 +49,13 @@ const EMPTY_FORM: TaquillaForm = {
 const KEY_FIELDS: (keyof TaquillaForm)[] = ['id_linea', 'id_estacion', 'id_taquilla', 'turno'];
 const REQUIRED = (Object.keys(EMPTY_FORM) as (keyof TaquillaForm)[]).filter((key) => key !== 'extension_tel');
 
-const labelLeft = <K extends string>(field: ManualFieldConfig<K>): ManualFieldConfig<K> => ({
-    ...field,
-    labelLeft: true,
-    inputStyle: { ...field.inputStyle, height: 36 },
-});
-const labelLeftKey = <K extends string>(field: ManualFieldConfig<K>) => ({ ...labelLeft(field), isKey: true });
-
 const FIELDS = [
-    labelLeftKey(codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS })),
+    labelKey(codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS })),
     { ...textField('nombre_linea', 'ㅤ', 280), readOnly: true, breakAfter: true },
-    labelLeftKey(codeField('id_estacion', 'Estación', 2, { padTo: 2, allowedChars: CODE_CHARS })),
+    labelKey(codeField('id_estacion', 'Estación', 2, { padTo: 2, allowedChars: CODE_CHARS })),
     { ...textField('nombre_estacion', 'ㅤ', 280), readOnly: true, breakAfter: true },
-    labelLeftKey(codeField('id_taquilla', 'Taquilla', 1, { width: 10, wrap: 80, numeric: true })),
-    labelLeftKey(codeField('turno', 'Turno', 1, { width: 10, numeric: true })),
+    labelKey(codeField('id_taquilla', 'Taquilla', 1, { width: 10, wrap: 80, numeric: true })),
+    labelKey(codeField('turno', 'Turno', 1, { width: 10, numeric: true })),
     labelLeft(codeField('dirdelinea', 'Dirección', 1, { width: 10, wrap: 90, numeric: true, allowedChars: '012' })),
     labelLeft(textField('extension_tel', 'ExTel', 150, { maxLength: 50, wrap: 130 })),
 ];
@@ -127,7 +123,7 @@ export default function CatalogoTaquillas() {
     const [estaciones] = useCatalogoRows(getEstaciones);
     const [enOperacion] = useCatalogoRows(getTaquillasOperacion);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED, fields: FIELDS });
-    const { form, selected, clear, fill, keyChange } = catalogoForm;
+    const { form, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, formToTaquilla, {
         create: createTaquilla,
         update: updateTaquilla,
@@ -238,10 +234,7 @@ export default function CatalogoTaquillas() {
         <CatalogoLayout
             tabLabel="Catálogo de Taquillas y sus Turnos"
             statusLabel="Catálogo de Taquillas"
-            count={rows.length}
-            onClear={clear}
-            {...actions}
-            editing={selected !== null}
+            {...layoutProps(rows, catalogoForm, actions)}
             reportActions={
                 <button
                     type="button"
@@ -252,19 +245,7 @@ export default function CatalogoTaquillas() {
                 </button>
             }
             reportLabel="Reporte Taquillas y turnos"
-            fields={
-                <div className="stc-manual-fields">
-                    {fieldLines(fields).map((lineaCampos) => (
-                        <ManualFields
-                            key={lineaCampos[0].key}
-                            className="stc-campos-outline stc-campos-narrow"
-                            fields={lineaCampos}
-                            form={fieldsForm}
-                            onChange={onFieldChange}
-                        />
-                    ))}
-                </div>
-            }
+            fields={<CamposOutline porLinea fields={fields} form={fieldsForm} onChange={onFieldChange} />}
             pdf={pdf}
         >
             <DataTable
@@ -272,8 +253,7 @@ export default function CatalogoTaquillas() {
                 className="stc-table-taquillas stc-table-narrow"
                 columns={columns}
                 rows={rows}
-                onRowSelect={fill}
-                activeRow={selected as Taquilla | null}
+                {...tablaProps<Taquilla>(catalogoForm)}
             />
         </CatalogoLayout>
     );

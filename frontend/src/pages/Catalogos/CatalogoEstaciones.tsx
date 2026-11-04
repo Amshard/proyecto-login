@@ -9,15 +9,17 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields, type ManualFieldConfig } from '../../components/ManualField';
+import { CamposOutline } from './CatalogoCampos';
 import {
     catalogoActions,
     CODE_CHARS,
     codeField,
-    fieldLines,
     isCodePrefix,
+    labelKey,
+    layoutProps,
     lineaName,
     padCode,
+    tablaProps,
     textField,
     useCatalogoForm,
     useCatalogoRows,
@@ -27,17 +29,10 @@ type EstacionForm = Record<keyof Estacion, string>;
 
 const EMPTY_FORM: EstacionForm = { id_linea: '', id_estacion: '', nombre_estacion: '' };
 
-const keyField = <K extends string>(field: ManualFieldConfig<K>) => ({
-    ...field,
-    isKey: true,
-    labelLeft: true,
-    inputStyle: { ...field.inputStyle, height: 36 },
-});
-
 const FIELDS = [
-    keyField(codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS })),
+    labelKey(codeField('id_linea', 'Línea', 2, { padTo: 2, allowedChars: CODE_CHARS })),
     { ...textField('nombre_linea', 'ㅤ', 280), readOnly: true, breakAfter: true },
-    keyField(codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 })),
+    labelKey(codeField('id_estacion', 'Estación', 2, { numeric: true, padTo: 2 })),
     textField('nombre_estacion', 'ㅤ', 280, { maxLength: 25 }),
 ];
 
@@ -74,7 +69,7 @@ export default function CatalogoEstaciones() {
             },
         },
     });
-    const { form, selected, clear, fill, keyChange } = catalogoForm;
+    const { form, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createEstacion,
         update: updateEstacion,
@@ -121,23 +116,14 @@ export default function CatalogoEstaciones() {
     return (
         <CatalogoLayout
             tabLabel="Catálogo de Estaciones"
-            statusLabel="Catálogo de Estaciones"
-            count={rows.length}
-            onClear={clear}
-            {...actions}
-            editing={selected !== null}
+            {...layoutProps(rows, catalogoForm, actions)}
             fields={
-                <div className="stc-manual-fields">
-                    {fieldLines(fields).map((linea) => (
-                        <ManualFields
-                            key={linea[0].key}
-                            className="stc-campos-outline stc-campos-narrow"
-                            fields={linea}
-                            form={{ ...form, nombre_linea: nombreDeLinea(idLinea) }}
-                            onChange={(key: string, value) => keyFieldChange(key as keyof EstacionForm, value)}
-                        />
-                    ))}
-                </div>
+                <CamposOutline
+                    porLinea
+                    fields={fields}
+                    form={{ ...form, nombre_linea: nombreDeLinea(idLinea) }}
+                    onChange={(key: string, value) => keyFieldChange(key as keyof EstacionForm, value)}
+                />
             }
             pdf={pdf}
         >
@@ -146,8 +132,7 @@ export default function CatalogoEstaciones() {
                 className="stc-table-narrow"
                 columns={COLUMNS}
                 rows={rows}
-                onRowSelect={fill}
-                activeRow={selected as Estacion | null}
+                {...tablaProps<Estacion>(catalogoForm)}
             />
         </CatalogoLayout>
     );

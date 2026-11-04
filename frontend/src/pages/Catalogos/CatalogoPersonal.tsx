@@ -11,10 +11,20 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields } from '../../components/ManualField';
 import SearchModal from '../../components/SearchModal';
 import type { PdfReport } from '../../utils/pdf';
-import { catalogoActions, codeField, dateField, expedienteField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { CamposFila, CamposStack } from './CatalogoCampos';
+import {
+    catalogoActions,
+    codeField,
+    dateField,
+    expedienteField,
+    layoutProps,
+    tablaProps,
+    textField,
+    useCatalogoForm,
+    useCatalogoRows,
+} from './useCatalogo';
 
 type PersonalForm = Record<keyof PersonalTaquilla, string>;
 
@@ -129,7 +139,7 @@ export default function CatalogoPersonal() {
             },
         },
     });
-    const { form, selected, clear, fill, keyChange, validate } = catalogoForm;
+    const { form, selected, clear, keyChange, validate } = catalogoForm;
 
     const rol = rolRows.find((r) => String(r.numero) === numero);
     const patchRol = (match: (r: RolTaquilla) => boolean, changes: Partial<RolTaquilla>) =>
@@ -232,31 +242,28 @@ export default function CatalogoPersonal() {
             tabLabel="Personal de Taquilla"
             statusLabel="Catalogo Personal de Taquilla"
             reportTitle="Catálogo de Personal de Taquilla"
-            count={rows.length}
-            {...actions}
+            {...layoutProps(rows, catalogoForm, actions)}
             onClear={() => {
                 clear();
                 hideRol();
             }}
             onSave={onSave}
-            editing={selected !== null}
             actions={
-                <button type="button" className="stc-btn stc-exit-btn stc-search-btn" onClick={() => setSearchOpen(true)}>
+                <button type="button" className="stc-btn stc-exit-btn" onClick={() => setSearchOpen(true)}>
                     Buscar
                 </button>
             }
             fields={
-                <div className="stc-manual-fields">
-                    <div className="stc-campos-outline stc-campos-stack stc-campos-narrow">
-                        <ManualFields fields={fields} form={form} onChange={onFieldChange} />
-                        <ManualFields
-                            className={`stc-manual-fields stc-rol-fields${showRol && !selected ? '' : ' stc-rol-fields-hidden'}`}
-                            fields={ROL_FIELDS.map((f) => (f.key === 'numero' ? { ...f, onEnter: () => void onSave() } : f))}
-                            form={rolForm(numero, rol)}
-                            onChange={(key, value) => key === 'numero' && setNumero(value)}
-                        />
-                    </div>
-                </div>
+                <CamposStack>
+                    <CamposFila fields={fields} form={form} onChange={onFieldChange} />
+                    <CamposFila
+                        rol
+                        oculto={!showRol || selected !== null}
+                        fields={ROL_FIELDS.map((f) => (f.key === 'numero' ? { ...f, onEnter: () => void onSave() } : f))}
+                        form={rolForm(numero, rol)}
+                        onChange={(key, value) => key === 'numero' && setNumero(value)}
+                    />
+                </CamposStack>
             }
             overlay={
                 searchOpen && (
@@ -293,8 +300,7 @@ export default function CatalogoPersonal() {
                 rowHeader
                 columns={tableColumns}
                 rows={displayedRows}
-                onRowSelect={fill}
-                activeRow={selected as PersonalTaquilla | null}
+                {...tablaProps<PersonalTaquilla>(catalogoForm)}
             />
         </CatalogoLayout>
     );

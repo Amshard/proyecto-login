@@ -1,8 +1,8 @@
 import { createDescanso, deleteDescanso, type Descanso, getDescansos } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields } from '../../components/ManualField';
-import { catalogoActions, codeField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { CamposOutline } from './CatalogoCampos';
+import { catalogoActions, codeField, layoutProps, tablaProps, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 type DescansoForm = Record<keyof Descanso, string>;
 
@@ -42,7 +42,7 @@ const COLUMNS: Column<Descanso>[] = [
 export default function CatalogoDescansos() {
     const [rows, setRows] = useCatalogoRows(getDescansos);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { fields: FIELDS });
-    const { form, selected, clear, fill, keyChange, updateField } = catalogoForm;
+    const { form, selected, keyChange, updateField } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
         create: createDescanso,
         remove: (r) => deleteDescanso(r.id_descansos),
@@ -64,23 +64,9 @@ export default function CatalogoDescansos() {
     return (
         <CatalogoLayout
             tabLabel="Catálogo de Descansos"
-            statusLabel="Catálogo de Descansos"
-            count={rows.length}
-            onClear={clear}
-            {...actions}
+            {...layoutProps(rows, catalogoForm, actions)}
             onSave={onSave}
-            editing={selected !== null}
-            fields={
-                <div className="stc-manual-fields">
-                    <ManualFields
-                        className="stc-campos-outline stc-campos-narrow"
-                        fields={FIELDS}
-                        form={form}
-                        onChange={onFieldChange}
-                        lockValues={selected !== null}
-                    />
-                </div>
-            }
+            fields={<CamposOutline fields={FIELDS} form={form} onChange={onFieldChange} lockValues={selected !== null} />}
             pdf={{ title: 'CATÁLOGO DE DESCANSOS', footerTitle: 'RptCatDescansos', columns: COLUMNS, rows, countLabel: 'Total de Descansos', countText: (r) => `Total de Descansos      ${r.length}`, countSplitNumber: true, inset: 80 }}
         >
             <DataTable
@@ -88,8 +74,7 @@ export default function CatalogoDescansos() {
                 className="stc-table-descansos stc-table-narrow"
                 columns={COLUMNS}
                 rows={rows}
-                onRowSelect={fill}
-                activeRow={selected as Descanso | null}
+                {...tablaProps<Descanso>(catalogoForm)}
             />
         </CatalogoLayout>
     );

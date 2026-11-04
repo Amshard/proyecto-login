@@ -18,6 +18,7 @@ export default function PreparaExpedientes() {
             hideTabs
             pageClassName="stc-para-calificacion"
             statusLabel="Prepara Expedientes"
+            count={0}
             actions={
                 checked && (
                     <button ref={buttonRef} type="button" className="stc-btn stc-exit-btn stc-rol-btn">

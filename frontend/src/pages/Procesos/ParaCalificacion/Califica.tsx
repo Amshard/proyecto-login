@@ -20,6 +20,7 @@ export default function Califica() {
             hideTabs
             pageClassName="stc-para-calificacion"
             statusLabel="Califica Expedientes"
+            count={0}
             actions={
                 <button ref={buttonRef} type="button" className="stc-btn stc-exit-btn stc-rol-btn">
                     Califica

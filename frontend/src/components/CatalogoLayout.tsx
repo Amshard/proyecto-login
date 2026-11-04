@@ -1,6 +1,4 @@
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
-import '../pages/Login/Login.css';
-import '../pages/Catalogos/Catalogos.css';
 import { navbarTopButtons, sideButtons } from './keyboardNav';
 import Navbar from './Navbar';
 import PageHeader from './PageHeader';
@@ -10,16 +8,23 @@ import type { PdfReport } from '../utils/pdf';
 
 interface CatalogoLayoutProps<R> {
     tabLabel: string;
-    statusLabel: string;
+    // Defaults to tabLabel.
+    statusLabel?: string;
     count?: number;
     onClear?: () => void;
     onSave?: () => void;
     onModify?: () => void;
     onDelete?: () => void;
     editing?: boolean;
+    // Side buttons, stacked below Limpiar/Guardar in the order given.
     actions?: ReactNode;
+    // Text placed in the header, outside the column of side buttons.
+    headerText?: ReactNode;
     // Shows `actions` on every tab, not just the first.
     actionsOnAllTabs?: boolean;
+    countOnAllTabs?: boolean;
+    // Shown in an "Año" box to the left of Registros.
+    anio?: number;
     reportButton?: string;
     onReportButton?: () => void;
     reportActions?: ReactNode;
@@ -53,7 +58,7 @@ const onSideKeyDown = (e: KeyboardEvent<HTMLElement>) => {
 
 export default function CatalogoLayout<R>({
     tabLabel,
-    statusLabel,
+    statusLabel = tabLabel,
     count,
     onClear,
     onSave,
@@ -61,7 +66,10 @@ export default function CatalogoLayout<R>({
     onDelete,
     editing,
     actions,
+    headerText,
     actionsOnAllTabs,
+    countOnAllTabs,
+    anio,
     reportButton,
     onReportButton,
     reportActions,
@@ -95,56 +103,67 @@ export default function CatalogoLayout<R>({
     ];
 
     return (
-        <div className={`stc-login-page${pageClassName ? ` ${pageClassName}` : ''}`}>
+        <div className={`stc-login-page${hideTabs ? ' stc-sin-pestanas' : ''}${pageClassName ? ` ${pageClassName}` : ''}`}>
             <Navbar />
 
             <PageHeader onKeyDown={onSideKeyDown}>
-                {isCatalogo && (
-                    <>
-                        {onClear && (
-                            <button type="button" className="stc-btn stc-exit-btn stc-clear-btn" onClick={onClear}>
-                                Limpiar
-                            </button>
-                        )}
-                        {editing ? (
-                            <>
-                                {onModify && (
-                                    <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onModify}>
-                                        Modificar
-                                    </button>
-                                )}
-                                {onDelete && (
-                                    <button type="button" className="stc-btn stc-exit-btn stc-delete-btn" onClick={onDelete}>
-                                        Eliminar
-                                    </button>
-                                )}
-                            </>
-                        ) : (
-                            onSave && (
-                                <button type="button" className="stc-btn stc-exit-btn stc-save-btn" onClick={onSave}>
-                                    Guardar
+                <div className="stc-side-buttons">
+                    {isCatalogo && (
+                        <>
+                            {onClear && (
+                                <button type="button" className="stc-btn stc-exit-btn" onClick={onClear}>
+                                    Limpiar
                                 </button>
-                            )
-                        )}
-                        {actions}
-                        {reportButton && (
-                            <button
-                                type="button"
-                                className="stc-btn stc-exit-btn stc-report-ops-btn"
-                                onClick={onReportButton ?? (() => setActiveTab('nuevo'))}
-                            >
-                                {reportButton}
-                            </button>
-                        )}
-                        {count !== undefined && (
-                            <div className="stc-registros-row stc-header-registros">
-                                <span className="stc-registros-label">Registros</span>
-                                <div className="stc-registros-box">{count}</div>
+                            )}
+                            {editing ? (
+                                <>
+                                    {onModify && (
+                                        <button type="button" className="stc-btn stc-exit-btn" onClick={onModify}>
+                                            Modificar
+                                        </button>
+                                    )}
+                                    {onDelete && (
+                                        <button type="button" className="stc-btn stc-exit-btn" onClick={onDelete}>
+                                            Eliminar
+                                        </button>
+                                    )}
+                                </>
+                            ) : (
+                                onSave && (
+                                    <button type="button" className="stc-btn stc-exit-btn" onClick={onSave}>
+                                        Guardar
+                                    </button>
+                                )
+                            )}
+                            {actions}
+                            {reportButton && (
+                                <button
+                                    type="button"
+                                    className="stc-btn stc-exit-btn stc-report-ops-btn"
+                                    onClick={onReportButton ?? (() => setActiveTab('nuevo'))}
+                                >
+                                    {reportButton}
+                                </button>
+                            )}
+                        </>
+                    )}
+                    {!isCatalogo && actionsOnAllTabs && actions}
+                </div>
+                {headerText}
+                {count !== undefined && (isCatalogo || countOnAllTabs) && (
+                    <div className="stc-header-registros stc-header-contadores">
+                        {anio !== undefined && (
+                            <div className="stc-registros-row">
+                                <span className="stc-registros-label">Año</span>
+                                <div className="stc-registros-box">{anio}</div>
                             </div>
                         )}
-                    </>
+                        <div className="stc-registros-row">
+                            <span className="stc-registros-label">Registros</span>
+                            <div className="stc-registros-box">{count}</div>
+                        </div>
+                    </div>
                 )}
-                {!isCatalogo && actionsOnAllTabs && actions}
             </PageHeader>
 
             <div className="stc-body stc-catalogo-body">

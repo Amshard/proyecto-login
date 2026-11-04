@@ -21,6 +21,9 @@ import CargaIncidencias from './pages/Procesos/ParaCalificacion/CargaIncidencias
 import PreparaExpedientes from './pages/Procesos/ParaCalificacion/PreparaExpedientes';
 import RolDescansos from './pages/Procesos/RolDescansos';
 import Calificaciones from './pages/Reportes/Calificaciones';
+import CategoriasTaquilla from './pages/Reportes/CategoriasTaquilla';
+import DiasCompensados from './pages/Reportes/DiasCompensados';
+import TotalesRolVigente from './pages/Reportes/TotalesRolVigente';
 import RolTaquilla from './pages/Reportes/RolTaquilla';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
@@ -49,6 +52,9 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/procesos/excel-concentrado-de-lineas-turnos-x-exp', <ConcentradoLineas />],
   ['/reportes/calificaciones', <Calificaciones />],
   ['/reportes/rol-taquilla', <RolTaquilla />],
+  ['/reportes/categorias-en-taquilla', <CategoriasTaquilla />],
+  ['/reportes/dias-compensados', <DiasCompensados />],
+  ['/reportes/totales-del-rol-vigente-por-permanencia-y-periodos', <TotalesRolVigente />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];

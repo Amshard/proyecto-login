@@ -13,8 +13,18 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { ManualFields } from '../../components/ManualField';
-import { catalogoActions, codeField, dateField, expedienteField, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { CamposFila, CamposStack } from './CatalogoCampos';
+import {
+    catalogoActions,
+    codeField,
+    dateField,
+    expedienteField,
+    layoutProps,
+    tablaProps,
+    textField,
+    useCatalogoForm,
+    useCatalogoRows,
+} from './useCatalogo';
 
 type GacetaForm = Record<keyof PersonalGaceta, string>;
 
@@ -85,7 +95,7 @@ export default function PersonalProvisional() {
         noUpper: ['fecha'],
         fields: [...MAIN_FIELDS, ...ROL_FIELDS],
     });
-    const { form, selected, clear, fill, keyChange, validate } = catalogoForm;
+    const { form, selected, keyChange, validate } = catalogoForm;
 
     const personOf = (exp: number) => personal.find((p) => p.id_expediente === exp);
     const exp = Number(form.exp);
@@ -137,29 +147,15 @@ export default function PersonalProvisional() {
         <CatalogoLayout
             tabLabel="Personal de Taquilla Provisional"
             statusLabel="Personal de Taquilla por Gaceta"
-            count={rows.length}
-            onClear={clear}
-            {...actions}
+            {...layoutProps(rows, catalogoForm, actions)}
             onSave={onSave}
-            editing={selected !== null}
             reportButton="Califica Turnos=4 Líneas=4"
             onReportButton={califica}
             fields={
-                <div className="stc-manual-fields">
-                    <div className="stc-campos-outline stc-campos-stack">
-                        <ManualFields
-                            fields={mainFields}
-                            form={shown}
-                            onChange={(key, value) => onFieldChange(key as keyof GacetaForm, value)}
-                        />
-                        <ManualFields
-                            fields={ROL_FIELDS}
-                            form={shown}
-                            onChange={() => {}}
-                            className="stc-manual-fields stc-manual-fields-small"
-                        />
-                    </div>
-                </div>
+                <CamposStack>
+                    <CamposFila fields={mainFields} form={shown} onChange={(key, value) => onFieldChange(key as keyof GacetaForm, value)} />
+                    <CamposFila rol fields={ROL_FIELDS} form={shown} onChange={() => {}} />
+                </CamposStack>
             }
             pdf={{
                 title: 'PERSONAL PROVISIONAL POR CIERRE DE LINEA 1 Y 12',
@@ -177,8 +173,7 @@ export default function PersonalProvisional() {
                 rowHeader
                 columns={COLUMNS}
                 rows={rows}
-                onRowSelect={fill}
-                activeRow={selected as PersonalGaceta | null}
+                {...tablaProps<PersonalGaceta>(catalogoForm)}
             />
         </CatalogoLayout>
     );

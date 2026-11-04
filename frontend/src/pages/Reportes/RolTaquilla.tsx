@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import CatalogoLayout from '../../components/CatalogoLayout';
-import { RadioOptions } from '../Procesos/ProcesoControls';
-import '../Procesos/Procesos.css';
+import ReportePage from './ReportePage';
 
 const OPCIONES = [
     'Prepara Informacion para los reportes',
@@ -11,16 +9,24 @@ const OPCIONES = [
     'Lugares no asignados en el Rol',
     'Rol de Taquilla con Calificación'
 ];
+const BLOQUEADAS = [OPCIONES[OPCIONES.length - 1]];
 
 export default function RolTaquilla() {
-    const [opcion, setOpcion] = useState('');
+    const [preRol, setPreRol] = useState('');
 
     return (
-        <CatalogoLayout tabLabel="ROL TAQUILLA" hideTabs statusLabel="Reporte del Rol de Taquilla">
-            <fieldset className="stc-report-options stc-asignacion-set stc-reporte-centrado">
-                <legend className="stc-report-options-title">Rol de Taquilla</legend>
-                <RadioOptions options={OPCIONES} value={opcion} onChange={setOpcion} />
-            </fieldset>
-        </CatalogoLayout>
+        <ReportePage
+            tabLabel="ROL TAQUILLA"
+            statusLabel="Reportes Rol Taquilla"
+            titulo="Emisión del Rol"
+            subtitulo="Rol de Taquilla"
+            opciones={OPCIONES}
+            bloqueadas={BLOQUEADAS}
+        >
+            <label className="stc-pre-rol">
+                <span className="stc-field-label">Pre - Rol</span>
+                <input className="stc-field-input" value={preRol} onChange={(e) => setPreRol(e.target.value)} />
+            </label>
+        </ReportePage>
     );
 }

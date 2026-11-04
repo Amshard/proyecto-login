@@ -47,7 +47,7 @@
 }
 
 .stc-rol-options:disabled {
-  border-color: gray;
+  border-color: var(--stc-borde-gris);
 }
 
 .stc-rol-options:disabled .stc-report-options-title,
@@ -65,7 +65,7 @@
 .stc-rol-options-wide {
   flex: 1;
   width: 100%;
-  border-color: gray;
+  border-color: var(--stc-borde-gris);
   align-content: start;
   padding-top: 150px;
 }
@@ -98,7 +98,6 @@
 
 .stc-carga-btn {
   box-sizing: border-box;
-  left: 10px;
   width: 90px;
   padding: 7px 4px;
   font-size: 13px;
@@ -113,8 +112,6 @@
 
 .stc-rol-btn {
   box-sizing: border-box;
-  left: 10px;
-  top: 220px;
   width: 90px;
   padding-inline: 0;
 }
@@ -400,6 +397,23 @@
   width: 160px;
 }
 
+.stc-rango-sin-division {
+  border-top: none;
+}
+
+.stc-rango-outline {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px clamp(36px, 7vw, 110px);
+  padding: 12px clamp(12px, 2vw, 24px);
+  border: 1px solid var(--stc-borde-gris);
+  background: rgb(210, 210, 210);
+}
+
 .stc-rango-lineas .stc-progress {
   align-self: center;
   width: min(550px, 100%);
@@ -422,11 +436,9 @@
 }
 
 .stc-para-calificacion .stc-tab-panel,
-.stc-para-calificacion .stc-manual-fields,
-.stc-sin-bordes .stc-tab-panel {
+.stc-para-calificacion .stc-manual-fields {
   border: none;
 }
-
 
 .stc-posiciones-fields {
   justify-content: center;
@@ -572,6 +584,19 @@
   width: 100%;
 }
 
+.stc-tab-panel:has(.stc-asignacion-outline) {
+  padding: 8px;
+}
+
+.stc-asignacion-outline {
+  box-sizing: border-box;
+  flex: 1;
+  align-self: stretch;
+  align-content: flex-start;
+  padding: 24px;
+  border: 1px solid var(--stc-borde-gris);
+}
+
 .stc-asignacion-set {
   width: auto;
   padding: 30px 40px;
@@ -594,15 +619,8 @@
   gap: 8px;
 }
 
-.stc-reporte-centrado {
-  margin: auto;
-  justify-items: center;
-}
-
-.stc-reporte-izquierda {
-  justify-items: start;
-}
-
-.stc-reporte-grande {
-  padding: 60px 140px;
+.stc-radio-bloqueado,
+.stc-radio-bloqueado input {
+  color: gray;
+  cursor: default;
 }
