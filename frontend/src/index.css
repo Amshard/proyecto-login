@@ -4,11 +4,19 @@
   --bg: #fff;
   --border: #bfb6cf;
   --accent: #f16d15;
-  --accent-bg: rgba(212, 90, 9, 0.1);
-  --accent-border: rgba(212, 90, 9, 0.5);
-
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  /* Shared by every page. */
+  --stc-fuente: 'Segoe UI', Arial, sans-serif;
+  --stc-azul: #1a2fa0;
+  --stc-guinda: #470404;
+  --stc-naranja: #ce723d;
+  --stc-gris-claro: rgb(228, 228, 228);
+  --stc-fondo-caja: #f5f4f2;
+  --stc-borde-caja: #9aa0a6;
+  --stc-borde-gris: rgb(140, 140, 140);
+  --stc-seleccion: #dbe4ff;
+  --stc-angosto: 75%;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -24,7 +32,6 @@
     font-size: 16px;
   }
 }
-
 
 #root {
   width: 1126px;
@@ -43,7 +50,7 @@ body {
 }
 
 h1 {
-  font-family: var(--heading);
+  font-family: var(--sans);
   font-weight: 500;
   color: var(--text-h);
   font-size: 56px;
@@ -54,9 +61,12 @@ h1 {
     margin: 20px 0;
   }
 }
+
 p {
   margin: 0;
 }
+
+/* ---- Header, buttons, menu and status bar ---- */
 
 .stc-header {
   display: flex;
@@ -87,7 +97,7 @@ p {
   font-weight: 500;
   font-size: 22px;
   letter-spacing: 1px;
-  color: #470404;
+  color: var(--stc-guinda);
   line-height: 1.15;
   text-transform: uppercase;
 }
@@ -96,8 +106,7 @@ p {
   margin: 10px 0 0;
   font-size: 18px;
   font-weight: 800;
-  text-align: center;
-  color: #470404;
+  color: var(--stc-guinda);
 }
 
 .stc-btn {
@@ -114,8 +123,7 @@ p {
 
 .stc-btn:active {
   background: #c55c2b;
-  border: 1px solid #613521;
-  color: black;
+  border-color: #613521;
 }
 
 .stc-exit-btn {
@@ -138,20 +146,25 @@ p {
   z-index: 10;
 }
 
+/* The menu buttons share their font; buttons don't inherit it from the page. */
+.stc-nav-btn,
+.stc-submenu-btn {
+  color: black;
+  border: none;
+  outline: none;
+  font-family: var(--stc-fuente);
+  font-size: 14px;
+  font-weight: 480;
+  cursor: pointer;
+}
+
 .stc-nav-btn {
   min-width: 32px;
   height: 32px;
   margin: 0px;
   padding: 1px 14px;
-  color: black;
   background: #d8581d00;
-  border: none;
-  outline: none;
   border-radius: 0px;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 480;
-  cursor: pointer;
 }
 
 .stc-nav-btn:hover,
@@ -159,7 +172,8 @@ p {
   background: rgb(136, 80, 33);
 }
 
-.stc-nav-item {
+.stc-nav-item,
+.stc-submenu-item {
   position: relative;
 }
 
@@ -186,30 +200,14 @@ p {
   width: 100%;
   padding: 2px 14px;
   margin: 0;
-  color: black;
   background: lightgray;
-  border: none;
-  border-bottom: 0px solid #b9b2b2;
-  outline: none;
   text-align: left;
   white-space: pre;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 480;
-  cursor: pointer;
 }
 
 .stc-submenu-arrow {
   margin-left: 16px;
   font-weight: 700;
-}
-
-.stc-submenu li:last-child .stc-submenu-btn {
-  border-bottom: none;
-}
-
-.stc-submenu-item {
-  position: relative;
 }
 
 .stc-submenu-flyout {
@@ -237,9 +235,8 @@ p {
   width: 100%;
   background: lightgray;
   color: black;
-  border-top: 1px solid #9aa0a6;
+  border-top: 1px solid var(--stc-borde-caja);
   padding: 6px 10px;
-  font-family: 'Segoe UI', Arial, sans-serif;
   font-size: 16px;
   z-index: 15;
 }
@@ -249,14 +246,25 @@ p {
   gap: 5px;
 }
 
-/* ---- Shared page layout: page, body, content square, status squares, form boxes and fields ---- */
+/* ---- Page layout: page, content square, password box, status squares and form fields ---- */
 
+/* Every page sits inside .stc-login-page, so its text takes this font; only buttons need it set again. */
 .stc-login-page {
   min-height: 100vh;
   background: #fff;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: var(--stc-fuente);
   display: flex;
   flex-direction: column;
+}
+
+.stc-content,
+.stc-content-square,
+.stc-changepw-body,
+.stc-search-overlay,
+.stc-registros-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .stc-body {
@@ -268,9 +276,6 @@ p {
   flex: 1;
   background: #fff;
   padding: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Page boxes start just right of the 115px header column and run to near the right edge. */
@@ -281,12 +286,9 @@ p {
 .stc-content-square {
   width: 100%;
   height: 100%;
-  border: 1px solid #9aa0a6;
-  background: #f5f4f2;
+  border: 1px solid var(--stc-borde-caja);
+  background: var(--stc-fondo-caja);
   box-shadow: 15px 15px 15px rgba(0, 0, 0, 0.90);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .stc-changepw-box {
@@ -299,7 +301,6 @@ p {
 
 .stc-changepw-titlebar {
   font-style: italic;
-  background: white;
   color: blue;
   font-weight: 520;
   font-size: 20px;
@@ -310,9 +311,6 @@ p {
 
 .stc-changepw-body {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 32px;
 }
 
@@ -331,8 +329,8 @@ p {
 }
 
 .stc-status-square {
-  background: #f5f4f2;
-  border: 1px solid #9aa0a6;
+  background: var(--stc-fondo-caja);
+  border: 1px solid var(--stc-borde-caja);
   padding: 2px clamp(4px, 4vw, 70px);
   flex: 0 1 270px;
   min-width: 0;
@@ -345,15 +343,10 @@ p {
   flex-basis: 360px;
 }
 
-body:has(.stc-login-page) {
-  background: #fff;
-}
-
 body:has(.stc-login-page) #root {
   width: 100%;
   max-width: 100%;
   border-inline: none;
-  background: #fff;
 }
 
 .stc-field-row {
@@ -365,14 +358,14 @@ body:has(.stc-login-page) #root {
 }
 
 .stc-field-label {
-  color: #1a2fa0;
+  color: var(--stc-azul);
   font-weight: 600;
   font-size: 20px;
 }
 
 .stc-field-input {
   color: black;
-  border: 1px solid #9aa0a6;
+  border: 1px solid var(--stc-borde-caja);
   padding: 10px 12px;
   font-size: 16px;
   background: #fff;
@@ -385,7 +378,7 @@ body:has(.stc-login-page) #root {
 }
 
 .stc-submit-btn {
-  background: #1a2fa0;
+  background: var(--stc-azul);
   color: #fff;
   border: none;
   padding: 10px 28px;
@@ -398,18 +391,7 @@ body:has(.stc-login-page) #root {
   margin-left: 16px;
 }
 
-/* ---- Shared by the Catálogos, Procesos and Reportes pages: tables, boxes, tabs, side buttons ---- */
-
-/* Shared by every page: colors, font and the narrow width of the Catálogos squares. */
-:root {
-  --stc-azul: #1a2fa0;
-  --stc-naranja: #ce723d;
-  --stc-gris-claro: rgb(228, 228, 228);
-  --stc-borde-gris: rgb(140, 140, 140);
-  --stc-seleccion: #dbe4ff;
-  --stc-fuente: 'Segoe UI', Arial, sans-serif;
-  --stc-angosto: 75%;
-}
+/* ---- Shared by the Catálogos, Procesos and Reportes pages: side buttons, tabs, boxes, tables ---- */
 
 .stc-report-ops-btn {
   padding: 7px 10px;
@@ -446,14 +428,11 @@ body:has(.stc-login-page) #root {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 100;
 }
 
 .stc-search-modal {
-  background: #f5f4f2;
+  background: var(--stc-fondo-caja);
   border: 1px solid black;
   border-radius: 4px;
   padding: 20px 24px;
@@ -465,7 +444,6 @@ body:has(.stc-login-page) #root {
 }
 
 .stc-search-modal-title {
-  font-family: var(--stc-fuente);
   font-size: 15px;
   font-weight: 700;
   color: var(--stc-azul);
@@ -503,17 +481,24 @@ body:has(.stc-login-page) #root {
 }
 
 .stc-registros-wrapper .stc-content-square {
-  width: 100%;
   height: auto;
   flex: 1;
   border-color: transparent;
   box-shadow: 10px 60px 24px rgba(0, 0, 0, 0.6);
 }
 
-.stc-registros-row {
+.stc-registros-row,
+.stc-header-contadores {
   display: flex;
   align-items: center;
+}
+
+.stc-registros-row {
   gap: 10px;
+}
+
+.stc-header-contadores {
+  gap: 24px;
 }
 
 .stc-header-registros {
@@ -524,14 +509,7 @@ body:has(.stc-login-page) #root {
   z-index: 5;
 }
 
-.stc-header-contadores {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
 .stc-registros-label {
-  font-family: var(--stc-fuente);
   font-size: 13px;
   font-weight: 600;
 }
@@ -540,13 +518,9 @@ body:has(.stc-login-page) #root {
   min-width: 32px;
   height: 32px;
   padding: 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: var(--stc-gris-claro);
   cursor: default;
   box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4);
-  font-family: var(--stc-fuente);
   font-size: 14px;
   font-weight: 700;
 }
@@ -577,13 +551,18 @@ body:has(.stc-login-page) #root {
   color: #1c2763;
 }
 
-.stc-manual-fields {
-  background-color: var(--stc-gris-claro);
+/* The gray strip of boxes and the square outlines inside it lay out their boxes the same way. */
+.stc-manual-fields,
+.stc-campos-outline {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: center;
   gap: 12px clamp(36px, 7vw, 110px);
+}
+
+.stc-manual-fields {
+  background-color: var(--stc-gris-claro);
   padding: 16px clamp(12px, 2vw, 24px);
   border: 1px solid black;
   border-bottom: none;
@@ -615,7 +594,7 @@ body:has(.stc-login-page) #root {
   font-size: 10px;
   color: black;
   background: var(--stc-gris-claro);
-  border: 1px solid #9aa0a6;
+  border: 1px solid var(--stc-borde-caja);
   border-left: none;
   cursor: pointer;
 }
@@ -698,7 +677,7 @@ body:has(.stc-login-page) #root {
 .stc-tab-panel {
   align-items: flex-start;
   justify-content: flex-start;
-  background: rgb(255, 255, 255);
+  background: white;
   border: 1px solid black;
 }
 
@@ -728,14 +707,23 @@ body:has(.stc-login-page) #root {
   width: min(600px, 100%);
 }
 
-.stc-report-options-title {
+/* The titles on the square outlines: the report squares and the table squares. */
+.stc-report-options-title,
+.stc-table-frame-title {
   margin: 0 auto 0 0;
   padding: 0 8px;
   color: var(--stc-azul);
-  font-family: var(--stc-fuente);
-  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.5px;
+}
+
+.stc-report-options-title {
+  font-size: 18px;
+}
+
+.stc-table-frame-title {
+  font-size: 14px;
+  text-transform: uppercase;
 }
 
 .stc-report-option {
@@ -762,17 +750,6 @@ body:has(.stc-login-page) #root {
   width: 100%;
 }
 
-.stc-table-frame-title {
-  padding: 0 8px;
-  margin: 0 auto 0 0;
-  color: var(--stc-azul);
-  font-family: var(--stc-fuente);
-  font-size: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .stc-table-scroll {
   height: calc(11 * 2.6em);
   overflow: auto;
@@ -783,7 +760,6 @@ body:has(.stc-login-page) #root {
   background-color: rgb(187, 187, 187);
   table-layout: fixed;
   border-collapse: collapse;
-  font-family: var(--stc-fuente);
   font-size: 14px;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.50);
 }
@@ -804,6 +780,7 @@ body:has(.stc-login-page) #root {
   contain-intrinsic-size: auto 37px;
 }
 
+/* Default widths for tables of up to four columns; wider tables set their own. */
 .stc-table th:nth-child(1) {
   width: 18%;
 }
@@ -826,6 +803,7 @@ body:has(.stc-login-page) #root {
   cursor: default;
 }
 
+/* The table's outer edge is black; inner cell lines stay gray. */
 .stc-table th:first-child,
 .stc-table td:first-child {
   border-left-color: black;
@@ -852,8 +830,7 @@ body:has(.stc-login-page) #root {
 }
 
 /* DataTable's rowHeader: its header columns in the header color; active and selected rows keep their highlight. */
-.stc-table tr:not(.stc-table-row-active,
-.stc-table-row-selected) td.stc-table-header-cell {
+.stc-table tr:not(.stc-table-row-active, .stc-table-row-selected) td.stc-table-header-cell {
   background: var(--stc-naranja);
   border-color: black;
 }
@@ -899,12 +876,7 @@ body:has(.stc-login-page) #root {
 
 .stc-campos-outline {
   box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: center;
   width: 100%;
-  gap: 12px clamp(36px, 7vw, 110px);
   padding: 8px clamp(12px, 2vw, 24px);
   border: 1px solid var(--stc-borde-gris);
 }
@@ -916,4 +888,88 @@ body:has(.stc-login-page) #root {
 
 .stc-sin-pestanas .stc-tab-panel {
   background: var(--stc-gris-claro);
+}
+
+/* ---- Calendario: a month grid to pick one day ---- */
+
+.stc-calendario {
+  box-sizing: border-box;
+  width: 280px;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: white;
+  border: 1px solid var(--stc-borde-gris);
+}
+
+.stc-calendario-mes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--stc-azul);
+  font-weight: 700;
+}
+
+.stc-calendario-nav,
+.stc-calendario-dia {
+  font-family: var(--stc-fuente);
+  cursor: pointer;
+}
+
+.stc-calendario-nav {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  background: var(--stc-gris-claro);
+  border: 1px solid var(--stc-borde-gris);
+}
+
+.stc-calendario-dias {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.stc-calendario-semana {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.stc-calendario-dia {
+  height: 32px;
+  padding: 0;
+  font-size: 14px;
+  background: none;
+  border: 1px solid transparent;
+}
+
+.stc-calendario-dia:hover:not(:disabled, .stc-calendario-elegido) {
+  background: var(--stc-seleccion);
+}
+
+.stc-calendario-hoy {
+  border-color: var(--stc-azul);
+}
+
+.stc-calendario-elegido {
+  color: white;
+  background: var(--stc-azul);
+}
+
+.stc-calendario-dia:disabled {
+  color: rgb(180, 180, 180);
+  cursor: default;
+}
+
+.stc-calendario-fecha {
+  color: black;
+  font-size: 14px;
+  text-align: center;
 }

@@ -33,6 +33,7 @@
 
 .stc-reporte-set {
   --stc-reporte-lado: 160px;
+  align-self: center;
   width: auto;
   margin: 0;
   padding: 50px var(--stc-reporte-lado);
@@ -55,6 +56,11 @@
   color: gray;
 }
 
+.stc-reporte-columna > .stc-report-option {
+  align-self: center;
+  font-size: 18px;
+}
+
 .stc-pre-rol {
   display: flex;
   align-items: center;
@@ -72,4 +78,94 @@
 
 .stc-reporte-columna .stc-progress {
   width: 100%;
+}
+
+.stc-reporte-parametros {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 8px 32px 12px;
+  border: 1px solid var(--stc-borde-gris);
+}
+
+.stc-reporte-parametros > .stc-report-options-title {
+  margin: 0 auto 0 -24px;
+  padding: 0 8px;
+  color: black;
+  font-style: italic;
+}
+
+.stc-reporte-parametros .stc-manual-field {
+  height: auto;
+  gap: 2px;
+}
+
+.stc-reporte-campos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px 24px;
+}
+
+.stc-reporte-semanas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 48px;
+}
+
+.stc-reporte-semana {
+  display: flex;
+  gap: 8px;
+}
+
+.stc-reporte-semana .stc-field-label {
+  text-align: center;
+  color: var(--accent);
+}
+
+.stc-reporte-calendarios {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 48px;
+}
+
+.stc-reporte-checks {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  gap: 40px;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 20px 32px 24px;
+  border: 1px solid var(--stc-borde-gris);
+}
+
+.stc-reporte-radios {
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stc-reporte-radios .stc-report-option {
+  white-space: nowrap;
+}
+
+.stc-reporte-check-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stc-reporte-check-columna .stc-report-option {
+  white-space: nowrap;
+}
+
+.stc-reporte-outline:has(.stc-reporte-calendarios) :is(.stc-report-options-title, .stc-report-option, .stc-calendario-mes) {
+  color: black;
 }

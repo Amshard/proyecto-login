@@ -3,7 +3,6 @@ import { ManualFields, type ManualFieldConfig } from '../../components/ManualFie
 import { fieldLines } from './useCatalogo';
 import './Catalogos.css';
 
-// Every box on the Catálogos pages has the same height.
 const ALTO_CAJA = 36;
 
 const conAlto = <T extends string>(field: ManualFieldConfig<T>): ManualFieldConfig<T> => ({
@@ -19,13 +18,10 @@ interface CamposProps<T extends string> {
 }
 
 interface CamposOutlineProps<T extends string> extends CamposProps<T> {
-    // The square spans the whole strip instead of the shared narrow width.
     completo?: boolean;
-    // One square per line of boxes, each line ending at a field with breakAfter.
     porLinea?: boolean;
 }
 
-// The gray strip above the table, with its boxes inside square outlines.
 export function CamposOutline<T extends string>({ fields, completo, porLinea, ...props }: CamposOutlineProps<T>) {
     return (
         <div className="stc-manual-fields">
@@ -41,7 +37,6 @@ export function CamposOutline<T extends string>({ fields, completo, porLinea, ..
     );
 }
 
-// The gray strip with one square around several rows of boxes (CamposFila).
 export function CamposStack({ children }: { children: ReactNode }) {
     return (
         <div className="stc-manual-fields">
@@ -51,9 +46,7 @@ export function CamposStack({ children }: { children: ReactNode }) {
 }
 
 interface CamposFilaProps<T extends string> extends CamposProps<T> {
-    // The Rol row under the main boxes.
     rol?: boolean;
-    // Keeps the row's space but hides its boxes.
     oculto?: boolean;
 }
 
