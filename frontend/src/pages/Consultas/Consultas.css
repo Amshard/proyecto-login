@@ -1,0 +1,208 @@
+.stc-consulta .stc-tab-panel,
+.stc-consulta .stc-manual-fields {
+  border: none;
+}
+
+.stc-consulta .stc-tab-panel {
+  flex-direction: column;
+  gap: 24px;
+}
+
+.stc-consulta-sets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 24px 200px;
+  width: 100%;
+}
+
+.stc-consulta-grupo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.stc-consulta-titulo {
+  margin: 0;
+  color: var(--stc-azul);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.stc-consulta-grupo-sets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px 60px;
+}
+
+.stc-consulta-set {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.stc-consulta-set .stc-field-input {
+  box-sizing: border-box;
+  height: 36px;
+  padding-inline: 8px;
+}
+
+.stc-consulta-chica {
+  width: 70px;
+  text-align: center;
+}
+
+.stc-consulta-mediana {
+  width: 180px;
+}
+
+.stc-table-frame:has(.stc-consulta-tabla) .stc-table-scroll {
+  height: auto;
+}
+
+.stc-consulta-tabla th:nth-child(n) {
+  width: 10%;
+}
+
+.stc-consulta-tabla td {
+  height: 40px;
+}
+
+.stc-consulta-historico {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: var(--stc-angosto);
+  margin-inline: auto;
+}
+
+.stc-consulta-tablas {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.stc-consulta-tablas > .stc-table-frame {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+}
+
+.stc-consulta-tablas > .stc-table-frame:has(.stc-consulta-lateral) {
+  flex: none;
+  width: 90px;
+}
+
+.stc-consulta-tabla :is(th, td) {
+  padding: 4px 6px;
+}
+
+.stc-consulta-periodos {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px 120px;
+  width: var(--stc-angosto);
+  min-inline-size: 0;
+  margin: 0 auto;
+  padding: 8px 24px 16px;
+  border: 1px solid var(--stc-borde-gris);
+}
+
+.stc-consulta-periodo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.stc-consulta-columna {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.stc-consulta-columna .stc-field-input {
+  box-sizing: border-box;
+  height: 36px;
+  padding-inline: 4px;
+  text-align: center;
+}
+
+.stc-consulta-anio {
+  margin-right: 28px;
+}
+
+.stc-consulta-anio:last-child {
+  margin: 0 0 0 28px;
+}
+
+.stc-consulta-anio .stc-field-input {
+  width: 70px;
+}
+
+.stc-consulta-pdo .stc-field-input {
+  width: 50px;
+}
+
+.stc-consulta-fecha .stc-field-input {
+  width: 150px;
+}
+
+.stc-consulta-dias .stc-field-input {
+  width: 56px;
+}
+
+.stc-table-calif {
+  width: max-content;
+  min-width: 100%;
+}
+
+.stc-table-calif th:nth-child(n) {
+  width: auto;
+  min-width: 64px;
+  text-align: center;
+}
+
+.stc-table-calif :is(th, td):nth-child(-n + 3) {
+  position: sticky;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+.stc-table-calif th:nth-child(-n + 3) {
+  z-index: 3;
+}
+
+.stc-table-calif :is(th, td):nth-child(1) {
+  left: 0;
+  width: 56px;
+  min-width: 56px;
+}
+
+.stc-table-calif :is(th, td):nth-child(2) {
+  left: 56px;
+  width: 72px;
+  min-width: 72px;
+}
+
+.stc-table-calif :is(th, td):nth-child(3) {
+  left: 128px;
+  width: 280px;
+  min-width: 280px;
+}
+
+.stc-table-frame:has(.stc-table-calif) {
+  min-inline-size: 0;
+  min-width: 0;
+}
+
+:is(.stc-content, .stc-content-square, .stc-tab-panel):has(.stc-table-calif) {
+  min-width: 0;
+}

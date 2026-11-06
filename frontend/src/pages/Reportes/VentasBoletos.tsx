@@ -41,7 +41,7 @@ export default function VentasBoletos() {
         <ReportePage
             tabLabel="VENTAS BOLETOS, RECARGAS Y TARJETAS"
             statusLabel="Reporte de Ventas de Boletos, Recargas y Tarjetas"
-            titulo="Ventas Boletos, Recargas y Tarjetas"
+            titulo="Reporte Acumulados Mensuales"
             onClear={limpiar}
             botones={[{ label: 'Sel. Lineas', onClick: () => setMarcadas(LINEAS) }]}
         >

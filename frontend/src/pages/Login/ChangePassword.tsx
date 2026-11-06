@@ -39,9 +39,11 @@ export default function ChangePassword() {
     return (
         <div className="stc-login-page">
             <PageHeader>
-                <button type="button" className="stc-btn stc-exit-btn" onClick={() => navigate('/login', { replace: true })}>
-                    Salir
-                </button>
+                <div className="stc-side-buttons">
+                    <button type="button" className="stc-btn stc-exit-btn" onClick={() => navigate('/login', { replace: true })}>
+                        Salir
+                    </button>
+                </div>
             </PageHeader>
 
             <div className="stc-body">

@@ -11,7 +11,6 @@ const SIN_ARCHIVO = 'No se seleccionó ningún archivo';
 export default function CargaIncidencias() {
     const [archivos, setArchivos] = useState<Record<string, File>>({});
     const [archivo, setArchivo] = useState('');
-    const [progress, setProgress] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const tipoRef = useRef('');
 
@@ -31,7 +30,6 @@ export default function CargaIncidencias() {
     const limpiar = () => {
         setArchivos({});
         setArchivo('');
-        setProgress(0);
     };
 
     return (
@@ -81,7 +79,7 @@ export default function CargaIncidencias() {
                         readOnly
                     />
                 </div>
-                <ProgressBar value={progress} />
+                <ProgressBar value={0} />
             </fieldset>
         </CatalogoLayout>
     );

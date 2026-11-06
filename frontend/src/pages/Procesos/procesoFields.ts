@@ -8,7 +8,21 @@ export const fixedField = <T extends string>(field: ManualFieldConfig<T>): Manua
     inputStyle: { ...field.inputStyle, width: field.inputStyle?.maxWidth },
 });
 
-export const digitWidth = (digitos: number) => ({ width: `calc(${digitos}ch + 26px)` });
+/** Raises a field's box to the 36px height of the text fields. */
+export const sameHeight = <T extends string>(field: ManualFieldConfig<T>): ManualFieldConfig<T> => ({
+    ...field,
+    inputStyle: { ...field.inputStyle, height: 36 },
+});
+
+export interface RolFechas {
+    rol: string;
+    fechas: string[];
+}
+
+export const rolesFechasVacios = (lineas: number): RolFechas[] =>
+    Array.from({ length: lineas }, () => ({ rol: '', fechas: ['', ''] }));
+
+export const digitWidth =(digitos: number) => ({ width: `calc(${digitos}ch + 26px)` });
 
 export const onlyDigits = (value: string) => value.replace(/\D/g, '');
 

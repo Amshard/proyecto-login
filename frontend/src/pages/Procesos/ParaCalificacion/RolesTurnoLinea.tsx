@@ -37,16 +37,12 @@ const EMPTY_ROLES = ROLES.map(() => ['', '']);
 
 export default function RolesTurnoLinea() {
     const [anio, setAnio] = useState(() => String(new Date().getFullYear()));
-    const [progress, setProgress] = useState(0);
     const [roles, setRoles] = useState(EMPTY_ROLES);
 
     const setRol = (line: number, box: number, value: string) =>
         setRoles((prev) => replaceAt(prev, line, replaceAt(prev[line], box, value)));
 
-    const limpia = () => {
-        setRoles(EMPTY_ROLES);
-        setProgress(0);
-    };
+    const limpia = () => setRoles(EMPTY_ROLES);
 
     return (
         <CatalogoLayout
@@ -88,7 +84,7 @@ export default function RolesTurnoLinea() {
                     </div>
                     <div className="stc-roles-table">
                         <DataTable title="Roles disponibles en el historico" className="stc-table-fit" rowHeader columns={COLUMNS} rows={NO_ROWS} />
-                        <ProgressBar value={progress} />
+                        <ProgressBar value={0} />
                     </div>
                 </div>
             </fieldset>

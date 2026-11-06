@@ -27,6 +27,8 @@ import TotalesRolVigente from './pages/Reportes/TotalesRolVigente';
 import VentasBoletos from './pages/Reportes/VentasBoletos';
 import RolTaquilla from './pages/Reportes/RolTaquilla';
 import ConcentradoAsistencia from './pages/Reportes/ConcentradoAsistencia';
+import ConsultaCalificaciones from './pages/Consultas/ConsultaCalificaciones';
+import UbicacionExpediente from './pages/Consultas/UbicacionExpediente';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
 import SectionPage from './pages/SectionPage';
@@ -59,6 +61,8 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/reportes/concentrado-para-asistencia', <ConcentradoAsistencia />],
   ['/reportes/totales-del-rol-vigente-por-permanencia-y-periodos', <TotalesRolVigente />],
   ['/reportes/ventas-boletos-recargas-y-tarjetas', <VentasBoletos />],
+  ['/consultas/ubicacion-por-expediente', <UbicacionExpediente />],
+  ['/consultas/calificaciones', <ConsultaCalificaciones />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];

@@ -104,6 +104,24 @@
   width: var(--stc-angosto);
 }
 
+/* A titled outline: the fieldset draws the gray border, so its lines drop theirs. */
+.stc-campos-titulado {
+  box-sizing: border-box;
+  width: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0 0 4px;
+  border: 1px solid var(--stc-borde-gris);
+}
+
+.stc-campos-titulado.stc-campos-narrow {
+  width: var(--stc-angosto);
+}
+
+.stc-campos-titulado > .stc-campos-outline {
+  border: none;
+}
+
 /* An outline around several rows of boxes, each row keeping its own layout without its strip's border. */
 .stc-campos-stack {
   flex-direction: column;

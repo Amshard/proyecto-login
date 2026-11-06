@@ -2,14 +2,11 @@ import { useState } from 'react';
 import { ManualFields, type ManualFieldConfig } from '../../components/ManualField';
 import { codeField, textField } from '../Catalogos/useCatalogo';
 import { RadioOption } from '../Procesos/ProcesoControls';
-import { fixedField } from '../Procesos/procesoFields';
+import { fixedField, sameHeight } from '../Procesos/procesoFields';
 import ProgressBar from '../Procesos/ProgressBar';
 import ReportePage from './ReportePage';
 
-const campo = <T extends string>(field: ManualFieldConfig<T>): ManualFieldConfig<T> => {
-    const fixed = fixedField(field);
-    return { ...fixed, inputStyle: { ...fixed.inputStyle, height: 36 } };
-};
+const campo = <T extends string>(field: ManualFieldConfig<T>) => sameHeight(fixedField(field));
 
 const FIELDS = [
     campo(codeField('anio', 'Año', 4, { width: 40, numeric: true })),

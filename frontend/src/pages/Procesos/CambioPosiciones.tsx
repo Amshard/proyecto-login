@@ -182,22 +182,22 @@ export default function CambioPosiciones() {
                 },
             ]}
             fields={
-                <div className="stc-manual-fields stc-posiciones-fields">
+                <div className="stc-manual-fields stc-proceso-columnas">
                     {field(EXPEDIENTE_FIELD)}
-                    <div className="stc-posiciones-row stc-posiciones-middle">
+                    <div className="stc-proceso-fila stc-posiciones-middle">
                         {field(POSICION_FIELD)}
                         {field(TRAMO_FIELD)}
                         <div className="stc-posiciones-group">
                             {field(DETALLE_FIELD)}
-                            <div className="stc-posiciones-row">{MIDDLE_SUB_FIELDS.map(field)}</div>
+                            <div className="stc-proceso-fila">{MIDDLE_SUB_FIELDS.map(field)}</div>
                         </div>
                     </div>
                     <div className="stc-posiciones-group">
-                        <div className="stc-posiciones-row">
+                        <div className="stc-proceso-fila">
                             {field(FALTAS_FIELD)}
                             {field(TAQUILLA_FIELD)}
                         </div>
-                        <div className="stc-posiciones-row">{RIGHT_SUB_FIELDS.map(field)}</div>
+                        <div className="stc-proceso-fila">{RIGHT_SUB_FIELDS.map(field)}</div>
                     </div>
                 </div>
             }

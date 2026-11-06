@@ -393,15 +393,6 @@ body:has(.stc-login-page) #root {
 
 /* ---- Shared by the Catálogos, Procesos and Reportes pages: side buttons, tabs, boxes, tables ---- */
 
-.stc-report-ops-btn {
-  padding: 7px 10px;
-  font-size: 13px;
-  white-space: normal;
-  text-align: center;
-  line-height: 1.2;
-  width: 100px;
-}
-
 /* The page's side buttons: they start where Limpiar sits and each next one stacks below. */
 .stc-side-buttons {
   position: absolute;
@@ -414,14 +405,17 @@ body:has(.stc-login-page) #root {
   gap: 22px;
 }
 
-.stc-side-buttons > .stc-exit-btn {
+/* Every side button has one width; its height grows with its text. */
+.stc-side-buttons > .stc-btn {
   position: static;
   transform: none;
-}
-
-.stc-side-buttons > .stc-carga-btn,
-.stc-side-buttons > .stc-rol-btn {
-  margin-left: 8px;
+  box-sizing: border-box;
+  width: 100px;
+  padding: 7px 6px;
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: normal;
+  text-align: center;
 }
 
 .stc-search-overlay {
@@ -916,6 +910,48 @@ body:has(.stc-login-page) #root {
 .stc-calendario-nav,
 .stc-calendario-dia {
   font-family: var(--stc-fuente);
+  cursor: pointer;
+}
+
+.stc-calendario-lista {
+  height: 28px;
+  padding: 0 4px;
+  font-family: var(--stc-fuente);
+  font-size: 14px;
+  font-weight: 700;
+  color: inherit;
+  background: white;
+  border: 1px solid var(--stc-borde-gris);
+  cursor: pointer;
+}
+
+.stc-calendario-anio {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.stc-calendario-anio > .stc-calendario-lista {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+}
+
+.stc-calendario-flechas {
+  display: flex;
+  flex-direction: column;
+}
+
+.stc-calendario-flechas > button {
+  width: 20px;
+  height: 14px;
+  padding: 0;
+  font-size: 8px;
+  line-height: 1;
+  color: inherit;
+  background: var(--stc-gris-claro);
+  border: 1px solid var(--stc-borde-gris);
   cursor: pointer;
 }
 

@@ -6,7 +6,9 @@ const DIAS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 const iso = (date: Date) =>
     [date.getFullYear(), date.getMonth() + 1, date.getDate()].map((n) => String(n).padStart(2, '0')).join('-');
 
-const primeroDelMes = (fecha: string) => {
+const ddmmyyyy = (fecha: string) => fecha.split('-').reverse().join('/');
+
+const primeroDelMes =(fecha: string) => {
     const date = fecha ? new Date(`${fecha}T00:00`) : new Date();
     return new Date(date.getFullYear(), date.getMonth(), 1);
 };
@@ -34,8 +36,28 @@ export default function Calendario({ titulo, value, onChange, min }: CalendarioP
                 <button type="button" className="stc-calendario-nav" aria-label="Mes anterior" onClick={() => mover(-1)}>
                     ‹
                 </button>
-                <span>
-                    {MESES[month]} {year}
+                <select
+                    className="stc-calendario-lista"
+                    aria-label="Mes"
+                    value={month}
+                    onChange={(e) => setMes(new Date(year, Number(e.target.value), 1))}
+                >
+                    {MESES.map((nombre, i) => (
+                        <option key={nombre} value={i}>
+                            {nombre}
+                        </option>
+                    ))}
+                </select>
+                <span className="stc-calendario-anio">
+                    <span className="stc-calendario-lista">{year}</span>
+                    <span className="stc-calendario-flechas">
+                        <button type="button" aria-label="Año siguiente" onClick={() => mover(12)}>
+                            ▲
+                        </button>
+                        <button type="button" aria-label="Año anterior" onClick={() => mover(-12)}>
+                            ▼
+                        </button>
+                    </span>
                 </span>
                 <button type="button" className="stc-calendario-nav" aria-label="Mes siguiente" onClick={() => mover(1)}>
                     ›
@@ -71,7 +93,7 @@ export default function Calendario({ titulo, value, onChange, min }: CalendarioP
                     );
                 })}
             </div>
-            <div className="stc-calendario-fecha">{value ? value.split('-').reverse().join('/') : 'Sin fecha'}</div>
+            <div className="stc-calendario-fecha">{value ? ddmmyyyy(value) : `Hoy: ${ddmmyyyy(hoy)}`}</div>
         </fieldset>
     );
 }

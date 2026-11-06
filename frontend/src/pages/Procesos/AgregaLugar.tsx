@@ -52,12 +52,12 @@ export default function AgregaLugar() {
             }
             fields={
                 <div className="stc-manual-fields">
-                    <div className="stc-campos-outline stc-agrega-fields">
+                    <div className="stc-campos-outline stc-proceso-columnas">
                         <div className="stc-agrega-busqueda">
                             <p className="stc-agrega-instruccion">Teclee un Expediente para buscar la Linea, Tramo y Turno</p>
-                            <ManualFields className="stc-agrega-row" fields={BUSQUEDA_FIELDS} form={form} onChange={setField} />
+                            <ManualFields className="stc-proceso-fila" fields={BUSQUEDA_FIELDS} form={form} onChange={setField} />
                         </div>
-                        <ManualFields className="stc-agrega-row" fields={DERECHA_FIELDS} form={form} onChange={setField} />
+                        <ManualFields className="stc-proceso-fila" fields={DERECHA_FIELDS} form={form} onChange={setField} />
                     </div>
                 </div>
             }

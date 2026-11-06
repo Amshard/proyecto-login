@@ -20,19 +20,31 @@ interface CamposProps<T extends string> {
 interface CamposOutlineProps<T extends string> extends CamposProps<T> {
     completo?: boolean;
     porLinea?: boolean;
+    /** Title on the outline's top border; the outline then becomes a fieldset around every line. */
+    titulo?: string;
 }
 
-export function CamposOutline<T extends string>({ fields, completo, porLinea, ...props }: CamposOutlineProps<T>) {
+export function CamposOutline<T extends string>({ fields, completo, porLinea, titulo, ...props }: CamposOutlineProps<T>) {
+    const angosto = completo ? '' : ' stc-campos-narrow';
+    const lineas = (porLinea ? fieldLines(fields) : [fields]).map((linea) => (
+        <ManualFields
+            key={linea[0].key}
+            {...props}
+            className={`stc-campos-outline${titulo ? '' : angosto}`}
+            fields={linea.map(conAlto)}
+        />
+    ));
+
     return (
         <div className="stc-manual-fields">
-            {(porLinea ? fieldLines(fields) : [fields]).map((linea) => (
-                <ManualFields
-                    key={linea[0].key}
-                    {...props}
-                    className={`stc-campos-outline${completo ? '' : ' stc-campos-narrow'}`}
-                    fields={linea.map(conAlto)}
-                />
-            ))}
+            {titulo ? (
+                <fieldset className={`stc-campos-titulado${angosto}`}>
+                    <legend className="stc-report-options-title">{titulo}</legend>
+                    {lineas}
+                </fieldset>
+            ) : (
+                lineas
+            )}
         </div>
     );
 }

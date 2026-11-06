@@ -1,5 +1,6 @@
-import type { InputHTMLAttributes, Ref } from 'react';
-import { digitWidth, onlyDigits } from './procesoFields';
+import type { InputHTMLAttributes } from 'react';
+import { digitWidth, onlyDigits, replaceAt, type RolFechas } from './procesoFields';
+import ProgressBar from './ProgressBar';
 
 interface SideButton {
     label: string;
@@ -14,7 +15,7 @@ export function SideButtons({ buttons }: { buttons: SideButton[] }) {
                 <button
                     key={label}
                     type="button"
-                    className={`stc-btn stc-exit-btn stc-carga-btn${className ? ` ${className}` : ''}`}
+                    className={`stc-btn stc-exit-btn${className ? ` ${className}` : ''}`}
                     onClick={onClick}
                 >
                     {label}
@@ -28,14 +29,13 @@ interface RadioOptionProps {
     label: string;
     checked: boolean;
     onCheck: () => void;
-    inputRef?: Ref<HTMLInputElement>;
     disabled?: boolean;
 }
 
-export function RadioOption({ label, checked, onCheck, inputRef, disabled }: RadioOptionProps) {
+export function RadioOption({ label, checked, onCheck, disabled }: RadioOptionProps) {
     return (
         <label className={`stc-report-option stc-proceso-radio${disabled ? ' stc-radio-bloqueado' : ''}`}>
-            <input ref={inputRef} type="radio" checked={checked} onChange={onCheck} disabled={disabled} />
+            <input type="radio" checked={checked} onChange={onCheck} disabled={disabled} />
             {label}
         </label>
     );
@@ -76,7 +76,7 @@ export function DigitInput({ label, digitos, value, onChange, fit = true, classN
     return (
         <input
             {...rest}
-            className={`stc-field-input${className ? ` ${className}` : ''}`}
+            className={`stc-field-input stc-digit-input${className ? ` ${className}` : ''}`}
             aria-label={label}
             inputMode="numeric"
             maxLength={digitos}
@@ -84,5 +84,65 @@ export function DigitInput({ label, digitos, value, onChange, fit = true, classN
             value={value}
             onChange={(e) => onChange(onlyDigits(e.target.value))}
         />
+    );
+}
+
+interface RolesFechasProps {
+    fechasTitulo: string;
+    lineas: RolFechas[];
+    onChange: (lineas: RolFechas[]) => void;
+    juntos?: boolean;
+}
+
+/** Gray square with a Rol box and two dates per line, followed by the progress bar. */
+export function RolesFechas({ fechasTitulo, lineas, onChange, juntos }: RolesFechasProps) {
+    const cambiar = (linea: number, cambio: Partial<RolFechas>) =>
+        onChange(replaceAt(lineas, linea, { ...lineas[linea], ...cambio }));
+
+    const columnas = (
+        <>
+            <div className="stc-manual-field stc-rango-set">
+                <span className="stc-field-label">Rol</span>
+                <div className="stc-rango-columna">
+                    {lineas.map(({ rol }, linea) => (
+                        <DigitInput
+                            key={linea}
+                            label={`Rol ${linea + 1}`}
+                            digitos={1}
+                            value={rol}
+                            onChange={(value) => cambiar(linea, { rol: value })}
+                        />
+                    ))}
+                </div>
+            </div>
+            <div className="stc-manual-field stc-rango-set">
+                <span className="stc-field-label">{fechasTitulo}</span>
+                <div className="stc-rango-columna">
+                    {lineas.map(({ fechas }, linea) => (
+                        <div key={linea} className="stc-rango-cajas">
+                            {fechas.map((fecha, caja) => (
+                                <input
+                                    key={caja}
+                                    type="date"
+                                    className="stc-field-input stc-rango-fecha"
+                                    aria-label={`Fecha ${caja + 1} del Rol ${linea + 1}`}
+                                    value={fecha}
+                                    onChange={(e) => cambiar(linea, { fechas: replaceAt(fechas, caja, e.target.value) })}
+                                />
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </>
+    );
+
+    return (
+        <div className="stc-manual-fields stc-rango-lineas">
+            <div className="stc-rango-outline">
+                {juntos ? <div className="stc-rango-par">{columnas}</div> : columnas}
+                <ProgressBar value={0} />
+            </div>
+        </div>
     );
 }

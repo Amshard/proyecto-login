@@ -3,9 +3,8 @@ import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
 import { codeField } from '../Catalogos/useCatalogo';
-import { DigitInput, RadioOptions, SideButtons } from './ProcesoControls';
-import { NO_ROWS, fixedField, headersOnly, replaceAt, useForm } from './procesoFields';
-import ProgressBar from './ProgressBar';
+import { DigitInput, RadioOptions, RolesFechas, SideButtons } from './ProcesoControls';
+import { NO_ROWS, fixedField, headersOnly, replaceAt, rolesFechasVacios, useForm } from './procesoFields';
 import './Procesos.css';
 
 const RANGO_FIELDS = [
@@ -17,8 +16,7 @@ const EMPTY_PARES = [1, 2, 3, 4].map(() => ({ rol: '', anio: '' }));
 
 const OPCIONES = ['Concentrado', 'Detallado x Expediente'];
 
-const EMPTY_ROLES = ['', '', '', ''];
-const EMPTY_FECHAS = EMPTY_ROLES.map(() => ['', '']);
+const EMPTY_LINEAS = rolesFechasVacios(4);
 
 const HEADERS = ['Reg', 'Exp', 'Nombre', 'Lin', 'Tur', 'Lin', 'Tur', 'Lin', 'Tur', 'Lin', 'Tur', 'Lineas', 'Turnos'];
 const BASE_COLUMNS = headersOnly(HEADERS);
@@ -30,9 +28,7 @@ export default function ConcentradoLineas() {
     const [rango, setRangoField, resetRango] = useForm(RANGO_FIELDS);
     const [pares, setPares] = useState(EMPTY_PARES);
     const [opcion, setOpcion] = useState('');
-    const [roles, setRoles] = useState(EMPTY_ROLES);
-    const [fechas, setFechas] = useState(EMPTY_FECHAS);
-    const [progress, setProgress] = useState(0);
+    const [lineas, setLineas] = useState(EMPTY_LINEAS);
     const [turRoles, setTurRoles] = useState(EMPTY_TUR_ROLES);
 
     const columns = useMemo(
@@ -61,17 +57,13 @@ export default function ConcentradoLineas() {
 
     const setPar = (index: number, key: 'rol' | 'anio', value: string) =>
         setPares((prev) => replaceAt(prev, index, { ...prev[index], [key]: value }));
-    const setFecha = (linea: number, caja: number, fecha: string) =>
-        setFechas((prev) => replaceAt(prev, linea, replaceAt(prev[linea], caja, fecha)));
 
     const limpiar = () => {
         resetRango();
         setPares(EMPTY_PARES);
         setOpcion('');
-        setRoles(EMPTY_ROLES);
-        setFechas(EMPTY_FECHAS);
+        setLineas(EMPTY_LINEAS);
         setTurRoles(EMPTY_TUR_ROLES);
-        setProgress(0);
     };
 
     return (
@@ -103,44 +95,7 @@ export default function ConcentradoLineas() {
                             <RadioOptions options={OPCIONES} value={opcion} onChange={setOpcion} />
                         </div>
                     </div>
-                    <div className="stc-manual-fields stc-rango-lineas stc-rango-sin-division">
-                        <div className="stc-rango-outline">
-                        <div className="stc-manual-field stc-rango-set">
-                            <span className="stc-field-label">Rol</span>
-                            <div className="stc-rango-columna">
-                                {roles.map((rol, i) => (
-                                    <DigitInput
-                                        key={i}
-                                        label={`Rol ${i + 1}`}
-                                        digitos={1}
-                                        value={rol}
-                                        onChange={(v) => setRoles((prev) => replaceAt(prev, i, v))}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                        <div className="stc-manual-field stc-rango-set">
-                            <span className="stc-field-label">Fechas Seleccionadas</span>
-                            <div className="stc-rango-columna">
-                                {fechas.map((par, linea) => (
-                                    <div key={linea} className="stc-rango-cajas">
-                                        {par.map((fecha, caja) => (
-                                            <input
-                                                key={caja}
-                                                type="date"
-                                                className="stc-field-input stc-rango-fecha"
-                                                aria-label={`Fecha ${caja + 1} del Rol ${linea + 1}`}
-                                                value={fecha}
-                                                onChange={(e) => setFecha(linea, caja, e.target.value)}
-                                            />
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <ProgressBar value={progress} />
-                        </div>
-                    </div>
+                    <RolesFechas fechasTitulo="Fechas Seleccionadas" lineas={lineas} onChange={setLineas} />
                 </>
             }
         >

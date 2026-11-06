@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
+import { SideButtons } from '../ProcesoControls';
 import ProgressBar from '../ProgressBar';
 import '../Procesos.css';
-import { useAlignButton } from '../useAlignButton';
 
 const hoy = () => {
     const d = new Date();
@@ -11,8 +11,6 @@ const hoy = () => {
 
 export default function Califica() {
     const [fecha, setFecha] = useState(hoy);
-    const [progress] = useState(0);
-    const { targetRef, buttonRef } = useAlignButton(true);
 
     return (
         <CatalogoLayout
@@ -21,18 +19,13 @@ export default function Califica() {
             pageClassName="stc-para-calificacion"
             statusLabel="Califica Expedientes"
             count={0}
-            actions={
-                <button ref={buttonRef} type="button" className="stc-btn stc-exit-btn stc-rol-btn">
-                    Califica
-                </button>
-            }
+            actions={<SideButtons buttons={[{ label: 'Califica' }]} />}
         >
             <fieldset className="stc-report-options stc-rol-options stc-rol-options-wide">
                 <legend className="stc-report-options-title">La calificación es sólo valida al inicio de cada Rol.</legend>
                 <fieldset className="stc-califica-fecha">
                     <legend className="stc-report-options-title">Fecha al cambio de Rol</legend>
                     <input
-                        ref={targetRef}
                         type="date"
                         className="stc-field-input"
                         aria-label="Fecha al cambio de Rol"
@@ -40,7 +33,7 @@ export default function Califica() {
                         onChange={(e) => setFecha(e.target.value)}
                     />
                 </fieldset>
-                <ProgressBar value={progress} />
+                <ProgressBar value={0} />
             </fieldset>
         </CatalogoLayout>
     );

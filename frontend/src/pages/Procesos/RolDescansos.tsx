@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import CatalogoLayout from '../../components/CatalogoLayout';
+import { SideButtons } from './ProcesoControls';
 import ProcesoOption from './ProcesoOption';
 import ProgressBar from './ProgressBar';
 import './Procesos.css';
-import { useAlignButton } from './useAlignButton';
 
 const PREPARA = 'Prepara el Proximo ROL';
 const REGRESA = 'Regresa al ROL Anterior';
 
 export default function RolDescansos() {
     const [option, setOption] = useState('');
-    const [progress] = useState(0);
     const showRol = option === PREPARA;
-    const { targetRef, buttonRef } = useAlignButton(showRol);
 
     return (
         <CatalogoLayout
@@ -34,22 +32,15 @@ export default function RolDescansos() {
                     ),
                 },
             ]}
-            actions={
-                showRol && (
-                    <button ref={buttonRef} type="button" className="stc-btn stc-exit-btn stc-rol-btn">
-                        Rol
-                    </button>
-                )
-            }
+            actions={showRol && <SideButtons buttons={[{ label: 'Rol' }]} />}
         >
             <ProcesoOption
                 title="Rola el personal de Taquilla"
                 label={PREPARA}
                 checked={showRol}
                 onCheck={() => setOption(PREPARA)}
-                inputRef={targetRef}
             />
-            <ProgressBar value={progress} />
+            <ProgressBar value={0} />
         </CatalogoLayout>
     );
 }

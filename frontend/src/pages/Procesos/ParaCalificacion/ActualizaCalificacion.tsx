@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
 import DataTable from '../../../components/DataTable';
-import { DigitInput, SideButtons } from '../ProcesoControls';
-import { NO_ROWS, headersOnly, replaceAt, useForm } from '../procesoFields';
-import ProgressBar from '../ProgressBar';
+import { DigitInput, RolesFechas, SideButtons } from '../ProcesoControls';
+import { NO_ROWS, headersOnly, rolesFechasVacios, useForm } from '../procesoFields';
 import '../Procesos.css';
 
 const COLUMNS = headersOnly(['Reg', 'Exp', 'Nombre', 'Lin', 'Tur', 'Lin', 'Tur', 'Tot-Lin', 'Tot-Tur']);
@@ -35,21 +34,15 @@ const RANGOS: { titulo: string; cajas: { key: RangoKey; label: string; digitos: 
 ];
 const CAJAS = RANGOS.flatMap(({ cajas }) => cajas);
 
-const EMPTY_LINEAS = [0, 1].map(() => ({ rol: '', fechas: ['', ''] }));
+const EMPTY_LINEAS = rolesFechasVacios(2);
 
 export default function ActualizaCalificacion() {
     const [rango, setRango, resetRango] = useForm(CAJAS);
     const [lineas, setLineas] = useState(EMPTY_LINEAS);
-    const [progress, setProgress] = useState(0);
-
-    const setRol = (linea: number, rol: string) => setLineas((prev) => replaceAt(prev, linea, { ...prev[linea], rol }));
-    const setFecha = (linea: number, caja: number, fecha: string) =>
-        setLineas((prev) => replaceAt(prev, linea, { ...prev[linea], fechas: replaceAt(prev[linea].fechas, caja, fecha) }));
 
     const limpiar = () => {
         resetRango();
         setLineas(EMPTY_LINEAS);
-        setProgress(0);
     };
 
     return (
@@ -88,46 +81,7 @@ export default function ActualizaCalificacion() {
                             </div>
                         ))}
                     </div>
-                    <div className="stc-manual-fields stc-rango-lineas stc-rango-sin-division">
-                        <div className="stc-rango-outline">
-                        <div className="stc-rango-par">
-                            <div className="stc-manual-field stc-rango-set">
-                                <span className="stc-field-label">Rol</span>
-                                <div className="stc-rango-columna">
-                                    {lineas.map(({ rol }, linea) => (
-                                        <DigitInput
-                                            key={linea}
-                                            label={`Rol ${linea + 1}`}
-                                            digitos={1}
-                                            value={rol}
-                                            onChange={(value) => setRol(linea, value)}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="stc-manual-field stc-rango-set">
-                                <span className="stc-field-label">Fechas</span>
-                                <div className="stc-rango-columna">
-                                    {lineas.map(({ fechas }, linea) => (
-                                        <div key={linea} className="stc-rango-cajas">
-                                            {fechas.map((fecha, caja) => (
-                                                <input
-                                                    key={caja}
-                                                    type="date"
-                                                    className="stc-field-input stc-rango-fecha"
-                                                    aria-label={`Fecha ${caja + 1} del Rol ${linea + 1}`}
-                                                    value={fecha}
-                                                    onChange={(e) => setFecha(linea, caja, e.target.value)}
-                                                />
-                                            ))}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <ProgressBar value={progress} />
-                        </div>
-                    </div>
+                    <RolesFechas fechasTitulo="Fechas" lineas={lineas} onChange={setLineas} juntos />
                 </>
             }
         >

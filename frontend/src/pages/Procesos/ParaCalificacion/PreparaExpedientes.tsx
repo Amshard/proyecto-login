@@ -1,16 +1,12 @@
 import { useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
+import { SideButtons } from '../ProcesoControls';
 import ProcesoOption from '../ProcesoOption';
 import ProgressBar from '../ProgressBar';
 import '../Procesos.css';
-import { useAlignButton } from '../useAlignButton';
-
-const PREPARA = 'Prepara Expedientes';
 
 export default function PreparaExpedientes() {
     const [checked, setChecked] = useState(false);
-    const [progress] = useState(0);
-    const { targetRef, buttonRef } = useAlignButton(checked);
 
     return (
         <CatalogoLayout
@@ -19,22 +15,10 @@ export default function PreparaExpedientes() {
             pageClassName="stc-para-calificacion"
             statusLabel="Prepara Expedientes"
             count={0}
-            actions={
-                checked && (
-                    <button ref={buttonRef} type="button" className="stc-btn stc-exit-btn stc-rol-btn">
-                        Prepara
-                    </button>
-                )
-            }
+            actions={checked && <SideButtons buttons={[{ label: 'Prepara' }]} />}
         >
-            <ProcesoOption
-                wide
-                label={PREPARA}
-                checked={checked}
-                onCheck={() => setChecked(true)}
-                inputRef={targetRef}
-            >
-                <ProgressBar value={progress} />
+            <ProcesoOption wide label="Prepara Expedientes" checked={checked} onCheck={() => setChecked(true)}>
+                <ProgressBar value={0} />
             </ProcesoOption>
         </CatalogoLayout>
     );

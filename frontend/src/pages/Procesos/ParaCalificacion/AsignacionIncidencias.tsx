@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
 import { RadioOptions, SideButtons } from '../ProcesoControls';
+import { replaceAt } from '../procesoFields';
 import '../Procesos.css';
 
 const CONFIRMA =
@@ -9,10 +10,7 @@ const CONFIRMA =
     '¿Quiere continuar?';
 
 const INCIDENCIAS = ['Faltante de Efectivo y Frecuencia', 'Faltas y Retardos', 'Sanciones'];
-const SETS = [
-    { titulo: 'Asignación', options: INCIDENCIAS },
-    { titulo: 'Reportes', options: INCIDENCIAS },
-];
+const SETS = ['Asignación', 'Reportes'];
 
 export default function AsignacionIncidencias() {
     const [confirmado, setConfirmado] = useState(false);
@@ -37,13 +35,13 @@ export default function AsignacionIncidencias() {
             {confirmado && (
                 <div className="stc-asignacion-sets stc-asignacion-outline">
                     <h2 className="stc-asignacion-titulo">Incidencias</h2>
-                    {SETS.map(({ titulo, options }, i) => (
+                    {SETS.map((titulo, i) => (
                         <fieldset key={titulo} className="stc-report-options stc-asignacion-set">
                             <legend className="stc-report-options-title">{titulo}</legend>
                             <RadioOptions
-                                options={options}
+                                options={INCIDENCIAS}
                                 value={opciones[i]}
-                                onChange={(value) => setOpciones((prev) => prev.map((v, j) => (j === i ? value : v)))}
+                                onChange={(value) => setOpciones((prev) => replaceAt(prev, i, value))}
                             />
                         </fieldset>
                     ))}
