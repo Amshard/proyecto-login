@@ -1,0 +1,109 @@
+.stc-vacaciones-campos {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: 0 32px;
+}
+
+.stc-vacaciones-campos .stc-manual-field {
+  height: auto;
+}
+
+.stc-vacaciones-campos .stc-field-label {
+  width: 100px;
+}
+
+.stc-vacaciones-outline {
+  align-items: center;
+  gap: 24px;
+  padding: 24px 16px;
+}
+
+.stc-captura-outline {
+  flex: none;
+  align-self: flex-start;
+  width: 100%;
+  margin-inline: auto;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 16px;
+}
+
+.stc-captura-fila {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px 40px;
+}
+
+.stc-captura-ancho {
+  box-sizing: border-box;
+  width: min(768px, 100%);
+  height: 36px;
+  padding-inline: 8px;
+}
+
+.stc-captura-columna {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+}
+
+.stc-table-frame:has(.stc-captura-tabla) {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.stc-captura-tabla th:nth-child(n) {
+  width: auto;
+}
+
+.stc-solicitud-fila {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.stc-solicitud-fila .stc-manual-field {
+  height: auto;
+}
+
+.stc-solicitud-nombre {
+  box-sizing: border-box;
+  width: 400px;
+  height: 36px;
+  padding-inline: 8px;
+}
+
+.stc-solicitud-opciones {
+  display: grid;
+  grid-template-columns: auto repeat(3, 120px);
+  align-items: center;
+  gap: 8px 24px;
+}
+
+.stc-solicitud-opcion {
+  text-align: center;
+}
+
+.stc-solicitud-opciones .stc-field-label {
+  font-size: 14px;
+}
+
+.stc-solicitud-periodo {
+  white-space: nowrap;
+}
+
+.stc-solicitud-opciones .stc-field-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  padding-inline: 8px;
+  text-align: center;
+}
+
+.stc-table-frame:has(.stc-captura-tabla) .stc-table-frame-title {
+  font-style: italic;
+}

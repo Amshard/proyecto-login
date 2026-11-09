@@ -29,6 +29,10 @@ import RolTaquilla from './pages/Reportes/RolTaquilla';
 import ConcentradoAsistencia from './pages/Reportes/ConcentradoAsistencia';
 import ConsultaCalificaciones from './pages/Consultas/ConsultaCalificaciones';
 import UbicacionExpediente from './pages/Consultas/UbicacionExpediente';
+import PeriodosVacacionales from './pages/Consultas/PeriodosVacacionales';
+import CapturaPeriodos from './pages/Vacaciones/CapturaPeriodos';
+import CapturaSolicitudes from './pages/Vacaciones/CapturaSolicitudes';
+import InicioAnualVacaciones from './pages/Vacaciones/InicioAnualVacaciones';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
 import SectionPage from './pages/SectionPage';
@@ -63,6 +67,10 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/reportes/ventas-boletos-recargas-y-tarjetas', <VentasBoletos />],
   ['/consultas/ubicacion-por-expediente', <UbicacionExpediente />],
   ['/consultas/calificaciones', <ConsultaCalificaciones />],
+  ['/consultas/periodos-vacacionales-por-expediente', <PeriodosVacacionales />],
+  ['/vacaciones/inicio-anual-de-vacaciones', <InicioAnualVacaciones />],
+  ['/vacaciones/captura-periodos-vacacionales', <CapturaPeriodos />],
+  ['/vacaciones/captura-de-solicitudes', <CapturaSolicitudes />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];

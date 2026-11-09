@@ -66,15 +66,13 @@ p {
   margin: 0;
 }
 
-/* ---- Header, buttons, menu and status bar ---- */
-
 .stc-header {
   display: flex;
   align-items: center;
-  background: var(--accent);
+  background: #ff8737;
   padding: 25px 24px;
-  border-bottom: 3px solid var(--accent);
   position: relative;
+  z-index: 5;
 }
 
 .stc-header-accent {
@@ -139,7 +137,7 @@ p {
 .stc-navbar {
   position: fixed;
   display: flex;
-  background: rgb(224, 124, 66);
+  background: var(--accent);
   padding: 1px 8px;
   gap: 6px;
   width: 100%;

@@ -25,6 +25,8 @@ interface CatalogoLayoutProps<R> {
     countOnAllTabs?: boolean;
     // Shown in an "Año" box to the left of Registros.
     anio?: number;
+    // Read-only boxes shown to the left of Año and Registros, in the order given.
+    contadores?: { label: string; value: ReactNode }[];
     reportButton?: string;
     onReportButton?: () => void;
     reportActions?: ReactNode;
@@ -70,6 +72,7 @@ export default function CatalogoLayout<R>({
     actionsOnAllTabs,
     countOnAllTabs,
     anio,
+    contadores = [],
     reportButton,
     onReportButton,
     reportActions,
@@ -152,6 +155,12 @@ export default function CatalogoLayout<R>({
                 {headerText}
                 {count !== undefined && (isCatalogo || countOnAllTabs) && (
                     <div className="stc-header-registros stc-header-contadores">
+                        {contadores.map(({ label, value }) => (
+                            <div key={label} className="stc-registros-row">
+                                <span className="stc-registros-label">{label}</span>
+                                <div className="stc-registros-box">{value}</div>
+                            </div>
+                        ))}
                         {anio !== undefined && (
                             <div className="stc-registros-row">
                                 <span className="stc-registros-label">Año</span>

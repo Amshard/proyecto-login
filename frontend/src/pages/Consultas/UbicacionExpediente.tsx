@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import CatalogoLayout from '../../components/CatalogoLayout';
-import DataTable, { type Column } from '../../components/DataTable';
+import DataTable from '../../components/DataTable';
 import { CamposOutline } from '../Catalogos/CatalogoCampos';
 import { codeField, dateField, textField } from '../Catalogos/useCatalogo';
-import { onlyDigits, replaceAt, useForm } from '../Procesos/procesoFields';
+import { headersOnly, onlyDigits, replaceAt, useForm } from '../Procesos/procesoFields';
 import './Consultas.css';
 
 const FIELDS = [
@@ -16,12 +16,10 @@ const FIELDS = [
 const CAJAS = ['stc-consulta-chica', 'stc-consulta-mediana', 'stc-consulta-mediana'];
 const SETS_VACIOS = [1, 2, 3, 4].map(() => CAJAS.map(() => ''));
 
-const columnasVacias = (headers: string[]): Column<number>[] => headers.map((header) => ({ header, cell: () => null, center: true }));
-
-const TABLA_COLUMNAS = columnasVacias(['Linea', 'Tramo', 'Pem', 'Taquilla', 'Tur', 'Categoria', 'Lugar', 'Descanso', 'Faltas', 'Calificacion']);
+const TABLA_COLUMNAS = headersOnly<number>(['Linea', 'Tramo', 'Pem', 'Taquilla', 'Tur', 'Categoria', 'Lugar', 'Descanso', 'Faltas', 'Calificacion']);
 const TABLA_FILAS = Array.from({ length: 4 }, (_, i) => i);
 
-const LATERAL_COLUMNAS = columnasVacias(['ROL']);
+const LATERAL_COLUMNAS = headersOnly<number>(['ROL']);
 
 const GRUPOS = [
     { titulo: 'ROL VIGENTE', desde: 0, hasta: 1 },

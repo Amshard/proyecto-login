@@ -7,13 +7,16 @@ interface PageHeaderProps {
 
 export default function PageHeader({ children, onKeyDown }: PageHeaderProps) {
     return (
-        <header className="stc-header" onKeyDown={onKeyDown}>
-            {children}
+        <>
+            {/* Outside the header, so the header can stack above it. */}
             <div className="stc-header-accent" />
-            <div className="stc-header-text">
-                COORDINACIÓN DE TAQUILLA
-                <h1>SUBDIRECCION GENERAL DE ADMINISTRACION Y FINANZAS</h1>
-            </div>
-        </header>
+            <header className="stc-header" onKeyDown={onKeyDown}>
+                {children}
+                <div className="stc-header-text">
+                    COORDINACIÓN DE TAQUILLA
+                    <h1>SUBDIRECCION GENERAL DE ADMINISTRACION Y FINANZAS</h1>
+                </div>
+            </header>
+        </>
     );
 }

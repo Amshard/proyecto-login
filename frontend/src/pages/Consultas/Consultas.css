@@ -46,9 +46,12 @@
   gap: 8px;
 }
 
-.stc-consulta-set .stc-field-input {
+:is(.stc-consulta-set, .stc-consulta-columna, .stc-vacaciones-solicito-fila) .stc-field-input {
   box-sizing: border-box;
   height: 36px;
+}
+
+.stc-consulta-set .stc-field-input {
   padding-inline: 8px;
 }
 
@@ -128,9 +131,7 @@
   gap: 6px;
 }
 
-.stc-consulta-columna .stc-field-input {
-  box-sizing: border-box;
-  height: 36px;
+:is(.stc-consulta-columna, .stc-vacaciones-solicito-fila) .stc-field-input {
   padding-inline: 4px;
   text-align: center;
 }
@@ -200,9 +201,97 @@
 
 .stc-table-frame:has(.stc-table-calif) {
   min-inline-size: 0;
-  min-width: 0;
 }
 
 :is(.stc-content, .stc-content-square, .stc-tab-panel):has(.stc-table-calif) {
   min-width: 0;
+}
+
+.stc-vacaciones-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px 48px;
+  padding: 12px 8px;
+}
+
+.stc-vacaciones-solicito {
+  display: grid;
+  --stc-solicito-fila: 50px;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto repeat(3, var(--stc-solicito-fila));
+  justify-content: center;
+  justify-items: center;
+  align-items: end;
+  gap: 8px 60px;
+  padding: 8px;
+}
+
+.stc-vacaciones-solicito > :not(.stc-vacaciones-periodo, .stc-vacaciones-periodo-titulo) {
+  grid-column: 1;
+}
+
+.stc-vacaciones-periodo-titulo {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: start;
+}
+
+.stc-vacaciones-periodo {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: start;
+  display: flex;
+  align-items: flex-end;
+  gap: 32px;
+}
+
+.stc-vacaciones-tiempo {
+  grid-row: 4;
+}
+
+.stc-vacaciones-tiempo-titulo {
+  grid-row: 3;
+}
+
+:is(.stc-vacaciones-tiempo, .stc-vacaciones-tiempo-titulo) {
+  margin-left: 60px;
+}
+
+.stc-vacaciones-tiempo .stc-field-label {
+  width: auto;
+  white-space: nowrap;
+}
+
+.stc-vacaciones-solicito-fila {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stc-vacaciones-solicito-fila .stc-field-input {
+  width: 40px;
+}
+
+.stc-vacaciones-solicito + .stc-vacaciones-solicito {
+  margin-top: 40px;
+}
+
+.stc-vacaciones-solicito > .stc-consulta-titulo {
+  position: relative;
+  top: calc(var(--stc-solicito-fila) - 42px);
+}
+
+.stc-header-registros.stc-vacaciones-anio {
+  right: auto;
+  left: 240px;
+}
+
+.stc-vacaciones-anio .stc-registros-box {
+  box-sizing: border-box;
+  width: 64px;
+  border: none;
+  text-align: center;
+  cursor: text;
 }

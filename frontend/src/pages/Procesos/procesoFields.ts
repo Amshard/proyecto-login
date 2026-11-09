@@ -28,7 +28,7 @@ export const onlyDigits = (value: string) => value.replace(/\D/g, '');
 
 export const replaceAt = <V>(list: V[], index: number, value: V) => list.map((item, i) => (i === index ? value : item));
 
-export const headersOnly = (headers: string[]): Column<never>[] =>
+export const headersOnly = <R = never>(headers: string[]): Column<R>[] =>
     headers.map((header) => ({ header, cell: () => null, center: true }));
 
 export const NO_ROWS: never[] = [];
