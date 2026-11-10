@@ -16,6 +16,7 @@ interface ReportePageProps {
     onClear?: () => void;
     botones?: { label: string; onClick?: () => void }[];
     arriba?: ReactNode;
+    enOpciones?: ReactNode;
     children?: ReactNode;
     opcion?: string;
     onOpcion?: (opcion: string) => void;
@@ -33,6 +34,7 @@ export default function ReportePage({
     onClear,
     botones = [],
     arriba,
+    enOpciones,
     children,
     opcion: opcionDada,
     onOpcion,
@@ -48,7 +50,7 @@ export default function ReportePage({
             pageClassName="stc-sin-bordes"
             statusLabel={statusLabel}
             count={count}
-            anio={anio ? new Date().getFullYear() : undefined}
+            anio={anio}
             onClear={onClear}
             actions={<SideButtons buttons={[...botones, { label: 'Ver Reporte' }]} />}
         >
@@ -60,6 +62,7 @@ export default function ReportePage({
                         <fieldset className="stc-report-options stc-reporte-set">
                             {subtitulo && <legend className="stc-report-options-title">{subtitulo}</legend>}
                             <RadioOptions options={opciones} value={opcion} onChange={setOpcion} disabled={bloqueadas} />
+                            {enOpciones}
                         </fieldset>
                     )}
                     {children}

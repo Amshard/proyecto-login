@@ -6,7 +6,6 @@
   --accent: #f16d15;
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  /* Shared by every page. */
   --stc-fuente: 'Segoe UI', Arial, sans-serif;
   --stc-azul: #1a2fa0;
   --stc-guinda: #470404;
@@ -144,7 +143,6 @@ p {
   z-index: 10;
 }
 
-/* The menu buttons share their font; buttons don't inherit it from the page. */
 .stc-nav-btn,
 .stc-submenu-btn {
   color: black;
@@ -244,9 +242,6 @@ p {
   gap: 5px;
 }
 
-/* ---- Page layout: page, content square, password box, status squares and form fields ---- */
-
-/* Every page sits inside .stc-login-page, so its text takes this font; only buttons need it set again. */
 .stc-login-page {
   min-height: 100vh;
   background: #fff;
@@ -276,7 +271,6 @@ p {
   padding: 48px;
 }
 
-/* Page boxes start just right of the 115px header column and run to near the right edge. */
 .stc-content:has(.stc-content-square) {
   padding: 48px 32px 48px 135px;
 }
@@ -389,9 +383,6 @@ body:has(.stc-login-page) #root {
   margin-left: 16px;
 }
 
-/* ---- Shared by the Catálogos, Procesos and Reportes pages: side buttons, tabs, boxes, tables ---- */
-
-/* The page's side buttons: they start where Limpiar sits and each next one stacks below. */
 .stc-side-buttons {
   position: absolute;
   left: 2px;
@@ -403,7 +394,6 @@ body:has(.stc-login-page) #root {
   gap: 22px;
 }
 
-/* Every side button has one width; its height grows with its text. */
 .stc-side-buttons > .stc-btn {
   position: static;
   transform: none;
@@ -543,7 +533,6 @@ body:has(.stc-login-page) #root {
   color: #1c2763;
 }
 
-/* The gray strip of boxes and the square outlines inside it lay out their boxes the same way. */
 .stc-manual-fields,
 .stc-campos-outline {
   display: flex;
@@ -699,7 +688,6 @@ body:has(.stc-login-page) #root {
   width: min(600px, 100%);
 }
 
-/* The titles on the square outlines: the report squares and the table squares. */
 .stc-report-options-title,
 .stc-table-frame-title {
   margin: 0 auto 0 0;
@@ -772,7 +760,6 @@ body:has(.stc-login-page) #root {
   contain-intrinsic-size: auto 37px;
 }
 
-/* Default widths for tables of up to four columns; wider tables set their own. */
 .stc-table th:nth-child(1) {
   width: 18%;
 }
@@ -795,7 +782,6 @@ body:has(.stc-login-page) #root {
   cursor: default;
 }
 
-/* The table's outer edge is black; inner cell lines stay gray. */
 .stc-table th:first-child,
 .stc-table td:first-child {
   border-left-color: black;
@@ -821,13 +807,11 @@ body:has(.stc-login-page) #root {
   background: var(--stc-seleccion);
 }
 
-/* DataTable's rowHeader: its header columns in the header color; active and selected rows keep their highlight. */
 .stc-table tr:not(.stc-table-row-active, .stc-table-row-selected) td.stc-table-header-cell {
   background: var(--stc-naranja);
   border-color: black;
 }
 
-/* A row picked by its row header is highlighted whole, so the cell needs no focus outline of its own. */
 .stc-table-row-selected td:focus {
   outline: none;
 }
@@ -873,7 +857,6 @@ body:has(.stc-login-page) #root {
   border: 1px solid var(--stc-borde-gris);
 }
 
-/* A line break at the end of an outline has nothing to break; left in, it takes the width and pushes the boxes aside. */
 .stc-campos-outline > .stc-field-break:last-child {
   display: none;
 }
@@ -881,8 +864,6 @@ body:has(.stc-login-page) #root {
 .stc-sin-pestanas .stc-tab-panel {
   background: var(--stc-gris-claro);
 }
-
-/* ---- Calendario: a month grid to pick one day ---- */
 
 .stc-calendario {
   box-sizing: border-box;

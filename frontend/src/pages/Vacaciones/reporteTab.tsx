@@ -1,4 +1,3 @@
-// The Reporte tab of the Vacaciones capture pages: a titled square with the Generar Reporte button.
 export const reporteTab = (titulo: string, onGenerar: () => void) => ({
     label: 'Reporte',
     content: (

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import type { Column } from '../../components/DataTable';
 import type { ManualFieldConfig } from '../../components/ManualField';
+import { codeField, labelLeft } from '../Catalogos/useCatalogo';
 
 export const fixedField = <T extends string>(field: ManualFieldConfig<T>): ManualFieldConfig<T> => ({
     ...field,
@@ -8,7 +9,6 @@ export const fixedField = <T extends string>(field: ManualFieldConfig<T>): Manua
     inputStyle: { ...field.inputStyle, width: field.inputStyle?.maxWidth },
 });
 
-/** Raises a field's box to the 36px height of the text fields. */
 export const sameHeight = <T extends string>(field: ManualFieldConfig<T>): ManualFieldConfig<T> => ({
     ...field,
     inputStyle: { ...field.inputStyle, height: 36 },
@@ -28,10 +28,23 @@ export const onlyDigits = (value: string) => value.replace(/\D/g, '');
 
 export const replaceAt = <V>(list: V[], index: number, value: V) => list.map((item, i) => (i === index ? value : item));
 
+export const replaceIn = <V>(grid: V[][], fila: number, col: number, value: V) =>
+    replaceAt(grid, fila, replaceAt(grid[fila], col, value));
+
+export const campo = <T extends string>(field: ManualFieldConfig<T>) => sameHeight(fixedField(field));
+
+export const campoIzq = <T extends string>(field: ManualFieldConfig<T>) => campo(labelLeft(field));
+
+export const numero = <K extends string>(key: K, label: string, digitos: number, width: number) =>
+    codeField(key, label, digitos, { width, numeric: true });
+
 export const headersOnly = <R = never>(headers: string[]): Column<R>[] =>
     headers.map((header) => ({ header, cell: () => null, center: true }));
 
 export const NO_ROWS: never[] = [];
+
+export const conId = <F extends ManualFieldConfig<string>>(fields: F[], copia: number) =>
+    fields.map((field) => ({ ...field, id: `${field.id}-${copia}` }));
 
 const emptyForm = <T extends string>(fields: readonly { key: T }[]) =>
     Object.fromEntries(fields.map(({ key }) => [key, ''])) as Record<T, string>;

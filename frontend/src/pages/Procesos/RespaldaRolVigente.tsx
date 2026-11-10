@@ -1,12 +1,11 @@
-import { useState } from 'react';
 import { type RolTaquilla } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualField, type ManualFieldConfig } from '../../components/ManualField';
-import SearchModal from '../../components/SearchModal';
-import { useAuth } from '../../context/AuthContext';
+import { useBusqueda } from '../../components/useBusqueda';
+import { useAuth } from '../../context/useAuth';
 import type { RolVigente } from '../../types/auth.types';
-import { codeField, dateField, textField } from '../Catalogos/useCatalogo';
+import { codeField, dateField, textField, texto } from '../Catalogos/useCatalogo';
 import { sameHeight } from './procesoFields';
 import ProgressBar from './ProgressBar';
 import './Procesos.css';
@@ -28,15 +27,13 @@ const FIELDS = [
     { ...ESTADO, inputStyle: { ...ESTADO.inputStyle, textTransform: 'none' as const } },
 ].map(sameHeight);
 
-const text = (value: unknown) => (value == null ? '' : String(value));
-
 const rolForm = (rol: RolVigente | null | undefined): Record<RespaldoKey, string> => ({
-    rol1: text(rol?.fecha_ini).slice(0, 4),
-    rol2: text(rol?.id_rol_anual),
-    rol3: text(rol?.nombre_rol),
-    fecha_inicial: text(rol?.fecha_ini).slice(0, 10),
-    fecha_final: text(rol?.fecha_fin).slice(0, 10),
-    meses_califica: text(rol?.meses_q_califica),
+    rol1: texto(rol?.fecha_ini).slice(0, 4),
+    rol2: texto(rol?.id_rol_anual),
+    rol3: texto(rol?.nombre_rol),
+    fecha_inicial: texto(rol?.fecha_ini).slice(0, 10),
+    fecha_final: texto(rol?.fecha_fin).slice(0, 10),
+    meses_califica: texto(rol?.meses_q_califica),
     estado: rol ? (rol.estatus_roldescansos ?? 'NO Rolado') : '',
 });
 
@@ -50,14 +47,10 @@ const COLUMNS: Column<RolTaquilla>[] = [
     { header: 'Lugares', cell: (r) => r.id_descansos, center: true },
 ];
 
+const ROWS: RolTaquilla[] = [];
+
 export default function RespaldaRolVigente() {
-    const rows: RolTaquilla[] = [];
-    const [searchOpen, setSearchOpen] = useState(false);
-    const [search, setSearch] = useState('');
-    const term = search.toUpperCase();
-    const displayedRows = term
-        ? rows.filter((row) => Object.values(row).some((value) => String(value ?? '').toUpperCase().includes(term)))
-        : rows;
+    const busqueda = useBusqueda(ROWS);
     const { user } = useAuth();
     const form = rolForm(user?.rol_vigente);
     const field = (config: ManualFieldConfig<RespaldoKey>) => (
@@ -70,26 +63,11 @@ export default function RespaldaRolVigente() {
         <CatalogoLayout
             tabLabel="Respalda Rol Vigente"
             statusLabel="Respaldo Base de Datos"
-            count={rows.length}
+            count={ROWS.length}
             reportButton="Grava Rol Vigente"
             onReportButton={respalda}
-            actions={
-                <button type="button" className="stc-btn stc-exit-btn" onClick={() => setSearchOpen(true)}>
-                    Buscar
-                </button>
-            }
-            overlay={
-                searchOpen && (
-                    <SearchModal
-                        initial={search}
-                        onApply={(value) => {
-                            setSearch(value);
-                            setSearchOpen(false);
-                        }}
-                        onClose={() => setSearchOpen(false)}
-                    />
-                )
-            }
+            actions={busqueda.boton}
+            overlay={busqueda.overlay}
             fields={
                 <div className="stc-manual-fields">
                     <div className="stc-field-group">{ROL_FIELDS.map(field)}</div>
@@ -99,7 +77,7 @@ export default function RespaldaRolVigente() {
                 </div>
             }
         >
-            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol stc-table-fit" rowHeader columns={COLUMNS} rows={displayedRows} />
+            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol stc-table-fit" rowHeader columns={COLUMNS} rows={busqueda.filtradas} />
         </CatalogoLayout>
     );
 }

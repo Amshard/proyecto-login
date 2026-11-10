@@ -11,7 +11,8 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import SearchModal from '../../components/SearchModal';
+import { useBusqueda } from '../../components/useBusqueda';
+import { ddmmyyyy, isoDate } from '../../utils/fechas';
 import type { PdfReport } from '../../utils/pdf';
 import { CamposFila, CamposStack } from './CatalogoCampos';
 import {
@@ -77,10 +78,6 @@ const rolForm = (numero: string, rol: RolTaquilla | undefined) => {
     return Object.fromEntries(ROL_FIELDS.map(({ key }) => [key, String(values[key] ?? '')])) as Record<RolKey, string>;
 };
 
-const todayIso = () => new Date().toLocaleDateString('en-CA');
-
-const formatDate = (iso: string) => iso.split('-').reverse().join('/');
-
 const withDots = (n: number) => String(n).replace(/\B(?=(\d{3})+$)/g, '.');
 
 const COLUMNS: Column<PersonalTaquilla>[] = [
@@ -116,11 +113,10 @@ export default function CatalogoPersonal() {
     const [sinCtoRows] = useCatalogoRows(getSinCto);
     const [numero, setNumero] = useState('');
     const [showRol, setShowRol] = useState(false);
-    const [searchOpen, setSearchOpen] = useState(false);
-    const [search, setSearch] = useState('');
+    const busqueda = useBusqueda(rows);
     const [reportOption, setReportOption] = useState(REPORT_OPTIONS[0]);
 
-    const maxDate = todayIso();
+    const maxDate = isoDate();
     const minDate = rows.reduce<string | undefined>((oldest, r) => {
         const fecha = String(r.fecha_ingreso ?? '').slice(0, 10);
         return fecha && (!oldest || fecha < oldest) ? fecha : oldest;
@@ -135,7 +131,7 @@ export default function CatalogoPersonal() {
             nombre: (v) => (NOMBRE_RE.test(v) ? undefined : 'El campo Nombre solo puede contener letras y espacios.'),
             fecha_ingreso: (v) => {
                 if (v > maxDate) return 'El campo Fecha de Ingreso no puede ser posterior a la fecha actual.';
-                if (minDate && v < minDate) return `El campo Fecha de Ingreso no puede ser anterior al ${formatDate(minDate)}.`;
+                if (minDate && v < minDate) return `El campo Fecha de Ingreso no puede ser anterior al ${ddmmyyyy(minDate)}.`;
             },
         },
     });
@@ -198,14 +194,9 @@ export default function CatalogoPersonal() {
         return true;
     };
 
-    const term = search.toUpperCase();
     const displayedRows = useMemo(
-        () =>
-            (term
-                ? rows.filter((row) => Object.values(row).some((value) => String(value ?? '').toUpperCase().includes(term)))
-                : [...rows]
-            ).sort((a, b) => Number(a.id_expediente) - Number(b.id_expediente)),
-        [rows, term]
+        () => [...busqueda.filtradas].sort((a, b) => Number(a.id_expediente) - Number(b.id_expediente)),
+        [busqueda.filtradas]
     );
 
     const tableColumns = useMemo<Column<PersonalTaquilla>[]>(() => {
@@ -248,11 +239,7 @@ export default function CatalogoPersonal() {
                 hideRol();
             }}
             onSave={onSave}
-            actions={
-                <button type="button" className="stc-btn stc-exit-btn" onClick={() => setSearchOpen(true)}>
-                    Buscar
-                </button>
-            }
+            actions={busqueda.boton}
             fields={
                 <CamposStack>
                     <CamposFila fields={fields} form={form} onChange={onFieldChange} />
@@ -265,18 +252,7 @@ export default function CatalogoPersonal() {
                     />
                 </CamposStack>
             }
-            overlay={
-                searchOpen && (
-                    <SearchModal
-                        initial={search}
-                        onApply={(value) => {
-                            setSearch(value);
-                            setSearchOpen(false);
-                        }}
-                        onClose={() => setSearchOpen(false)}
-                    />
-                )
-            }
+            overlay={busqueda.overlay}
             reportActions={
                 <div className="stc-report-option-list">
                     {REPORT_OPTIONS.map((label) => (

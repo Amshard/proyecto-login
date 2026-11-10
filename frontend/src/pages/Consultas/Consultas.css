@@ -84,7 +84,8 @@
   margin-inline: auto;
 }
 
-.stc-consulta-tablas {
+.stc-consulta-tablas,
+.stc-consulta-periodo {
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -116,12 +117,6 @@
   margin: 0 auto;
   padding: 8px 24px 16px;
   border: 1px solid var(--stc-borde-gris);
-}
-
-.stc-consulta-periodo {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
 }
 
 .stc-consulta-columna {

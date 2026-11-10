@@ -1,16 +1,12 @@
 import { useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
+import { isoDate } from '../../../utils/fechas';
 import { SideButtons } from '../ProcesoControls';
 import ProgressBar from '../ProgressBar';
 import '../Procesos.css';
 
-const hoy = () => {
-    const d = new Date();
-    return [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((n) => String(n).padStart(2, '0')).join('-');
-};
-
 export default function Califica() {
-    const [fecha, setFecha] = useState(hoy);
+    const [fecha, setFecha] = useState(isoDate);
 
     return (
         <CatalogoLayout

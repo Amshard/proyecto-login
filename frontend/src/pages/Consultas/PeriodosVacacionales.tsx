@@ -1,39 +1,35 @@
 import { useState } from 'react';
 import CatalogoLayout from '../../components/CatalogoLayout';
-import { ManualFields, type ManualFieldConfig } from '../../components/ManualField';
-import { codeField, dateField, labelLeft, textField } from '../Catalogos/useCatalogo';
+import { ManualFields } from '../../components/ManualField';
+import { dateField, labelLeft, textField } from '../Catalogos/useCatalogo';
 import { SideButtons } from '../Procesos/ProcesoControls';
-import { fixedField, onlyDigits, replaceAt, sameHeight, useForm } from '../Procesos/procesoFields';
+import { campo, campoIzq, conId, numero, onlyDigits, replaceAt, useForm } from '../Procesos/procesoFields';
 import '../Reportes/Reportes.css';
 import './Consultas.css';
 
 const FIELDS = [
-    codeField('expediente', 'Expediente', 5, { width: 70, numeric: true }),
+    numero('expediente', 'Expediente', 5, 70),
     textField('nombre', 'Nombre', 400, { maxLength: 50 }),
     dateField('ingreso', 'Ingreso'),
-    codeField('permanencia', 'Permanencia', 2, { width: 40, numeric: true }),
-].map((field) => sameHeight(fixedField(field)));
+    numero('permanencia', 'Permanencia', 2, 40),
+].map(campo);
 
 const SOLICITO_VACIO = ['', '', ''];
 
 const PERIODO_FIELDS = [
-    codeField('primer_periodo', 'ㅤ', 2, { width: 40, numeric: true }),
+    numero('primer_periodo', 'ㅤ', 2, 40),
     labelLeft(dateField('inicia', 'Inicia')),
     labelLeft(dateField('termina', 'Termina')),
-].map((field) => sameHeight(fixedField(field)));
+].map(campo);
 
 const TIEMPO_FIELDS = [
-    codeField('anios', 'Años', 2, { width: 40, numeric: true }),
-    codeField('meses', 'Meses', 2, { width: 40, numeric: true }),
-    codeField('dias', 'Dias', 2, { width: 40, numeric: true }),
-    codeField('dias_vacaciones', 'Dias de Vacaciones', 2, { width: 40, numeric: true }),
-].map((field) => sameHeight(fixedField(labelLeft(field))));
+    numero('anios', 'Años', 2, 40),
+    numero('meses', 'Meses', 2, 40),
+    numero('dias', 'Dias', 2, 40),
+    numero('dias_vacaciones', 'Dias de Vacaciones', 2, 40),
+].map(campoIzq);
 
 const PERIODO_FORM = [...PERIODO_FIELDS, ...TIEMPO_FIELDS];
-
-// Each copy of the Solicito block gets its own field ids, so its labels point at its own boxes.
-const conId = <T extends ManualFieldConfig<string>>(fields: T[], bloque: number) =>
-    fields.map((field) => ({ ...field, id: `${field.id}-${bloque}` }));
 
 const BLOQUES = [0, 1].map((bloque) => ({
     bloque,
@@ -86,8 +82,6 @@ export default function PeriodosVacacionales() {
         setVacio((n) => n + 1);
     };
 
-    const buscar = () => {};
-
     return (
         <CatalogoLayout
             tabLabel="PERIODOS VACACIONALES POR EXPEDIENTE"
@@ -110,7 +104,7 @@ export default function PeriodosVacacionales() {
             actions={
                 <SideButtons
                     buttons={[
-                        { label: 'Buscar', onClick: buscar },
+                        { label: 'Buscar' },
                         { label: 'Limpiar', onClick: limpiar },
                     ]}
                 />

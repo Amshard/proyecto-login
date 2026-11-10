@@ -98,14 +98,12 @@ export function useCatalogoForm<T extends { [K in keyof T]: string }>(empty: T, 
 
 type CatalogoForm<T> = ReturnType<typeof useCatalogoForm<T & { [K in keyof T]: string }>>;
 
-// The CatalogoLayout props every catálogo shares: Registros count, Limpiar, and the Guardar/Modificar/Eliminar buttons.
 export const layoutProps = <A extends object>(
     rows: unknown[],
     { selected, clear }: { selected: object | null; clear: () => void },
     actions: A
 ) => ({ count: rows.length, onClear: clear, editing: selected !== null, ...actions });
 
-// The DataTable props that load a clicked row into the boxes and highlight the selected one.
 export const tablaProps = <R extends object>({ fill, selected }: { fill: (row: object) => void; selected: object | null }) => ({
     onRowSelect: fill as (row: R) => void,
     activeRow: selected as R | null,
@@ -189,9 +187,13 @@ function fluidStyles(width: number, wrap: number, input: CSSProperties) {
 
 export const CODE_CHARS = '0123456789AB';
 
+export const texto = (value: unknown) => (value == null ? '' : String(value));
+
+export const conExtras = <F extends { key: string }>(fields: F[], extra: Record<string, object>) =>
+    fields.map((field) => ({ ...field, ...extra[field.key] }));
+
 export const padCode = (value: string) => (value ? value.padStart(2, '0') : '');
 
-// The fields split into their lines: each line ends at a field with breakAfter.
 export const fieldLines = <F extends { breakAfter?: boolean }>(fields: F[]) =>
     fields.reduce<F[][]>((lines, field, i) => {
         if (i === 0 || fields[i - 1].breakAfter) lines.push([]);
@@ -199,11 +201,10 @@ export const fieldLines = <F extends { breakAfter?: boolean }>(fields: F[]) =>
         return lines;
     }, []);
 
-// A box with its title on its left; labelKey also makes it part of the record's key.
 export const labelLeft = <K extends string>(field: ManualFieldConfig<K>): ManualFieldConfig<K> => ({ ...field, labelLeft: true });
 export const labelKey = <K extends string>(field: ManualFieldConfig<K>): ManualFieldConfig<K> => ({ ...labelLeft(field), isKey: true });
 
-export const lineaName =(linea: Linea | undefined) =>
+export const lineaName = (linea: Linea | undefined) =>
     linea ? [linea.nombre_dirlin1, linea.nombre_dirlin2].filter(Boolean).join('-') : '';
 
 export const isCodePrefix = (typed: string, codes: string[]) => {

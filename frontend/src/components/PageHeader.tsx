@@ -8,7 +8,6 @@ interface PageHeaderProps {
 export default function PageHeader({ children, onKeyDown }: PageHeaderProps) {
     return (
         <>
-            {/* Outside the header, so the header can stack above it. */}
             <div className="stc-header-accent" />
             <header className="stc-header" onKeyDown={onKeyDown}>
                 {children}

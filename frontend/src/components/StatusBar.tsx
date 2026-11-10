@@ -1,4 +1,5 @@
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
+import { useMenuAbierto } from './menuAbierto';
 
 const longDate = new Intl.DateTimeFormat('es-MX', {
     weekday: 'long',
@@ -16,6 +17,7 @@ interface StatusBarProps {
 
 export default function StatusBar({ label }: StatusBarProps) {
     const { user } = useAuth();
+    const menu = useMenuAbierto();
     const today = new Date().toLocaleDateString('es-MX', {
         year: 'numeric',
         month: '2-digit',
@@ -33,7 +35,7 @@ export default function StatusBar({ label }: StatusBarProps) {
             </div>
             <div className="stc-status-row stc-status-row-lower">
                 <span className="stc-status-square">Usuario: {user?.nombre}</span>
-                <span className="stc-status-square">{label}</span>
+                <span className="stc-status-square">{menu ? `Menu de ${menu}` : label}</span>
                 <span className="stc-status-square">{today}</span>
             </div>
         </footer>

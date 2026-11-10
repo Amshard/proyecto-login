@@ -7,6 +7,7 @@ import {
     catalogoActions,
     CODE_CHARS,
     codeField,
+    conExtras,
     isCodePrefix,
     layoutProps,
     padCode,
@@ -145,7 +146,7 @@ export default function CatalogoLineas() {
             },
         };
         return [
-            ...FIELDS.map((field) => ({ ...field, ...extra[field.key] })),
+            ...conExtras(FIELDS, extra),
             ...(form.id_permanencia ? PERMA_FIELDS : HIDDEN_PERMA_FIELDS),
         ];
     }, [rows, permanencias, form.id_permanencia]);

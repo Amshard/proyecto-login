@@ -4,7 +4,7 @@ import DataTable, { type Column } from '../../../components/DataTable';
 import { ManualField } from '../../../components/ManualField';
 import { codeField } from '../../Catalogos/useCatalogo';
 import { DigitInput, SideButtons } from '../ProcesoControls';
-import { NO_ROWS, replaceAt } from '../procesoFields';
+import { NO_ROWS, replaceIn } from '../procesoFields';
 import ProgressBar from '../ProgressBar';
 import '../Procesos.css';
 
@@ -40,7 +40,7 @@ export default function RolesTurnoLinea() {
     const [roles, setRoles] = useState(EMPTY_ROLES);
 
     const setRol = (line: number, box: number, value: string) =>
-        setRoles((prev) => replaceAt(prev, line, replaceAt(prev[line], box, value)));
+        setRoles((prev) => replaceIn(prev, line, box, value));
 
     const limpia = () => setRoles(EMPTY_ROLES);
 

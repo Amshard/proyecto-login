@@ -8,8 +8,8 @@ const LINEAS = ['Línea 1', 'Línea 2', 'Línea 3', 'Línea 4', 'Línea 5', 'Lí
 const COLUMNAS = [LINEAS.slice(0, 6), LINEAS.slice(6)];
 
 const REPORTES = [
-    'Reporte de Ventas a Detalle', 
-    'Reporte de Ventas X Linea/Turno', 
+    'Reporte de Ventas a Detalle',
+    'Reporte de Ventas X Linea/Turno',
     'Reporte de Ventas X Linea Concentrado',
     'Ventas de Boletos X Linea/Turno',
     'Ventas de Recargas X Linea/Turno',

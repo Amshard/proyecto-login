@@ -14,6 +14,7 @@ import {
     catalogoActions,
     CODE_CHARS,
     codeField,
+    conExtras,
     isCodePrefix,
     labelKey,
     layoutProps,
@@ -92,7 +93,7 @@ export default function CatalogoEstaciones() {
                 max: maxEstacion || undefined,
             },
         };
-        return FIELDS.map((field) => ({ ...field, ...extra[field.key] }));
+        return conExtras(FIELDS, extra);
     }, [lineas, rows, idLinea]);
 
     const pdf = useMemo(

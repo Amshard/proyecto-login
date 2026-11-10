@@ -2,13 +2,12 @@ import { Fragment, useState } from 'react';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualField } from '../../components/ManualField';
-import { codeField, labelLeft } from '../Catalogos/useCatalogo';
 import { SideButtons } from '../Procesos/ProcesoControls';
-import { NO_ROWS, fixedField, headersOnly, onlyDigits, replaceAt, sameHeight } from '../Procesos/procesoFields';
+import { NO_ROWS, campoIzq, headersOnly, numero, replaceIn } from '../Procesos/procesoFields';
 import '../Reportes/Reportes.css';
 import './Vacaciones.css';
 
-const EXPEDIENTE_FIELD = sameHeight(fixedField(labelLeft(codeField('expediente', 'Expediente', 5, { width: 70, numeric: true }))));
+const EXPEDIENTE_FIELD = campoIzq(numero('expediente', 'Expediente', 5, 70));
 
 const OPCIONES = ['1Era Opc', '2da Opc', '3Era Opc'];
 const PERIODOS = ['1er PERIODO', '2do PERIODO'];
@@ -32,10 +31,6 @@ export default function CapturaSolicitudes() {
         setOpciones(OPCIONES_VACIAS);
     };
 
-    const guardar = () => {};
-    const buscar = () => {};
-    const verReporte = () => {};
-
     return (
         <CatalogoLayout
             tabLabel="Captura Solicitudes de Vacaciones"
@@ -44,10 +39,10 @@ export default function CapturaSolicitudes() {
             actions={
                 <SideButtons
                     buttons={[
-                        { label: 'Guardar', onClick: guardar },
+                        { label: 'Guardar' },
                         { label: 'Limpiar', onClick: limpiar },
-                        { label: 'Buscar', onClick: buscar },
-                        { label: 'Ver Reporte', onClick: verReporte },
+                        { label: 'Buscar' },
+                        { label: 'Ver Reporte' },
                     ]}
                 />
             }
@@ -60,7 +55,7 @@ export default function CapturaSolicitudes() {
                 <fieldset className="stc-reporte-outline stc-captura-outline">
                     <legend className="stc-report-options-title">Captura Solicitudes de Vacaciones</legend>
                     <div className="stc-solicitud-fila">
-                        <ManualField config={EXPEDIENTE_FIELD} value={expediente} onChange={(v) => setExpediente(onlyDigits(v))} />
+                        <ManualField config={EXPEDIENTE_FIELD} value={expediente} onChange={setExpediente} />
                         <input
                             className="stc-field-input stc-solicitud-nombre"
                             aria-label="Nombre"
@@ -86,7 +81,7 @@ export default function CapturaSolicitudes() {
                                         aria-label={`${periodo}, ${opcion}`}
                                         value={opciones[fila][col]}
                                         onChange={(e) =>
-                                            setOpciones((prev) => replaceAt(prev, fila, replaceAt(prev[fila], col, e.target.value)))
+                                            setOpciones((prev) => replaceIn(prev, fila, col, e.target.value))
                                         }
                                     />
                                 ))}

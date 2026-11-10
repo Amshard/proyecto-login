@@ -94,7 +94,6 @@ interface RolesFechasProps {
     juntos?: boolean;
 }
 
-/** Gray square with a Rol box and two dates per line, followed by the progress bar. */
 export function RolesFechas({ fechasTitulo, lineas, onChange, juntos }: RolesFechasProps) {
     const cambiar = (linea: number, cambio: Partial<RolFechas>) =>
         onChange(replaceAt(lineas, linea, { ...lineas[linea], ...cambio }));

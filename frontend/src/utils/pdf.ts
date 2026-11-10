@@ -14,7 +14,7 @@ function cellText<R>(column: Column<R>, row: R): string {
     return String(column.cell(row) ?? '');
 }
 
-export interface PdfGroup<R> {
+interface PdfGroup<R> {
     key: (row: R) => string;
     label: (key: string) => string;
     total: (key: string, count: number) => string;
@@ -35,7 +35,6 @@ export interface PdfReport<R> {
     rows: R[];
     countLabel?: string;
     countTitle?: string;
-    // One line, or several lines drawn one under another in the same style.
     countText?: (rows: R[]) => string | string[];
     noteLabel?: string;
     noteById?: boolean;
@@ -87,7 +86,7 @@ function splitBy<R>(rows: R[], key: (row: R) => string): R[][] {
     return runs;
 }
 
-export function buildCatalogoPdfBlob<R>({
+function buildCatalogoPdfBlob<R>({
     title,
     subtitle,
     footerTitle = title,

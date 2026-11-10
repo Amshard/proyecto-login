@@ -2,6 +2,7 @@ import { type KeyboardEvent, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { ARROW_KEYS, navbarTopButtons, sideButtons } from './keyboardNav';
+import { setMenuAbierto } from './menuAbierto';
 
 function slugify(text: string): string {
     return text
@@ -52,6 +53,13 @@ const NAV_ITEMS = [
     { label: 'A Excel', items: ['Personal de Taquilla', 'Calificaciones', 'Personal_vacaciones', 'Rol vigente para Dias Economicos', 'Respalda Personal de Taquilla', 'Respalda Calificaciones'] },
 ];
 
+const nombreMenu = (menu: string | null, subMenu: string | null) => {
+    if (!menu) return null;
+    const items = NAV_ITEMS.find((navItem) => navItem.label === menu)?.items ?? [];
+    const group = subMenu?.startsWith(`${menu}-`) ? items[Number(subMenu.slice(menu.length + 1))] : undefined;
+    return typeof group === 'object' ? group.label : menu;
+};
+
 const listButtons = (list: Element) =>
     Array.from(list.querySelectorAll<HTMLButtonElement>(':scope > li > .stc-submenu-btn'));
 
@@ -69,6 +77,12 @@ export default function Navbar() {
         closeMenus();
         navigate(`/${path}`, { state });
     };
+
+    useEffect(() => {
+        setMenuAbierto(nombreMenu(openMenu, openSubMenu));
+    }, [openMenu, openSubMenu]);
+
+    useEffect(() => () => setMenuAbierto(null), []);
 
     useEffect(() => {
         const onDocumentKeyDown = (e: globalThis.KeyboardEvent) => {

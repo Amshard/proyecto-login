@@ -7,9 +7,9 @@ import './Consultas.css';
 
 const ALFABETICO_COLUMNAS = headersOnly([
     'Reg',
-    'Exp', 
-    'Nombre', 
-    'Calif Tot', 
+    'Exp',
+    'Nombre',
+    'Calif Tot',
     'Ingresos STC',
     'Años',
     'Calif',

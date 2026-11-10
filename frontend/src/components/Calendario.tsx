@@ -1,14 +1,10 @@
 import { useState } from 'react';
+import { ddmmyyyy, isoDate as iso } from '../utils/fechas';
 
 const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const DIAS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
-const iso = (date: Date) =>
-    [date.getFullYear(), date.getMonth() + 1, date.getDate()].map((n) => String(n).padStart(2, '0')).join('-');
-
-const ddmmyyyy = (fecha: string) => fecha.split('-').reverse().join('/');
-
-const primeroDelMes =(fecha: string) => {
+const primeroDelMes = (fecha: string) => {
     const date = fecha ? new Date(`${fecha}T00:00`) : new Date();
     return new Date(date.getFullYear(), date.getMonth(), 1);
 };

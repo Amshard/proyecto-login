@@ -1,14 +1,8 @@
 import type { ReactNode } from 'react';
 import { ManualFields, type ManualFieldConfig } from '../../components/ManualField';
+import { sameHeight } from '../Procesos/procesoFields';
 import { fieldLines } from './useCatalogo';
 import './Catalogos.css';
-
-const ALTO_CAJA = 36;
-
-const conAlto = <T extends string>(field: ManualFieldConfig<T>): ManualFieldConfig<T> => ({
-    ...field,
-    inputStyle: { ...field.inputStyle, height: ALTO_CAJA },
-});
 
 interface CamposProps<T extends string> {
     fields: ManualFieldConfig<T>[];
@@ -20,7 +14,6 @@ interface CamposProps<T extends string> {
 interface CamposOutlineProps<T extends string> extends CamposProps<T> {
     completo?: boolean;
     porLinea?: boolean;
-    /** Title on the outline's top border; the outline then becomes a fieldset around every line. */
     titulo?: string;
 }
 
@@ -31,7 +24,7 @@ export function CamposOutline<T extends string>({ fields, completo, porLinea, ti
             key={linea[0].key}
             {...props}
             className={`stc-campos-outline${titulo ? '' : angosto}`}
-            fields={linea.map(conAlto)}
+            fields={linea.map(sameHeight)}
         />
     ));
 
@@ -64,5 +57,5 @@ interface CamposFilaProps<T extends string> extends CamposProps<T> {
 
 export function CamposFila<T extends string>({ fields, rol, oculto, ...props }: CamposFilaProps<T>) {
     const className = ['stc-manual-fields', rol && 'stc-rol-fields', oculto && 'stc-rol-fields-hidden'].filter(Boolean).join(' ');
-    return <ManualFields {...props} className={className} fields={fields.map(conAlto)} />;
+    return <ManualFields {...props} className={className} fields={fields.map(sameHeight)} />;
 }

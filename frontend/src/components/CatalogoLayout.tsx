@@ -8,7 +8,6 @@ import type { PdfReport } from '../utils/pdf';
 
 interface CatalogoLayoutProps<R> {
     tabLabel: string;
-    // Defaults to tabLabel.
     statusLabel?: string;
     count?: number;
     onClear?: () => void;
@@ -16,32 +15,24 @@ interface CatalogoLayoutProps<R> {
     onModify?: () => void;
     onDelete?: () => void;
     editing?: boolean;
-    // Side buttons, stacked below Limpiar/Guardar in the order given.
     actions?: ReactNode;
-    // Text placed in the header, outside the column of side buttons.
     headerText?: ReactNode;
-    // Shows `actions` on every tab, not just the first.
     actionsOnAllTabs?: boolean;
     countOnAllTabs?: boolean;
-    // Shown in an "Año" box to the left of Registros.
-    anio?: number;
-    // Read-only boxes shown to the left of Año and Registros, in the order given.
+    anio?: boolean;
     contadores?: { label: string; value: ReactNode }[];
     reportButton?: string;
     onReportButton?: () => void;
     reportActions?: ReactNode;
     reportLabel?: string;
-    // Title of the outline around the Reporte tab's buttons; defaults to statusLabel.
     reportTitle?: string;
     fields?: ReactNode;
     overlay?: ReactNode;
     children: ReactNode;
     pdf?: PdfReport<R>;
-    // Replace the Reporte tab with tabs of the page's own, after the first one.
-    extraTabs?: { label: string; content: ReactNode }[];
+    extraTabs?: { label: string; content: ReactNode; actions?: ReactNode }[];
     onTabChange?: () => void;
     hideTabs?: boolean;
-    // Extra class on the page's root, for styles that apply to a group of pages.
     pageClassName?: string;
 }
 
@@ -87,7 +78,6 @@ export default function CatalogoLayout<R>({
     hideTabs,
     pageClassName,
 }: CatalogoLayoutProps<R>) {
-    // 'catalogo' is the first tab, 'nuevo' the Reporte tab, and a number the index of one of extraTabs.
     const [activeTab, setActiveTab] = useState<'catalogo' | 'nuevo' | number>('catalogo');
     const isCatalogo = activeTab === 'catalogo';
     const isReporte = activeTab === 'nuevo';
@@ -151,6 +141,7 @@ export default function CatalogoLayout<R>({
                         </>
                     )}
                     {!isCatalogo && actionsOnAllTabs && actions}
+                    {typeof activeTab === 'number' && extraTabs[activeTab]?.actions}
                 </div>
                 {headerText}
                 {count !== undefined && (isCatalogo || countOnAllTabs) && (
@@ -161,10 +152,10 @@ export default function CatalogoLayout<R>({
                                 <div className="stc-registros-box">{value}</div>
                             </div>
                         ))}
-                        {anio !== undefined && (
+                        {anio && (
                             <div className="stc-registros-row">
                                 <span className="stc-registros-label">Año</span>
-                                <div className="stc-registros-box">{anio}</div>
+                                <div className="stc-registros-box">{new Date().getFullYear()}</div>
                             </div>
                         )}
                         <div className="stc-registros-row">

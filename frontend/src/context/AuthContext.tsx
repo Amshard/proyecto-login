@@ -1,16 +1,7 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { LoginPayload, User } from '../types/auth.types';
 import * as authApi from '../api/auth';
-
-interface AuthContextType {
-    user: User | null;
-    loading: boolean;
-    login: (payload: LoginPayload) => Promise<User>;
-    logout: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from './useAuth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -25,7 +16,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .finally(() => setLoading(false));
     }, []);
 
-    const login = async (payload: LoginPayload) => {
+    const login = async (payload: LoginPayload): Promise<User> => {
         const data = await authApi.login(payload);
         localStorage.setItem('access', data.access);
         localStorage.setItem('refresh', data.refresh);
@@ -44,10 +35,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             {children}
         </AuthContext.Provider>
     );
-}
-
-export function useAuth(): AuthContextType {
-    const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
-    return ctx;
 }

@@ -3,7 +3,7 @@ import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable from '../../components/DataTable';
 import { CamposOutline } from '../Catalogos/CatalogoCampos';
 import { codeField, dateField, textField } from '../Catalogos/useCatalogo';
-import { headersOnly, onlyDigits, replaceAt, useForm } from '../Procesos/procesoFields';
+import { headersOnly, onlyDigits, replaceAt, replaceIn, useForm } from '../Procesos/procesoFields';
 import './Consultas.css';
 
 const FIELDS = [
@@ -82,9 +82,7 @@ export default function UbicacionExpediente() {
                                                 aria-label={`${titulo} ${i + 1}, caja ${caja + 1}`}
                                                 value={valor}
                                                 onChange={(e) =>
-                                                    setSets((prev) =>
-                                                        replaceAt(prev, set, replaceAt(prev[set], caja, e.target.value))
-                                                    )
+setSets((prev) => replaceIn(prev, set, caja, e.target.value))
                                                 }
                                             />
                                         ))}
@@ -121,7 +119,7 @@ export default function UbicacionExpediente() {
                                         onChange={(e) => {
                                             const nuevo = fecha ? e.target.value : onlyDigits(e.target.value);
                                             setPeriodos((prev) =>
-                                                replaceAt(prev, set, replaceAt(prev[set], col, replaceAt(prev[set][col], caja, nuevo)))
+                                                replaceAt(prev, set, replaceIn(prev[set], col, caja, nuevo))
                                             );
                                         }}
                                     />

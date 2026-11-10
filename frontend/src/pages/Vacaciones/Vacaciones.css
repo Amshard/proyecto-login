@@ -1,11 +1,40 @@
+.stc-vacaciones-campos .stc-manual-field,
+.stc-solicitud-fila .stc-manual-field,
+.stc-promedia-campos .stc-manual-field,
+.stc-programa-rango .stc-manual-field,
+.stc-reasigna-campos .stc-manual-field {
+  height: auto;
+}
+
+.stc-promedia-campos .stc-field-label,
+.stc-reasigna-campos .stc-field-label {
+  width: auto;
+}
+
+.stc-captura-ancho,
+.stc-solicitud-nombre,
+.stc-solicitud-opciones .stc-field-input {
+  box-sizing: border-box;
+  height: 36px;
+  padding-inline: 8px;
+}
+
+.stc-vacaciones-outline,
+.stc-captura-outline,
+.stc-promedia-outline {
+  gap: 24px;
+  padding: 24px 16px;
+}
+
+.stc-captura-tabla th:nth-child(n),
+.stc-promedia-tabla th:nth-child(n) {
+  width: auto;
+}
+
 .stc-vacaciones-campos {
   display: grid;
   grid-template-columns: repeat(2, max-content);
   gap: 0 32px;
-}
-
-.stc-vacaciones-campos .stc-manual-field {
-  height: auto;
 }
 
 .stc-vacaciones-campos .stc-field-label {
@@ -14,8 +43,22 @@
 
 .stc-vacaciones-outline {
   align-items: center;
-  gap: 24px;
-  padding: 24px 16px;
+}
+
+.stc-vacaciones-outline .stc-report-options {
+  border-color: var(--stc-borde-gris);
+}
+
+.stc-vacaciones-prejubilados {
+  grid-template-columns: repeat(3, max-content);
+}
+
+.stc-vacaciones-prejubilados > :nth-child(3) {
+  grid-column: 1;
+}
+
+.stc-vacaciones-prejubilados > :nth-child(5) {
+  margin-left: 40px;
 }
 
 .stc-captura-outline {
@@ -25,7 +68,6 @@
   margin-inline: auto;
   align-items: center;
   gap: 16px;
-  padding: 24px 16px;
 }
 
 .stc-captura-fila {
@@ -36,10 +78,7 @@
 }
 
 .stc-captura-ancho {
-  box-sizing: border-box;
   width: min(768px, 100%);
-  height: 36px;
-  padding-inline: 8px;
 }
 
 .stc-captura-columna {
@@ -56,8 +95,8 @@
   width: 100%;
 }
 
-.stc-captura-tabla th:nth-child(n) {
-  width: auto;
+.stc-table-frame:has(.stc-captura-tabla) .stc-table-frame-title {
+  font-style: italic;
 }
 
 .stc-solicitud-fila {
@@ -66,15 +105,8 @@
   gap: 12px;
 }
 
-.stc-solicitud-fila .stc-manual-field {
-  height: auto;
-}
-
 .stc-solicitud-nombre {
-  box-sizing: border-box;
   width: 400px;
-  height: 36px;
-  padding-inline: 8px;
 }
 
 .stc-solicitud-opciones {
@@ -97,13 +129,91 @@
 }
 
 .stc-solicitud-opciones .stc-field-input {
-  box-sizing: border-box;
   width: 100%;
-  height: 36px;
-  padding-inline: 8px;
   text-align: center;
 }
 
-.stc-table-frame:has(.stc-captura-tabla) .stc-table-frame-title {
-  font-style: italic;
+.stc-promedia-campos {
+  align-self: center;
+}
+
+.stc-table-frame:has(.stc-promedia-tabla) {
+  box-sizing: border-box;
+  width: var(--stc-angosto);
+  margin-inline: auto;
+}
+
+.stc-programa-rango {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.stc-programa-rango .stc-field-label {
+  font-size: 13px;
+}
+
+.stc-programa-rango-opcion {
+  display: flex;
+  justify-content: center;
+}
+
+.stc-programa-rango-set {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-self: center;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 16px 40px;
+  border: 1px solid var(--stc-borde-gris);
+}
+
+.stc-reporte-set > .stc-programa-rango-set {
+  justify-self: center;
+  margin-top: 8px;
+}
+
+.stc-reasigna-campos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  padding: 16px 8px 16px 40px;
+}
+
+.stc-reasigna-bloques {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px 60px;
+  margin: 32px 0 0 40px;
+}
+
+.stc-reasigna-bloques + .stc-reasigna-bloques {
+  margin-top: 42px;
+}
+
+.stc-reasigna-periodo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stc-reasigna-titulo {
+  margin: 0;
+  color: var(--stc-azul);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.stc-reasigna-periodo .stc-reasigna-campos {
+  padding: 18px 0 0;
+}
+
+.stc-reasigna-tiempo {
+  gap: 16px 32px;
+}
+
+.stc-reasigna-tiempo .stc-field-label {
+  line-height: 40px;
 }

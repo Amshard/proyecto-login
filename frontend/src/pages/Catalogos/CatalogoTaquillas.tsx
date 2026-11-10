@@ -20,6 +20,7 @@ import {
     catalogoActions,
     CODE_CHARS,
     codeField,
+    conExtras,
     isCodePrefix,
     labelKey,
     labelLeft,
@@ -208,7 +209,7 @@ export default function CatalogoTaquillas() {
             id_taquilla: { options: codeOptions(taquillas.map((r) => r.id_taquilla.slice(-1))) },
             turno: { options: codeOptions(turnos.map((r) => r.turno)) },
         };
-        return FIELDS.map((field) => ({ ...field, ...extra[field.key] }));
+        return conExtras(FIELDS, extra);
     }, [lineas, estaciones, rows, idLinea, prefix, idTaquilla]);
 
     const taquillaChange = keyChange(KEY_FIELDS, (f) =>

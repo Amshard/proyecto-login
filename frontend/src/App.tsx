@@ -32,7 +32,15 @@ import UbicacionExpediente from './pages/Consultas/UbicacionExpediente';
 import PeriodosVacacionales from './pages/Consultas/PeriodosVacacionales';
 import CapturaPeriodos from './pages/Vacaciones/CapturaPeriodos';
 import CapturaSolicitudes from './pages/Vacaciones/CapturaSolicitudes';
+import GeneraComparativo from './pages/Vacaciones/GeneraComparativo';
+import GeneraProgramaAnual from './pages/Vacaciones/GeneraProgramaAnual';
+import GeneraSolicitudesFaltantes from './pages/Vacaciones/GeneraSolicitudesFaltantes';
 import InicioAnualVacaciones from './pages/Vacaciones/InicioAnualVacaciones';
+import PromediaCalificaciones from './pages/Vacaciones/PromediaCalificaciones';
+import ReasignaPeriodos from './pages/Vacaciones/ReasignaPeriodos';
+import ReporteComparativo from './pages/Vacaciones/ReporteComparativo';
+import ReporteConSinSolicitud from './pages/Vacaciones/ReporteConSinSolicitud';
+import ReportesProgramaAnual from './pages/Vacaciones/ReportesProgramaAnual';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
 import SectionPage from './pages/SectionPage';
@@ -69,6 +77,14 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/consultas/calificaciones', <ConsultaCalificaciones />],
   ['/consultas/periodos-vacacionales-por-expediente', <PeriodosVacacionales />],
   ['/vacaciones/inicio-anual-de-vacaciones', <InicioAnualVacaciones />],
+  ['/vacaciones/genera-solicitudes-para-el-personal-faltante', <GeneraSolicitudesFaltantes />],
+  ['/vacaciones/reporte-de-vacaciones-con-y-sin-solicitud', <ReporteConSinSolicitud />],
+  ['/vacaciones/promedia-calificaciones', <PromediaCalificaciones />],
+  ['/vacaciones/genera-prog-anual-de-vacaciones-asignacion', <GeneraProgramaAnual />],
+  ['/vacaciones/genera-comparativo', <GeneraComparativo />],
+  ['/vacaciones/reporte-comparativo-de-vacaciones-asignadas', <ReporteComparativo />],
+  ['/vacaciones/reportes-del-programa-anual', <ReportesProgramaAnual />],
+  ['/vacaciones/re-asigna-periodos-vacacionales-por-expediente', <ReasignaPeriodos />],
   ['/vacaciones/captura-periodos-vacacionales', <CapturaPeriodos />],
   ['/vacaciones/captura-de-solicitudes', <CapturaSolicitudes />],
   ['/:section/:item', <SectionPage />],

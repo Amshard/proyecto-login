@@ -13,6 +13,7 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
+import { ddmmyyyy } from '../../utils/fechas';
 import { CamposFila, CamposStack } from './CatalogoCampos';
 import {
     catalogoActions,
@@ -22,6 +23,7 @@ import {
     layoutProps,
     tablaProps,
     textField,
+    texto,
     useCatalogoForm,
     useCatalogoRows,
 } from './useCatalogo';
@@ -57,27 +59,26 @@ const ROL_FIELDS = [
     codeField('perm', 'Perm', 4, SMALL),
 ].map((f) => ({ ...f, readOnly: true }));
 
-const text = (value: unknown) => (value == null ? '' : String(value));
-const day = (value: unknown) => text(value).slice(0, 10);
+const day = (value: unknown) => texto(value).slice(0, 10);
 
 const lookedUp = (person: PersonalTaquilla | undefined, rol: RolTaquilla | undefined) => ({
-    nombre: text(person?.nombre),
-    jub: text(person?.prejubilacion),
-    genero: text(person?.sexo),
+    nombre: texto(person?.nombre),
+    jub: texto(person?.prejubilacion),
+    genero: texto(person?.sexo),
     ingreso: day(person?.fecha_ingreso),
-    posicionRol: text(rol?.numero),
-    tramo: text(rol?.id_tramo),
-    faltas: text(rol?.faltas),
-    taquilla: text(rol?.id_taquilla),
-    categoria: text(rol?.categoria),
-    descansos: text(rol?.id_descansos),
-    lugar: text(rol?.lugar),
-    calificacion: text(rol?.calificacion),
-    turno: text(rol?.turno),
-    perm: text(rol?.id_permanencia),
+    posicionRol: texto(rol?.numero),
+    tramo: texto(rol?.id_tramo),
+    faltas: texto(rol?.faltas),
+    taquilla: texto(rol?.id_taquilla),
+    categoria: texto(rol?.categoria),
+    descansos: texto(rol?.id_descansos),
+    lugar: texto(rol?.lugar),
+    calificacion: texto(rol?.calificacion),
+    turno: texto(rol?.turno),
+    perm: texto(rol?.id_permanencia),
 });
 
-const formatFecha = (value: unknown) => day(value).split('-').reverse().join('/');
+const formatFecha = (value: unknown) => ddmmyyyy(day(value));
 
 const COLUMNS: Column<PersonalGaceta>[] = [
     { header: 'Expediente', cell: (r) => r.exp },
