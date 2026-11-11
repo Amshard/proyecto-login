@@ -70,6 +70,16 @@ EstacionListView = _list_view(models.Estacion, 'id_linea', 'id_estacion')
 DescansoListView = _list_view(models.Descanso, 'id_descansos')
 PersonalGacetaListView = _list_view(models.PersonalGaceta, 'exp')
 TaquillaListView = _list_view(models.Taquilla, 'id_taquilla', 'turno')
+AntiguedadStcListView = _list_view(models.AntiguedadStc, 'clave')
+AsistenciaListView = _list_view(models.Asistencia, 'clave')
+PuntualidadListView = _list_view(models.Puntualidad, 'clave')
+RolesLineaTurnoListView = _list_view(models.RolesLineaTurno, 'clave')
+FaltanteEfectivoListView = _list_view(models.FaltanteEfectivo, 'clave')
+FrecuenciaFeListView = _list_view(models.FrecuenciaFe, 'clave')
+SancionesListView = _list_view(models.Sanciones, 'clave')
+RolDelAnioListView = _list_view(models.RolDelAnio, 'anio', 'id_rol_anual')
+CatorcenaListView = _list_view(models.Catorcena, 'anio', 'id_catorcena')
+PeriodoVacacionalListView = _list_view(models.PeriodoVacacional, 'anio', 'id_periodovac')
 # Read only.
 PersonalRespaldoListView = _list_view(models.PersonalRespaldo, 'id_expediente', base=generics.ListAPIView)
 
@@ -237,6 +247,16 @@ TaquillaItemView = _item_view(
     ('rol_taquilla', ('id_taquilla', 'turno'), 'Existe en el Rol de Taquilla, Primero debe darla de baja en el Rol'),
 )
 PersonalGacetaItemView = _item_view(models.PersonalGaceta)
+AntiguedadStcItemView = _item_view(models.AntiguedadStc)
+AsistenciaItemView = _item_view(models.Asistencia)
+PuntualidadItemView = _item_view(models.Puntualidad)
+RolesLineaTurnoItemView = _item_view(models.RolesLineaTurno)
+FaltanteEfectivoItemView = _item_view(models.FaltanteEfectivo)
+FrecuenciaFeItemView = _item_view(models.FrecuenciaFe)
+SancionesItemView = _item_view(models.Sanciones)
+RolDelAnioItemView = _item_view(models.RolDelAnio)
+CatorcenaItemView = _item_view(models.Catorcena)
+PeriodoVacacionalItemView = _item_view(models.PeriodoVacacional)
 
 
 class PersonalTaquillaItemView(_item_view(models.PersonalTaquilla)):
@@ -253,3 +273,22 @@ class PersonalTaquillaItemView(_item_view(models.PersonalTaquilla)):
                         [request.user.id_usuario, kwargs['id_expediente']],
                     )
         return response
+
+
+class CambiaRolVigenteView(APIView):
+    """POST {anio, id_rol_anual}: that role of the year becomes the only row of rolvigente."""
+
+    def post(self, request):
+        rol = models.RolDelAnio.objects.filter(
+            anio=request.data.get('anio'), id_rol_anual=request.data.get('id_rol_anual')
+        ).first()
+        if rol is None:
+            return Response({'detail': 'No existe ese rol en el catálogo.'}, status=status.HTTP_404_NOT_FOUND)
+        with transaction.atomic(), connection.cursor() as cursor:
+            cursor.execute('DELETE FROM rolvigente')
+            cursor.execute(
+                'INSERT INTO rolvigente (id_rol_anual, nombre_rol, meses_q_califica, fecha_ini, fecha_fin, '
+                'usuario_qcambia, fecha_modif) VALUES (%s, %s, %s, %s, %s, %s, GETDATE())',
+                [rol.id_rol_anual, rol.nombre_rol, rol.meses_q_califica, rol.fecha_ini, rol.fecha_fin, request.user.id_usuario],
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)

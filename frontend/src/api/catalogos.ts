@@ -72,6 +72,41 @@ export interface Taquilla {
     id_estacion: string;
 }
 
+export interface RolDelAnio {
+    anio: number;
+    id_rol_anual: number;
+    nombre_rol: string;
+    meses_q_califica: string;
+    fecha_ini: string;
+    fecha_fin: string;
+    estado: string | null;
+}
+
+export interface Catorcena {
+    anio: number;
+    id_catorcena: string;
+    descrip123: string;
+    mes: string;
+    fecha_ini: string;
+    fecha_fin: string;
+    periodo: string;
+    [dia: `dia${number}` | `idia${number}`]: string | null;
+}
+
+export interface PeriodoVacacional {
+    anio: number;
+    id_periodovac: string;
+    fecha_ini: string | null;
+    fecha_fin: string | null;
+    periodo: string | null;
+}
+
+export interface Parametro {
+    clave: number;
+    puntos: number;
+    [campo: string]: number;
+}
+
 type Key = string | number;
 
 const itemUrl = (path: Key[]) => `/${path.map((part) => encodeURIComponent(String(part))).join('/')}/`;
@@ -126,6 +161,46 @@ export const deleteDescanso = (id: string) => deleteRow('descansos', id);
 export const deleteTaquilla = (id: string, turno: string) => deleteRow('taquillas', id, turno);
 export const deletePersonalTaquilla = (expediente: number) => deleteRow('personal-taquilla', expediente);
 export const deletePersonalGaceta = (exp: number) => deleteRow('personal-gaceta', exp);
+
+const parametroApi = (collection: string) => {
+    const get = getRows<Parametro>(collection);
+    return {
+        get: async () =>
+            (await get()).map(
+                (p) => Object.fromEntries(Object.entries(p).map(([key, value]) => [key, Math.round(value * 100) / 100])) as Parametro
+            ),
+        create: (data: Parametro) => createRow(collection, data),
+        update: (data: Parametro) => updateRow([collection, data.clave], data),
+        remove: (data: Parametro) => deleteRow(collection, data.clave),
+    };
+};
+
+export type ParametroApi = ReturnType<typeof parametroApi>;
+
+export const antiguedadStcApi = parametroApi('antiguedad-stc');
+export const asistenciaApi = parametroApi('asistencia');
+export const puntualidadApi = parametroApi('puntualidad');
+export const rolesLineaTurnoApi = parametroApi('roles-linea-turno');
+export const faltanteEfectivoApi = parametroApi('faltante-efectivo');
+export const frecuenciaFeApi = parametroApi('frecuencia-fe');
+export const sancionesApi = parametroApi('sanciones');
+
+export const getRolesDelAnio = getRows<RolDelAnio>('roles-del-anio');
+export const createRolDelAnio = (data: RolDelAnio) => createRow('roles-del-anio', data);
+export const updateRolDelAnio = (data: RolDelAnio) => updateRow(['roles-del-anio', data.anio, data.id_rol_anual], data);
+export const deleteRolDelAnio = (data: RolDelAnio) => deleteRow('roles-del-anio', data.anio, data.id_rol_anual);
+export const getCatorcenas = getRows<Catorcena>('catorcenas');
+export const createCatorcena = (data: Catorcena) => createRow('catorcenas', data);
+export const updateCatorcena = (data: Catorcena) => updateRow(['catorcenas', data.anio, data.id_catorcena], data);
+export const deleteCatorcena = (data: Catorcena) => deleteRow('catorcenas', data.anio, data.id_catorcena);
+export const getPeriodosVacacionales = getRows<PeriodoVacacional>('periodos-vacacionales');
+export const createPeriodoVacacional = (data: PeriodoVacacional) => createRow('periodos-vacacionales', data);
+export const updatePeriodoVacacional = (data: PeriodoVacacional) =>
+    updateRow(['periodos-vacacionales', data.anio, data.id_periodovac], data);
+export const deletePeriodoVacacional = (data: PeriodoVacacional) => deleteRow('periodos-vacacionales', data.anio, data.id_periodovac);
+export const cambiaRolVigente = async ({ anio, id_rol_anual }: RolDelAnio): Promise<void> => {
+    await api.post('/roles-del-anio/cambia-vigente/', { anio, id_rol_anual });
+};
 
 export const respaldaRolVigente = async () => (await api.post<{ respaldados: number }>('/rol-taquilla/respalda/')).data.respaldados;
 

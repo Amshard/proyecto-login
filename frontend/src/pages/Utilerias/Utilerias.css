@@ -1,0 +1,155 @@
+.stc-utilerias-campos .stc-field-label,
+.stc-utilerias-fila .stc-field-label {
+  width: auto;
+  white-space: nowrap;
+}
+
+.stc-utilerias-fila {
+  display: flex;
+  flex: 1;
+  align-self: center;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+}
+
+.stc-utilerias-fila > .stc-manual-fields {
+  box-sizing: border-box;
+  flex: none;
+  align-self: flex-start;
+  width: 380px;
+  padding: 32px 24px;
+  border: none;
+  background: none;
+}
+
+.stc-utilerias-fila .stc-campos-outline {
+  flex-direction: column;
+  align-items: center;
+}
+
+.stc-utilerias-tabla {
+  display: flex;
+  flex: 0 1 520px;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.stc-utilerias-tabla .stc-table-frame {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.stc-utilerias-nota {
+  margin: 0;
+  color: black;
+  font-weight: 700;
+  text-align: center;
+}
+
+.stc-utilerias-fila .stc-table {
+  width: 100%;
+}
+
+.stc-utilerias-fila :is(.stc-report-options-title, .stc-table-frame-title) {
+  color: black;
+  font-style: italic;
+}
+
+.stc-table-roles th:nth-child(n) {
+  width: auto;
+}
+
+.stc-table-roles th:nth-child(-n + 2) {
+  width: 90px;
+}
+
+.stc-table-frame:has(.stc-table-roles) {
+  box-sizing: border-box;
+  width: 85%;
+  margin-inline: auto;
+}
+
+.stc-table-catorcenas th:nth-child(n) {
+  width: auto;
+}
+
+.stc-table-catorcenas th:nth-child(-n + 2) {
+  width: 90px;
+}
+
+.stc-table-catorcenas th:last-child {
+  width: 40%;
+}
+
+.stc-catorcena-outline {
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.stc-catorcena-campos {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px 52px;
+}
+
+.stc-catorcena-campos > :first-child {
+  margin-right: 55px;
+}
+
+.stc-catorcena-semanas {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+}
+
+.stc-catorcena-semana {
+  display: flex;
+  gap: 24px;
+}
+
+.stc-catorcena-dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stc-catorcena-dia .stc-field-label {
+  font-size: 14px;
+}
+
+.stc-catorcena-num {
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.stc-catorcena-dia .stc-field-input {
+  box-sizing: border-box;
+  width: 36px;
+  height: 30px;
+  padding: 0;
+  text-align: center;
+}
+
+.stc-table-usuarios th:nth-child(n) {
+  width: auto;
+}
+
+.stc-table-usuarios th:nth-child(1),
+.stc-table-usuarios th:nth-child(5),
+.stc-table-usuarios th:nth-child(6) {
+  width: 60px;
+}
+
+.stc-table-usuarios th:nth-child(2) {
+  width: 80px;
+}
+
+.stc-table-usuarios th:nth-child(3),
+.stc-table-usuarios th:nth-child(7) {
+  width: 20%;
+}

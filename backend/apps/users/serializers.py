@@ -31,6 +31,21 @@ class UserSerializer(serializers.ModelSerializer):
         return RolVigenteSerializer(rol_vigente).data if rol_vigente else None
 
 
+class UsuarioSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(required=False, allow_blank=True, max_length=16)
+    estatus = serializers.ChoiceField(choices=['A', 'B'])
+    tipo_usuario = serializers.ChoiceField(choices=['1', '2', '3'])
+
+    class Meta:
+        model = User
+        fields = [
+            'id_usuario', 'nombre', 'password', 'estatus', 'tipo_usuario', 'descri_usuario',
+            'fecha_alta', 'fecha_baja', 'fecha_modif',
+        ]
+        read_only_fields = ['fecha_alta', 'fecha_baja', 'fecha_modif']
+        extra_kwargs = {'id_usuario': {'validators': []}}
+
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)

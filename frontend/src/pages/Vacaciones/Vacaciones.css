@@ -11,7 +11,6 @@
   width: auto;
 }
 
-.stc-captura-ancho,
 .stc-solicitud-nombre,
 .stc-solicitud-opciones .stc-field-input {
   box-sizing: border-box;
@@ -77,8 +76,8 @@
   gap: 16px 40px;
 }
 
-.stc-captura-ancho {
-  width: min(768px, 100%);
+.stc-periodos-fila > :first-child {
+  margin-right: 98px;
 }
 
 .stc-captura-columna {

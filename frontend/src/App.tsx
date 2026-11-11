@@ -41,6 +41,16 @@ import ReasignaPeriodos from './pages/Vacaciones/ReasignaPeriodos';
 import ReporteComparativo from './pages/Vacaciones/ReporteComparativo';
 import ReporteConSinSolicitud from './pages/Vacaciones/ReporteConSinSolicitud';
 import ReportesProgramaAnual from './pages/Vacaciones/ReportesProgramaAnual';
+import Usuarios from './pages/Utilerias/Usuarios';
+import AntiguedadSTC from './pages/Utilerias/ParametrosCalificacion/AntiguedadSTC';
+import Asistencia from './pages/Utilerias/ParametrosCalificacion/Asistencia';
+import Puntualidad from './pages/Utilerias/ParametrosCalificacion/Puntualidad';
+import RolesLineaTurno from './pages/Utilerias/ParametrosCalificacion/RolesLineaTurno';
+import FaltanteEfectivo from './pages/Utilerias/ParametrosCalificacion/FaltanteEfectivo';
+import FrecuenciaFE from './pages/Utilerias/ParametrosCalificacion/FrecuenciaFE';
+import Sanciones from './pages/Utilerias/ParametrosCalificacion/Sanciones';
+import CambiaRol from './pages/Utilerias/CambiaRol';
+import Catorcenas from './pages/Utilerias/Catorcenas';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
 import SectionPage from './pages/SectionPage';
@@ -87,6 +97,16 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/vacaciones/re-asigna-periodos-vacacionales-por-expediente', <ReasignaPeriodos />],
   ['/vacaciones/captura-periodos-vacacionales', <CapturaPeriodos />],
   ['/vacaciones/captura-de-solicitudes', <CapturaSolicitudes />],
+  ['/utilerias/usuarios', <Usuarios />],
+  ['/utilerias/parametros-para-calificacion/antiguedad-stc', <AntiguedadSTC />],
+  ['/utilerias/parametros-para-calificacion/asistencia-faltas', <Asistencia />],
+  ['/utilerias/parametros-para-calificacion/puntualidad-retardos', <Puntualidad />],
+  ['/utilerias/parametros-para-calificacion/roles-en-la-linea-y-en-el-turno', <RolesLineaTurno />],
+  ['/utilerias/parametros-para-calificacion/faltante-de-efectivo', <FaltanteEfectivo />],
+  ['/utilerias/parametros-para-calificacion/fecuencia-fe', <FrecuenciaFE />],
+  ['/utilerias/parametros-para-calificacion/sanciones', <Sanciones />],
+  ['/utilerias/cambia-de-rol-y-captura-roles-en-el-ano', <CambiaRol />],
+  ['/utilerias/captura-catorcenas-del-ano', <Catorcenas />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];
