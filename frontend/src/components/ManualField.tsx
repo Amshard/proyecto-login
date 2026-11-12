@@ -23,6 +23,7 @@ export interface ManualFieldConfig<T extends string = string> {
     accept?: (value: string) => boolean;
     onEnter?: (value: string) => void;
     labelLeft?: boolean;
+    autoComplete?: string;
 }
 
 interface ManualFieldProps<T extends string> {
@@ -76,7 +77,7 @@ export function ManualField<T extends string>({ config, value, onChange, readOnl
                 else if (config.padTo && value) onChange(value.padStart(config.padTo, '0'));
             }}
             style={config.inputStyle}
-            autoComplete={config.options ? 'off' : undefined}
+            autoComplete={config.autoComplete ?? (config.options ? 'off' : undefined)}
         />
     );
 

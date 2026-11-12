@@ -50,7 +50,7 @@ const NAV_ITEMS = [
             'Captura Catorcenas del año',
         ],
     },
-    { label: 'A Excel', items: ['Personal de Taquilla', 'Calificaciones', 'Personal_vacaciones', 'Rol vigente para Dias Economicos', 'Respalda Personal de Taquilla', 'Respalda Calificaciones'] },
+    { label: 'A Excel', items: ['Personal de Taquilla', 'Calificaciones', 'Personal_vacaciones', 'Rol vigente para Dias Economicos', 'Respalda Rol de Taquilla', 'Respalda Personal de Taquilla', 'Respalda Calificaciones'] },
 ];
 
 const nombreMenu = (menu: string | null, subMenu: string | null) => {

@@ -106,12 +106,9 @@ export default function CambiaRol() {
         if (field === 'id_rol_anual') updateField('nombre_rol', nombreRol(value));
     };
 
-    const cambiaVigente = async () => {
+    const asignaRol = async () => {
         const rol = selected as RolDelAnio | null;
-        if (!rol) {
-            window.alert('Seleccione en la tabla el rol que será el rol vigente.');
-            return;
-        }
+        if (!rol) return;
         if (!window.confirm(`¿Desea que el ${describe(rol)} sea el rol vigente?`)) return;
         try {
             await cambiaRolVigente(rol);
@@ -123,7 +120,7 @@ export default function CambiaRol() {
     };
 
     const sortedRows = useMemo(
-        () => [...rows].sort((a, b) => b.anio - a.anio || a.id_rol_anual - b.id_rol_anual),
+        () => [...rows].sort((a, b) => a.anio - b.anio || a.id_rol_anual - b.id_rol_anual),
         [rows]
     );
 
@@ -132,7 +129,7 @@ export default function CambiaRol() {
             tabLabel="Catálogo de Roles en el Año"
             statusLabel="Roles en el Año"
             {...layoutProps(rows, catalogoForm, actions)}
-            actions={<SideButtons buttons={[{ label: 'Cambia Rol Vigente', onClick: cambiaVigente }]} />}
+            actions={selected && <SideButtons buttons={[{ label: 'Asigna Rol', onClick: asignaRol }]} />}
             fields={<CamposOutline completo fields={FIELDS} form={form} onChange={onFieldChange} />}
             reportTitle="Roles en el Año"
             pdf={{

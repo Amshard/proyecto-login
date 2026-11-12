@@ -51,6 +51,13 @@ import FrecuenciaFE from './pages/Utilerias/ParametrosCalificacion/FrecuenciaFE'
 import Sanciones from './pages/Utilerias/ParametrosCalificacion/Sanciones';
 import CambiaRol from './pages/Utilerias/CambiaRol';
 import Catorcenas from './pages/Utilerias/Catorcenas';
+import PersonalTaquilla from './pages/AExcel/PersonalTaquilla';
+import AExcelCalificaciones from './pages/AExcel/Calificaciones';
+import PersonalVacaciones from './pages/AExcel/PersonalVacaciones';
+import RolVigente from './pages/AExcel/RolVigente';
+import RespaldaRolTaq from './pages/AExcel/RespaldaRolTaq';
+import RespaldaPersonal from './pages/AExcel/RespaldaPersonal';
+import RespaldaCalif from './pages/AExcel/RespaldaCalif';
 import ChangePassword from './pages/Login/ChangePassword';
 import Login from './pages/Login/Login';
 import SectionPage from './pages/SectionPage';
@@ -107,6 +114,13 @@ const PROTECTED_ROUTES: [path: string, element: ReactElement][] = [
   ['/utilerias/parametros-para-calificacion/sanciones', <Sanciones />],
   ['/utilerias/cambia-de-rol-y-captura-roles-en-el-ano', <CambiaRol />],
   ['/utilerias/captura-catorcenas-del-ano', <Catorcenas />],
+  ['/a-excel/personal-de-taquilla', <PersonalTaquilla />],
+  ['/a-excel/calificaciones', <AExcelCalificaciones />],
+  ['/a-excel/personal-vacaciones', <PersonalVacaciones />],
+  ['/a-excel/rol-vigente-para-dias-economicos', <RolVigente />],
+  ['/a-excel/respalda-rol-de-taquilla', <RespaldaRolTaq />],
+  ['/a-excel/respalda-personal-de-taquilla', <RespaldaPersonal />],
+  ['/a-excel/respalda-calificaciones', <RespaldaCalif />],
   ['/:section/:item', <SectionPage />],
   ['/:section/:group/:item', <SectionPage />],
 ];

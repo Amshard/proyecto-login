@@ -1,0 +1,59 @@
+.stc-aexcel-campo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stc-aexcel-input {
+  box-sizing: border-box;
+  width: 70px;
+  height: 30px;
+  text-align: center;
+}
+
+.stc-aexcel-fila {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 102px;
+}
+
+.stc-aexcel-fila .stc-field-label {
+  color: black;
+}
+
+.stc-aexcel-fila .stc-report-option {
+  color: var(--stc-azul);
+}
+
+.stc-aexcel-ancho {
+  box-sizing: border-box;
+  width: min(800px, 100%);
+  height: 30px;
+}
+
+.stc-aexcel-ancho:read-only {
+  color: rgb(60, 60, 60);
+  background: var(--stc-gris-claro);
+}
+
+.stc-aexcel-campos {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.stc-aexcel-grupo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stc-aexcel-radios {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+}

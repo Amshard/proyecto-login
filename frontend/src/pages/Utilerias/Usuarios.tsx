@@ -22,7 +22,7 @@ const EMPTY_FORM: UsuarioForm = {
     id_usuario: '',
     nombre: '',
     password: '',
-    estatus: 'A',
+    estatus: '',
     tipo_usuario: '',
     descri_usuario: '',
 };
@@ -41,12 +41,13 @@ const TIPOS = [
 const nombreTipo = (tipo: string) => TIPOS.find((t) => t.value === tipo)?.label ?? '';
 
 const password = textField('password', 'Password', 150, { maxLength: 16 });
+const nombre = textField('nombre', 'Nombre', 460, { maxLength: 60 });
 
 const FIELDS = [
-    { ...codeField('id_usuario', 'Usuario', 5, { width: 50, wrap: 70 }), isKey: true },
-    { ...password, type: 'password', inputStyle: { ...password.inputStyle, textTransform: 'none' as const } },
-    { ...textField('nombre', 'Nombre', 400, { maxLength: 60 }), breakAfter: true },
-    { ...codeField('estatus', 'Estatus', 1, { width: 15, wrap: 60, allowedChars: 'AB' }), options: ESTATUS },
+    { ...codeField('id_usuario', 'Usuario', 5, { width: 50, wrap: 70 }), isKey: true, autoComplete: 'off' },
+    { ...password, type: 'password', autoComplete: 'new-password', inputStyle: { ...password.inputStyle, textTransform: 'none' as const } },
+    { ...nombre, inputStyle: { ...nombre.inputStyle, width: nombre.inputStyle?.maxWidth }, breakAfter: true },
+    { ...codeField('estatus', 'Estatus: Activo/Baja', 1, { width: 15, wrap: 60, allowedChars: 'AB' }), options: ESTATUS },
     { ...codeField('tipo_usuario', 'Tipo de Usuario', 1, { width: 15, wrap: 100, allowedChars: '123' }), options: TIPOS },
     textField('descri_usuario', 'Descripcion', 200, { maxLength: 20 }),
 ].map(labelLeft);
@@ -118,6 +119,7 @@ export default function Usuarios() {
             statusLabel="Catálogo de Usuarios"
             {...layoutProps(rows, catalogoForm, actions)}
             onSave={onSave}
+            hideTabs
             fields={
                 <div className="stc-utilerias-campos">
                     <CamposOutline completo porLinea fields={FIELDS} form={form} onChange={usuarioChange} />
@@ -125,7 +127,7 @@ export default function Usuarios() {
             }
         >
             <DataTable
-                title="Usuarios"
+                title="Datos del Usuario"
                 className="stc-table-usuarios"
                 rowHeader
                 columns={tableColumns}
