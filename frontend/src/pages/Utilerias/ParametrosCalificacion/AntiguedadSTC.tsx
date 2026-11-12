@@ -7,8 +7,8 @@ export default function AntiguedadSTC() {
             api={antiguedadStcApi}
             tabLabel="Antigüedad STC"
             statusLabel="Antigüedad en el STC"
-            claveLabel="Años Cumplidos"
-            claveHeader="Años"
+            claveLabel="Años"
+            claveHeader="Años Cumplidos"
             describe="años cumplidos"
             tableTitle="Antigüedad 15%"
             footerTitle="RptAntiguedadSTC"

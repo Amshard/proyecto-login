@@ -290,3 +290,7 @@
   text-align: center;
   cursor: text;
 }
+
+.stc-consulta-calif .stc-tab-panel {
+  background: var(--stc-gris-claro);
+}
