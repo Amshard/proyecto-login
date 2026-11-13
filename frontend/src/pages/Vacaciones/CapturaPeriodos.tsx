@@ -80,6 +80,7 @@ export default function CapturaPeriodos() {
         () => [...rows].sort((a, b) => b.anio - a.anio || a.id_periodovac.localeCompare(b.id_periodovac)),
         [rows]
     );
+    const filasAnio = useMemo(() => sortedRows.filter((r) => String(r.anio) === form.anio), [sortedRows, form.anio]);
 
     const generarReporte = () =>
         openPdf({ title: TITULO.toUpperCase(), footerTitle: 'RptPeriodosVac', columns: COLUMNAS, rows: sortedRows, countLabel: 'Total de Periodos' });
@@ -104,7 +105,7 @@ export default function CapturaPeriodos() {
                     title=""
                     className="stc-table-fit stc-captura-tabla"
                     columns={COLUMNAS}
-                    rows={sortedRows}
+                    rows={filasAnio}
                     {...tablaProps<PeriodoVacacional>(catalogoForm)}
                 />
             </div>

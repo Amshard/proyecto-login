@@ -4,6 +4,7 @@ import { ManualFields } from '../../components/ManualField';
 import { codeField } from '../Catalogos/useCatalogo';
 import { SideButtons } from './ProcesoControls';
 import { NO_ROWS, fixedField, headersOnly, useForm } from './procesoFields';
+import '../Catalogos/Catalogos.css';
 import './Procesos.css';
 
 const BUSQUEDA_FIELDS = [
@@ -45,6 +46,7 @@ export default function AgregaLugar() {
         <CatalogoLayout
             tabLabel="AGREGA UN LUGAR EN EL ROL"
             statusLabel="Agrega Registro Al Rol de Taquilla"
+            hideTabs
             actions={
                 <SideButtons
                     buttons={[{ label: 'Limpiar', onClick: limpiar }, { label: 'Ver en Consulta' }, { label: 'Guarda Los Cbios' }]}
@@ -52,13 +54,16 @@ export default function AgregaLugar() {
             }
             fields={
                 <div className="stc-manual-fields">
-                    <div className="stc-campos-outline stc-proceso-columnas">
-                        <div className="stc-agrega-busqueda">
-                            <p className="stc-agrega-instruccion">Teclee un Expediente para buscar la Linea, Tramo y Turno</p>
-                            <ManualFields className="stc-proceso-fila" fields={BUSQUEDA_FIELDS} form={form} onChange={setField} />
+                    <fieldset className="stc-campos-titulado">
+                        <legend className="stc-report-options-title">Agrega un Lugar en el Rol</legend>
+                        <div className="stc-campos-outline stc-proceso-columnas">
+                            <div className="stc-agrega-busqueda">
+                                <p className="stc-agrega-instruccion">Teclee un Expediente para buscar la Linea, Tramo y Turno</p>
+                                <ManualFields className="stc-proceso-fila" fields={BUSQUEDA_FIELDS} form={form} onChange={setField} />
+                            </div>
+                            <ManualFields className="stc-proceso-fila" fields={DERECHA_FIELDS} form={form} onChange={setField} />
                         </div>
-                        <ManualFields className="stc-proceso-fila" fields={DERECHA_FIELDS} form={form} onChange={setField} />
-                    </div>
+                    </fieldset>
                 </div>
             }
         >

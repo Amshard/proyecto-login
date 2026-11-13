@@ -49,6 +49,7 @@ export default function ActualizaCalificacion() {
         <CatalogoLayout
             tabLabel="TECLEA EL RANGO"
             statusLabel="Lineas y Turnos por Expediente Completo"
+            hideTabs
             actions={
                 <SideButtons
                     buttons={[

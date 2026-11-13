@@ -658,7 +658,7 @@ body:has(.stc-login-page) #root {
 .stc-tab-panel {
   align-items: flex-start;
   justify-content: flex-start;
-  background: white;
+  background: var(--stc-gris-claro);
   border: 1px solid black;
 }
 
@@ -861,8 +861,8 @@ body:has(.stc-login-page) #root {
   display: none;
 }
 
-.stc-sin-pestanas .stc-tab-panel {
-  background: var(--stc-gris-claro);
+.stc-login-page .stc-tab-panel:has(.stc-table-frame) {
+  background: white;
 }
 
 .stc-calendario {

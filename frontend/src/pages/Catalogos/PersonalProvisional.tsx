@@ -41,8 +41,9 @@ const MAIN_FIELDS = [
     { ...codeField('jub', 'Jub', 1, { wrap: 70 }), readOnly: true },
     { ...codeField('genero', 'Genero', 1, { wrap: 70 }), readOnly: true },
     { ...dateField('ingreso', 'Ingreso'), readOnly: true },
-    dateField('fecha', 'Fecha Inicio'),
 ];
+
+const FECHA = dateField('fecha', '');
 
 const POSICION_ROL = codeField('posicionRol', 'Posición en el ROL', 4, { width: 100, wrap: 104 });
 
@@ -94,7 +95,7 @@ export default function PersonalProvisional() {
         required: ['exp', 'permiso'],
         checks: { exp: (v) => (Number(v) >= 1 ? undefined : 'El campo Expediente debe ser un número mayor a 0.') },
         noUpper: ['fecha'],
-        fields: [...MAIN_FIELDS, ...ROL_FIELDS],
+        fields: [...MAIN_FIELDS, FECHA, ...ROL_FIELDS],
     });
     const { form, selected, keyChange, validate } = catalogoForm;
 
@@ -135,6 +136,7 @@ export default function PersonalProvisional() {
     };
 
     const mainFields = MAIN_FIELDS.map((f) => (f.key === 'permiso' ? { ...f, readOnly: selected === null } : f));
+    const onChange = (key: string, value: string) => onFieldChange(key as keyof GacetaForm, value);
 
     const pdfColumns: Column<PersonalGaceta>[] = [
         { header: 'Expediente', cell: (r) => r.exp },
@@ -154,8 +156,8 @@ export default function PersonalProvisional() {
             onReportButton={califica}
             fields={
                 <CamposStack>
-                    <CamposFila fields={mainFields} form={shown} onChange={(key, value) => onFieldChange(key as keyof GacetaForm, value)} />
-                    <CamposFila rol fields={ROL_FIELDS} form={shown} onChange={() => {}} />
+                    <CamposFila fields={mainFields} form={shown} onChange={onChange} />
+                    <CamposFila rol fields={[FECHA, ...ROL_FIELDS]} form={shown} onChange={onChange} />
                 </CamposStack>
             }
             pdf={{

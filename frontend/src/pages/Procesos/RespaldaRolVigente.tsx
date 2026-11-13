@@ -8,6 +8,7 @@ import type { RolVigente } from '../../types/auth.types';
 import { codeField, dateField, textField, texto } from '../Catalogos/useCatalogo';
 import { sameHeight } from './procesoFields';
 import ProgressBar from './ProgressBar';
+import '../Catalogos/Catalogos.css';
 import './Procesos.css';
 
 type RespaldoKey = 'rol1' | 'rol2' | 'rol3' | 'fecha_inicial' | 'fecha_final' | 'meses_califica' | 'estado';
@@ -62,6 +63,7 @@ export default function RespaldaRolVigente() {
     return (
         <CatalogoLayout
             tabLabel="Respalda Rol Vigente"
+            hideTabs
             statusLabel="Respaldo Base de Datos"
             count={ROWS.length}
             reportButton="Grava Rol Vigente"
@@ -70,9 +72,13 @@ export default function RespaldaRolVigente() {
             overlay={busqueda.overlay}
             fields={
                 <div className="stc-manual-fields">
-                    <div className="stc-field-group">{ROL_FIELDS.map(field)}</div>
-                    {FIELDS.map(field)}
-                    <div className="stc-field-break" />
+                    <fieldset className="stc-campos-titulado">
+                        <legend className="stc-report-options-title">Respalda el Rol Vigente</legend>
+                        <div className="stc-campos-outline">
+                            <div className="stc-field-group">{ROL_FIELDS.map(field)}</div>
+                            {FIELDS.map(field)}
+                        </div>
+                    </fieldset>
                     <ProgressBar value={0} />
                 </div>
             }

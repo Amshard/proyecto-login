@@ -153,7 +153,3 @@
 .stc-table-usuarios th:nth-child(7) {
   width: 20%;
 }
-
-.stc-sin-pestanas .stc-tab-panel:has(.stc-table-usuarios) {
-  background: white;
-}

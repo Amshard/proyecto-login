@@ -456,6 +456,11 @@
   background: rgb(210, 210, 210);
 }
 
+.stc-manual-fields + .stc-rango-lineas {
+  border-top: none;
+  padding-top: 0;
+}
+
 .stc-rango-lineas .stc-progress {
   align-self: center;
   width: min(550px, 100%);

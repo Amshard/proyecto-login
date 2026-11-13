@@ -70,6 +70,7 @@ export default function ConcentradoLineas() {
         <CatalogoLayout
             tabLabel="RANGO DE EXPEDIENTES"
             statusLabel="Rol de Lineas y Turnos por Expediente"
+            hideTabs
             actions={
                 <SideButtons
                     buttons={[{ label: 'Muestra la Informacion' }, { label: 'Limpiar', onClick: limpiar }, { label: 'Genera en Excel' }]}

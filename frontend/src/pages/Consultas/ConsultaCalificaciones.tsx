@@ -40,7 +40,6 @@ export default function ConsultaCalificaciones() {
         <CatalogoLayout
             tabLabel="CALIFICACION POR UN EXPEDIENTE"
             statusLabel="Consulta Calificaciones"
-            pageClassName="stc-consulta-calif"
             onClear={() => setVacio((n) => n + 1)}
             extraTabs={[
                 {
