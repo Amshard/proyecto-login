@@ -137,6 +137,18 @@ export const getPersonalGaceta = getRows<PersonalGaceta>('personal-gaceta');
 export const getRolTaquilla = getRows<RolTaquilla>('rol-taquilla');
 export const getSinCto = getRows<{ id_expediente: number; sincto: string }>('rol-taquilla/sincto');
 
+export interface RolHist {
+    rol_anio: number;
+    rol_num: number;
+    inc_cargadas: string | null;
+    fec_ini_rol: string | null;
+    fec_fin_rol: string | null;
+    fecha_respaldo: string | null;
+    conta: number;
+}
+
+export const getRolesHist = getRows<RolHist>('roles-hist');
+
 export const createPermanencia = (data: Permanencia) => createRow('permanencias', data);
 export const createLinea = (data: Linea) => createRow('lineas', data);
 export const createEstacion = (data: Estacion) => createRow('estaciones', data);

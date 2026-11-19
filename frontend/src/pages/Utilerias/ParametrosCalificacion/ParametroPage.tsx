@@ -63,7 +63,7 @@ export default function ParametroPage({
     const columns: Column<Parametro>[] = [
         { header: claveHeader, cell: (r) => r.clave, center: true },
         ...montos.map((m): Column<Parametro> => ({ header: m.label, cell: (r) => r[m.key].toFixed(2), center: true })),
-        { header: 'Puntos', cell: (r) => (puntosEnteros ? r.puntos : r.puntos.toFixed(2)), center: true },
+        { header: 'Puntos', cell: (r) => (puntosEnteros ? r.puntos : r.puntos.toFixed(1)), center: true },
     ];
     const checks: Record<string, (v: string, form: ParametroForm) => string | undefined> = Object.fromEntries(
         [...montos, { key: 'puntos', label: 'Puntos' }].map((m) => [m.key, esNumero(m.label)])

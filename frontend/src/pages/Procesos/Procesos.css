@@ -484,6 +484,25 @@
   gap: 16px;
 }
 
+.stc-table.stc-table-rol {
+  table-layout: fixed;
+}
+
+.stc-table-rol th:nth-child(n) {
+  width: auto;
+}
+
+.stc-table-rol th:nth-child(-n + 2) {
+  width: 60px;
+}
+
+.stc-table-frame:has(.stc-table-rol) {
+  box-sizing: border-box;
+  width: 1360px;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
 .stc-table-frame:has(.stc-table-rol) .stc-table-frame-title {
   color: black;
   font-style: italic;

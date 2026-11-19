@@ -153,6 +153,17 @@ class SinCtoView(QueryView):
     )
 
 
+class RolesHistView(QueryView):
+    """Each role backed up in calif_roles_hist, with how many places it holds; newest first."""
+
+    sql = (
+        'SELECT [rol_año] AS rol_anio, rol_num, RTRIM(inc_cargadas) AS inc_cargadas, fec_ini_rol, fec_fin_rol, '
+        'fecha_respaldo, COUNT(*) AS conta FROM calif_roles_hist '
+        'GROUP BY [rol_año], rol_num, inc_cargadas, fec_ini_rol, fec_fin_rol, fecha_respaldo '
+        'ORDER BY [rol_año] DESC, rol_num DESC'
+    )
+
+
 class CalificaProvisionalView(APIView):
     """POST sets roles en línea and en turno to 4 in calificacion_taq for every provisional expediente."""
 
