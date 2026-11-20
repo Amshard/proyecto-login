@@ -11,6 +11,7 @@ import {
     isCodePrefix,
     layoutProps,
     padCode,
+    recarga,
     tablaProps,
     textField,
     useCatalogoForm,
@@ -86,8 +87,8 @@ const formToLinea = (form: LineaForm): Linea => ({
 });
 
 export default function CatalogoLineas() {
-    const [rows, setRows] = useCatalogoRows(getLineas);
-    const [permanencias] = useCatalogoRows(getPermanencias);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getLineas);
+    const [permanencias, , recargaPermanencias] = useCatalogoRows(getPermanencias);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
         required: REQUIRED,
         fields: FIELDS,
@@ -161,6 +162,7 @@ export default function CatalogoLineas() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows, recargaPermanencias)}
             tabLabel="Catálogo de Líneas"
             {...layoutProps(rows, catalogoForm, actions)}
             fields={

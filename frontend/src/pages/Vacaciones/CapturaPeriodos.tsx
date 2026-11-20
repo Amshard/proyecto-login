@@ -11,7 +11,7 @@ import DataTable, { type Column } from '../../components/DataTable';
 import { ManualFields } from '../../components/ManualField';
 import { ddmmyyyy, textoPeriodo } from '../../utils/fechas';
 import { openPdf } from '../../utils/openPdf';
-import { catalogoActions, dateField, layoutProps, tablaProps, textField, useCatalogoForm, useCatalogoRows } from '../Catalogos/useCatalogo';
+import { catalogoActions, dateField, layoutProps, recarga, tablaProps, textField, useCatalogoForm, useCatalogoRows } from '../Catalogos/useCatalogo';
 import { campo, numero } from '../Procesos/procesoFields';
 import '../Reportes/Reportes.css';
 import { reporteTab } from './reporteTab';
@@ -55,7 +55,7 @@ const checks = {
 };
 
 export default function CapturaPeriodos() {
-    const [rows, setRows] = useCatalogoRows(getPeriodosVacacionales);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getPeriodosVacacionales);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { fields: FIELDS, checks });
     const { form, keyChange, updateField } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, formToRow, {
@@ -87,6 +87,7 @@ export default function CapturaPeriodos() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows)}
             tabLabel={TITULO}
             statusLabel={TITULO}
             {...layoutProps(rows, catalogoForm, actions)}

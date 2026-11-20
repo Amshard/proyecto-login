@@ -11,7 +11,6 @@ import {
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
-import { useBusqueda } from '../../components/useBusqueda';
 import { ddmmyyyy, isoDate } from '../../utils/fechas';
 import type { PdfReport } from '../../utils/pdf';
 import { CamposFila, CamposStack } from './CatalogoCampos';
@@ -21,6 +20,7 @@ import {
     dateField,
     expedienteField,
     layoutProps,
+    recarga,
     tablaProps,
     textField,
     useCatalogoForm,
@@ -108,12 +108,11 @@ const REPORT_OPTIONS = Object.keys(REPORTS);
 const focusField = (id: string) => setTimeout(() => document.getElementById(id)?.focus());
 
 export default function CatalogoPersonal() {
-    const [rows, setRows] = useCatalogoRows(getPersonalTaquilla);
-    const [rolRows, setRolRows] = useCatalogoRows(getRolTaquilla);
-    const [sinCtoRows] = useCatalogoRows(getSinCto);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getPersonalTaquilla);
+    const [rolRows, setRolRows, recargaRolRows] = useCatalogoRows(getRolTaquilla);
+    const [sinCtoRows, , recargaSinCtoRows] = useCatalogoRows(getSinCto);
     const [numero, setNumero] = useState('');
     const [showRol, setShowRol] = useState(false);
-    const busqueda = useBusqueda(rows);
     const [reportOption, setReportOption] = useState(REPORT_OPTIONS[0]);
 
     const maxDate = isoDate();
@@ -195,8 +194,8 @@ export default function CatalogoPersonal() {
     };
 
     const displayedRows = useMemo(
-        () => [...busqueda.filtradas].sort((a, b) => Number(a.id_expediente) - Number(b.id_expediente)),
-        [busqueda.filtradas]
+        () => [...rows].sort((a, b) => Number(a.id_expediente) - Number(b.id_expediente)),
+        [rows]
     );
 
     const tableColumns = useMemo<Column<PersonalTaquilla>[]>(() => {
@@ -230,6 +229,7 @@ export default function CatalogoPersonal() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows, recargaRolRows, recargaSinCtoRows)}
             tabLabel="Personal de Taquilla"
             statusLabel="Catalogo Personal de Taquilla"
             reportTitle="Catálogo de Personal de Taquilla"
@@ -239,7 +239,6 @@ export default function CatalogoPersonal() {
                 hideRol();
             }}
             onSave={onSave}
-            actions={busqueda.boton}
             fields={
                 <CamposStack>
                     <CamposFila fields={fields} form={form} onChange={onFieldChange} />
@@ -252,7 +251,6 @@ export default function CatalogoPersonal() {
                     />
                 </CamposStack>
             }
-            overlay={busqueda.overlay}
             reportActions={
                 <div className="stc-report-option-list">
                     {REPORT_OPTIONS.map((label) => (

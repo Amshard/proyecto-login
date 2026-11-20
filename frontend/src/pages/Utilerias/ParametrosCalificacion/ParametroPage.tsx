@@ -7,6 +7,7 @@ import {
     codeField,
     labelLeft,
     layoutProps,
+    recarga,
     tablaProps,
     useCatalogoForm,
     useCatalogoRows,
@@ -75,7 +76,7 @@ export default function ParametroPage({
             (Number(v) < Number(form[inicial.key]) ? `El campo ${final.label} no puede ser menor que ${inicial.label}.` : undefined);
     }
 
-    const [rows, setRows] = useCatalogoRows(api.get);
+    const [rows, setRows, recargaRows] = useCatalogoRows(api.get);
     const catalogoForm = useCatalogoForm(empty, { fields, checks });
     const { form, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, formToRow, {
@@ -89,6 +90,7 @@ export default function ParametroPage({
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows)}
             tabLabel={tabLabel}
             statusLabel={statusLabel}
             {...layoutProps(rows, catalogoForm, actions)}

@@ -27,6 +27,7 @@ import {
     layoutProps,
     lineaName,
     padCode,
+    recarga,
     tablaProps,
     textField,
     useCatalogoForm,
@@ -119,10 +120,10 @@ const REPORT_PDF = {
 };
 
 export default function CatalogoTaquillas() {
-    const [rows, setRows] = useCatalogoRows(getTaquillas);
-    const [lineas] = useCatalogoRows(getLineas);
-    const [estaciones] = useCatalogoRows(getEstaciones);
-    const [enOperacion] = useCatalogoRows(getTaquillasOperacion);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getTaquillas);
+    const [lineas, , recargaLineas] = useCatalogoRows(getLineas);
+    const [estaciones, , recargaEstaciones] = useCatalogoRows(getEstaciones);
+    const [enOperacion, , recargaEnOperacion] = useCatalogoRows(getTaquillasOperacion);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { required: REQUIRED, fields: FIELDS });
     const { form, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, formToTaquilla, {
@@ -233,6 +234,7 @@ export default function CatalogoTaquillas() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows, recargaLineas, recargaEstaciones, recargaEnOperacion)}
             tabLabel="Catálogo de Taquillas y sus Turnos"
             statusLabel="Catálogo de Taquillas"
             {...layoutProps(rows, catalogoForm, actions)}

@@ -9,6 +9,7 @@ import {
     codeField,
     dateField,
     layoutProps,
+    recarga,
     tablaProps,
     textField,
     useCatalogoForm,
@@ -107,7 +108,7 @@ const checks = {
 };
 
 export default function Catorcenas() {
-    const [rows, setRows] = useCatalogoRows(getCatorcenas);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getCatorcenas);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { fields: FIELDS, checks });
     const { form, keyChange, updateField } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, formToRow, {
@@ -147,6 +148,7 @@ export default function Catorcenas() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows)}
             tabLabel="Catorcenas del Año"
             statusLabel="Captura Catorcenas del Año"
             {...layoutProps(rows, catalogoForm, actions)}

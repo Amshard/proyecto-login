@@ -3,7 +3,7 @@ import { getLineas, getRolTaquilla, type RolTaquilla } from '../../api/catalogos
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualField, type ManualFieldConfig } from '../../components/ManualField';
-import { CODE_CHARS, codeField, isCodePrefix, lineaName, padCode, textField, useCatalogoRows } from '../Catalogos/useCatalogo';
+import { CODE_CHARS, codeField, isCodePrefix, lineaName, padCode, recarga, textField, useCatalogoRows } from '../Catalogos/useCatalogo';
 import { RadioOption, RadioOptions, SideButtons } from './ProcesoControls';
 import { NO_ROWS, fixedField, headersOnly, useForm } from './procesoFields';
 import './Procesos.css';
@@ -75,8 +75,8 @@ export default function CambioPosiciones() {
     const [tramosOpcion, setTramosOpcion] = useState('');
     const [tramosLinea, setTramosLinea] = useState('');
     const [sinLugarOpcion, setSinLugarOpcion] = useState('');
-    const [lineas] = useCatalogoRows(getLineas);
-    const [rolTaquilla] = useCatalogoRows(getRolTaquilla);
+    const [lineas, , recargaLineas] = useCatalogoRows(getLineas);
+    const [rolTaquilla, , recargaRolTaquilla] = useCatalogoRows(getRolTaquilla);
     const sinExpediente = useMemo(() => rolTaquilla.filter((r) => Number(r.id_expediente) === 0), [rolTaquilla]);
     const tramosRows = tramosOpcion || tramosLinea ? sinExpediente : NO_ROWS;
 
@@ -116,6 +116,7 @@ export default function CambioPosiciones() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaLineas, recargaRolTaquilla)}
             tabLabel="Cambio de Lugares"
             statusLabel="Realizados Antes y Despues de Cambios"
             actionsOnAllTabs

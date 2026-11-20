@@ -214,7 +214,19 @@ export const cambiaRolVigente = async ({ anio, id_rol_anual }: RolDelAnio): Prom
     await api.post('/roles-del-anio/cambia-vigente/', { anio, id_rol_anual });
 };
 
-export const respaldaRolVigente = async () => (await api.post<{ respaldados: number }>('/rol-taquilla/respalda/')).data.respaldados;
+export interface RespaldoRol {
+    anio: number;
+    rol_num: number;
+    fecha_ini: string;
+    fecha_fin: string;
+    inc_cargadas: string;
+    reemplaza: boolean;
+}
+
+export const respaldaRolVigente = async (data: RespaldoRol) =>
+    (await api.post<{ respaldados: number }>('/rol-taquilla/respalda/', data)).data.respaldados;
+
+export const isConflict = (error: unknown) => axios.isAxiosError(error) && error.response?.status === 409;
 
 export const calificaProvisional = async () => (await api.post<{ updated: number }>('/personal-gaceta/califica/')).data.updated;
 

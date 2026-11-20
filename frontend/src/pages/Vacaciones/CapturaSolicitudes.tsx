@@ -33,6 +33,7 @@ export default function CapturaSolicitudes() {
 
     return (
         <CatalogoLayout
+            onActualizar={() => {}}
             tabLabel="Captura Solicitudes de Vacaciones"
             statusLabel="Solicitudes de Vacaciones"
             count={0}
@@ -41,7 +42,6 @@ export default function CapturaSolicitudes() {
                     buttons={[
                         { label: 'Guardar' },
                         { label: 'Limpiar', onClick: limpiar },
-                        { label: 'Buscar' },
                         { label: 'Ver Reporte' },
                     ]}
                 />

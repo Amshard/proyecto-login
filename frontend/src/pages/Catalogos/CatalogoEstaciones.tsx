@@ -20,6 +20,7 @@ import {
     layoutProps,
     lineaName,
     padCode,
+    recarga,
     tablaProps,
     textField,
     useCatalogoForm,
@@ -54,8 +55,8 @@ const PDF = { title: 'CATÁLOGO DE ESTACIONES', footerTitle: 'RptCatEstaciones',
 };
 
 export default function CatalogoEstaciones() {
-    const [rows, setRows] = useCatalogoRows(getEstaciones);
-    const [lineas] = useCatalogoRows(getLineas);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getEstaciones);
+    const [lineas, , recargaLineas] = useCatalogoRows(getLineas);
     const nombreDeLinea = useMemo(() => {
         const nombres = new Map(lineas.map((l) => [l.id_linea, lineaName(l)]));
         return (id: string) => nombres.get(id) ?? '';
@@ -116,6 +117,7 @@ export default function CatalogoEstaciones() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows, recargaLineas)}
             tabLabel="Catálogo de Estaciones"
             {...layoutProps(rows, catalogoForm, actions)}
             fields={

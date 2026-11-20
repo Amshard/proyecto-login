@@ -21,6 +21,7 @@ import {
     dateField,
     expedienteField,
     layoutProps,
+    recarga,
     tablaProps,
     textField,
     texto,
@@ -88,9 +89,9 @@ const COLUMNS: Column<PersonalGaceta>[] = [
 ];
 
 export default function PersonalProvisional() {
-    const [rows, setRows] = useCatalogoRows(getPersonalGaceta);
-    const [personal] = useCatalogoRows(getPersonalTaquilla);
-    const [rolRows] = useCatalogoRows(getRolTaquilla);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getPersonalGaceta);
+    const [personal, , recargaPersonal] = useCatalogoRows(getPersonalTaquilla);
+    const [rolRows, , recargaRolRows] = useCatalogoRows(getRolTaquilla);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
         required: ['exp', 'permiso'],
         checks: { exp: (v) => (Number(v) >= 1 ? undefined : 'El campo Expediente debe ser un número mayor a 0.') },
@@ -148,6 +149,7 @@ export default function PersonalProvisional() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows, recargaPersonal, recargaRolRows)}
             tabLabel="Personal de Taquilla Provisional"
             statusLabel="Personal de Taquilla por Gaceta"
             {...layoutProps(rows, catalogoForm, actions)}

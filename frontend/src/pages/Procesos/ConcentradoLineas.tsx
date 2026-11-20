@@ -68,6 +68,7 @@ export default function ConcentradoLineas() {
 
     return (
         <CatalogoLayout
+            onActualizar={() => {}}
             tabLabel="RANGO DE EXPEDIENTES"
             statusLabel="Rol de Lineas y Turnos por Expediente"
             hideTabs

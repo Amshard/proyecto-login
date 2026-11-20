@@ -2,7 +2,7 @@ import { createDescanso, deleteDescanso, type Descanso, getDescansos } from '../
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { CamposOutline } from './CatalogoCampos';
-import { catalogoActions, codeField, layoutProps, tablaProps, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { catalogoActions, codeField, layoutProps, recarga, tablaProps, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 type DescansoForm = Record<keyof Descanso, string>;
 
@@ -40,7 +40,7 @@ const COLUMNS: Column<Descanso>[] = [
 ];
 
 export default function CatalogoDescansos() {
-    const [rows, setRows] = useCatalogoRows(getDescansos);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getDescansos);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { fields: FIELDS });
     const { form, selected, keyChange, updateField } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
@@ -63,6 +63,7 @@ export default function CatalogoDescansos() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows)}
             tabLabel="Catálogo de Descansos"
             {...layoutProps(rows, catalogoForm, actions)}
             onSave={onSave}

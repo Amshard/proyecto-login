@@ -46,6 +46,7 @@ export default function RolesTurnoLinea() {
 
     return (
         <CatalogoLayout
+            onActualizar={() => {}}
             tabLabel="ROLES POR TURNO Y LÍNEA"
             hideTabs
             pageClassName="stc-para-calificacion"

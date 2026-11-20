@@ -15,6 +15,7 @@ interface CatalogoLayoutProps<R> {
     onModify?: () => void;
     onDelete?: () => void;
     editing?: boolean;
+    onActualizar?: () => void;
     actions?: ReactNode;
     headerText?: ReactNode;
     actionsOnAllTabs?: boolean;
@@ -58,6 +59,7 @@ export default function CatalogoLayout<R>({
     onModify,
     onDelete,
     editing,
+    onActualizar,
     actions,
     headerText,
     actionsOnAllTabs,
@@ -127,6 +129,11 @@ export default function CatalogoLayout<R>({
                                         Guardar
                                     </button>
                                 )
+                            )}
+                            {onActualizar && (
+                                <button type="button" className="stc-btn stc-exit-btn" onClick={onActualizar}>
+                                    Actualizar
+                                </button>
                             )}
                             {actions}
                             {reportButton && (

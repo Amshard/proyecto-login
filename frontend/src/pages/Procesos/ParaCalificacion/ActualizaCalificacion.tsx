@@ -47,6 +47,7 @@ export default function ActualizaCalificacion() {
 
     return (
         <CatalogoLayout
+            onActualizar={() => {}}
             tabLabel="TECLEA EL RANGO"
             statusLabel="Lineas y Turnos por Expediente Completo"
             hideTabs

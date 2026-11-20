@@ -8,7 +8,7 @@ import {
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { CamposOutline } from './CatalogoCampos';
-import { catalogoActions, codeField, layoutProps, tablaProps, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
+import { catalogoActions, codeField, layoutProps, recarga, tablaProps, textField, useCatalogoForm, useCatalogoRows } from './useCatalogo';
 
 const EMPTY_FORM: Permanencia = { id_permanencia: '', nombre_perma: '', descripcion: '', siglas: '' };
 
@@ -27,7 +27,7 @@ const COLUMNS: Column<Permanencia>[] = [
 ];
 
 export default function CatalogoPermanencias() {
-    const [rows, setRows] = useCatalogoRows(getPermanencias);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getPermanencias);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, { fields: FIELDS });
     const { form, keyChange } = catalogoForm;
     const actions = catalogoActions(setRows, catalogoForm, (f) => ({ ...f }), {
@@ -39,6 +39,7 @@ export default function CatalogoPermanencias() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows)}
             tabLabel="Catálogo de Permanencias"
             {...layoutProps(rows, catalogoForm, actions)}
             fields={<CamposOutline fields={FIELDS} form={form} onChange={onFieldChange} />}

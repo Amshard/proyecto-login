@@ -59,6 +59,7 @@ export default function UbicacionExpediente() {
 
     return (
         <CatalogoLayout
+            onActualizar={() => {}}
             tabLabel="UBICACIÓN POR EXPEDIENTE"
             hideTabs
             pageClassName="stc-consulta"

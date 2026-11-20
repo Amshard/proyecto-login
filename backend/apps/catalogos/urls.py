@@ -27,6 +27,7 @@ urlpatterns = [
     path('rol-taquilla/', views.RolTaquillaView.as_view(), name='rol-taquilla'),
     path('rol-taquilla/sincto/', views.SinCtoView.as_view(), name='rol-taquilla-sincto'),
     path('roles-hist/', views.RolesHistView.as_view(), name='roles-hist'),
+    path('rol-taquilla/respalda/', views.RespaldaRolVigenteView.as_view(), name='rol-taquilla-respalda'),
     path('permanencias/<str:id_permanencia>/', views.PermanenciaItemView.as_view(), name='permanencia-item'),
     path('lineas/<str:id_linea>/', views.LineaItemView.as_view(), name='linea-item'),
     path('estaciones/<str:id_linea>/<str:id_estacion>/', views.EstacionItemView.as_view(), name='estacion-item'),

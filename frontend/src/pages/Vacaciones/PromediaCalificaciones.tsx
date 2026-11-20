@@ -16,6 +16,7 @@ export default function PromediaCalificaciones() {
 
     return (
         <CatalogoLayout
+            onActualizar={() => {}}
             tabLabel="PROMEDIA CALIFICACIONES"
             hideTabs
             statusLabel="Promedio de Calificaciones"

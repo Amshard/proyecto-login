@@ -104,7 +104,7 @@ export default function PeriodosVacacionales() {
             actions={
                 <SideButtons
                     buttons={[
-                        { label: 'Buscar' },
+                        { label: 'Actualizar' },
                         { label: 'Limpiar', onClick: limpiar },
                     ]}
                 />

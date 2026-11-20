@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type Dispatch, type SetStateAction } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties, type Dispatch, type SetStateAction } from 'react';
 import { apiErrorMessage, isNotFound, type Linea } from '../../api/catalogos';
 import type { ManualFieldConfig } from '../../components/ManualField';
 
@@ -17,8 +17,17 @@ export function useCatalogoRows<R>(load: () => Promise<R[]>) {
         };
     }, [load]);
 
-    return [rows, setRows] as const;
+    const reload = useCallback(() => load().then(setRows), [load]);
+
+    return [rows, setRows, reload] as const;
 }
+
+/** Click handler for Actualizar: reruns every load, with one alert if any fails. */
+export const recarga = (...loads: (() => Promise<unknown>)[]) => () => {
+    Promise.all(loads.map((load) => load())).catch((error: unknown) =>
+        window.alert(apiErrorMessage(error, 'No se pudo actualizar la tabla.'))
+    );
+};
 
 interface FormOptions<T> {
     required?: (keyof T)[];

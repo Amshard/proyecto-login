@@ -9,6 +9,7 @@ import {
     codeField,
     labelLeft,
     layoutProps,
+    recarga,
     tablaProps,
     textField,
     useCatalogoForm,
@@ -79,7 +80,7 @@ const formToUsuario = (form: UsuarioForm, previous?: Usuario): Usuario => {
 };
 
 export default function Usuarios() {
-    const [rows, setRows] = useCatalogoRows(getUsuarios);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getUsuarios);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
         required: ['id_usuario', 'nombre', 'estatus', 'tipo_usuario', 'descri_usuario'],
         noUpper: ['password'],
@@ -115,6 +116,7 @@ export default function Usuarios() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows)}
             tabLabel="Catálogo de Usuarios"
             statusLabel="Catálogo de Usuarios"
             {...layoutProps(rows, catalogoForm, actions)}

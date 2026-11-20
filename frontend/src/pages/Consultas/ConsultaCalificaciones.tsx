@@ -38,6 +38,7 @@ export default function ConsultaCalificaciones() {
 
     return (
         <CatalogoLayout
+            onActualizar={() => {}}
             tabLabel="CALIFICACION POR UN EXPEDIENTE"
             statusLabel="Consulta Calificaciones"
             onClear={() => setVacio((n) => n + 1)}

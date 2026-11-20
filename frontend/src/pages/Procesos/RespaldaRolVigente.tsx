@@ -1,13 +1,20 @@
 import { useState } from 'react';
-import { getRolesDelAnio, getRolesHist, type RolDelAnio, type RolHist } from '../../api/catalogos';
+import {
+    apiErrorMessage,
+    getRolesDelAnio,
+    getRolesHist,
+    getRolTaquilla,
+    isConflict,
+    respaldaRolVigente,
+    type RolHist,
+} from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable, { type Column } from '../../components/DataTable';
 import { ManualField, type ManualFieldConfig } from '../../components/ManualField';
-import { useBusqueda } from '../../components/useBusqueda';
 import { useAuth } from '../../context/useAuth';
 import type { RolVigente } from '../../types/auth.types';
 import { ddmmyyyy } from '../../utils/fechas';
-import { codeField, dateField, textField, texto, useCatalogoRows } from '../Catalogos/useCatalogo';
+import { codeField, dateField, recarga, textField, texto, useCatalogoRows } from '../Catalogos/useCatalogo';
 import { sameHeight } from './procesoFields';
 import ProgressBar from './ProgressBar';
 import '../Catalogos/Catalogos.css';
@@ -40,47 +47,101 @@ const rolForm = (rol: RolVigente | null | undefined): Record<RespaldoKey, string
     estado: rol ? (texto(rol.estatus_roldescansos).trim().toUpperCase() === 'ROLADO' ? 'ROLADO' : 'NO ROLADO') : '',
 });
 
+const pintado = () => new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+
 const fecha = (value: string | null) => (value ? ddmmyyyy(value.slice(0, 10)) : '');
 
 const COLUMNS: Column<RolHist>[] = [
     { header: 'Año', cell: (r) => r.rol_anio, center: true },
     { header: 'Rol', cell: (r) => r.rol_num, center: true },
-    { header: 'Mes Inicid', cell: (r) => r.inc_cargadas, center: true },
-    { header: 'Fech_ini', cell: (r) => fecha(r.fec_ini_rol), center: true },
-    { header: 'Fech_Fin', cell: (r) => fecha(r.fec_fin_rol), center: true },
-    { header: 'Fec_Respldo', cell: (r) => fecha(r.fecha_respaldo), center: true },
+    { header: 'Mes Inicio', cell: (r) => r.inc_cargadas, center: true },
+    { header: 'Fecha Inicio', cell: (r) => fecha(r.fec_ini_rol), center: true },
+    { header: 'Fecha Fin', cell: (r) => fecha(r.fec_fin_rol), center: true },
+    { header: 'Fecha Respaldo', cell: (r) => fecha(r.fecha_respaldo), center: true },
     { header: 'Lugares', cell: (r) => r.conta, center: true },
 ];
 
 export default function RespaldaRolVigente() {
-    const [rows] = useCatalogoRows(getRolesHist);
-    const [rolesDelAnio] = useCatalogoRows(getRolesDelAnio);
-    const [siguiente, setSiguiente] = useState<RolDelAnio | null>(null);
-    const busqueda = useBusqueda(rows);
-    const { user } = useAuth();
-    const form = siguiente ? rolForm({ ...siguiente, estatus_roldescansos: siguiente.estado }) : rolForm(user?.rol_vigente);
+    const [rows, , recargaRows] = useCatalogoRows(getRolesHist);
+    const [rolesDelAnio, , recargaRolesDelAnio] = useCatalogoRows(getRolesDelAnio);
+    const [rolTaquilla, , recargaRolTaquilla] = useCatalogoRows(getRolTaquilla);
+    const [siguiente, setSiguiente] = useState(false);
+    const { user, refreshUser } = useAuth();
+    const vigente = rolForm(user?.rol_vigente);
+    const rolado = vigente.estado === 'ROLADO';
+    const anio = Number(vigente.rol1);
+    const num = Number(vigente.rol2);
+    const [anioSig, numSig] = num >= 4 ? [anio + 1, 1] : [anio, num + 1];
+    const proximo = rolesDelAnio.find((r) => r.anio === anioSig && r.id_rol_anual === numSig);
+    const form = !siguiente
+        ? vigente
+        : proximo
+          ? rolForm({ ...proximo, estatus_roldescansos: proximo.estado })
+          : { ...rolForm(null), rol1: String(anioSig), rol2: String(numSig), estado: 'NO ROLADO' };
     const field = (config: ManualFieldConfig<RespaldoKey>) => (
         <ManualField key={config.key} config={config} value={form[config.key]} onChange={() => {}} readOnly />
     );
 
+    const actualiza = () => {
+        setSiguiente(false);
+        recarga(recargaRows, recargaRolTaquilla, recargaRolesDelAnio, refreshUser)();
+    };
+
+    const siguienteDeAlta = !!proximo && texto(proximo.estado).trim().toUpperCase() === 'ROLADO';
+
     const respalda = async () => {
-        const rol = `${form.rol1} Rol ${form.rol2}`;
-        if (form.estado !== 'ROLADO') {
+        const faltan = [
+            ['Año', vigente.rol1],
+            ['Rol', vigente.rol2],
+            ['Fecha Inicial', vigente.fecha_inicial],
+            ['Fecha Final', vigente.fecha_final],
+        ].filter(([, valor]) => !valor.trim());
+        if (faltan.length > 0) {
+            window.alert(`Falta Seleccionar ${faltan.map(([campo]) => campo).join(', ')} del Rol.`);
+            return;
+        }
+        if (siguiente && !siguienteDeAlta) {
+            window.alert('No esta dado de alta el ROL Siguiente');
+            return;
+        }
+        const rol = `${vigente.rol1} Rol ${vigente.rol2}`;
+        if (!rolado) {
             window.alert(`El Rol Vigente ${rol} no está ROLADO.`);
             return;
         }
-        if (!rows.some((r) => String(r.rol_anio) === form.rol1 && String(r.rol_num) === form.rol2)) {
-            window.alert(`No existe respaldo del Rol Vigente ${rol}.`);
+        if (!window.confirm(`El rol vigente ya fué rolado, a parir de este momento los cambios se guardarán en el Rol ${numSig} ¿Desea respaldar?`)) return;
+        setSiguiente(true);
+        await pintado();
+        if (!siguienteDeAlta) {
+            window.alert('No esta dado de alta el ROL Siguiente');
             return;
         }
-        const ordenados = [...rolesDelAnio].sort((a, b) => a.anio - b.anio || a.id_rol_anual - b.id_rol_anual);
-        const actual = ordenados.findIndex((r) => String(r.anio) === form.rol1 && String(r.id_rol_anual) === form.rol2);
-        const proximo = actual < 0 ? undefined : ordenados[actual + 1];
-        if (!proximo) {
-            window.alert(`No existe en el Catálogo de Roles en el Año un rol posterior al ${rol}.`);
-            return;
+        const datos = {
+            anio,
+            rol_num: num,
+            fecha_ini: vigente.fecha_inicial,
+            fecha_fin: vigente.fecha_final,
+            inc_cargadas: vigente.meses_califica,
+            reemplaza: false,
+        };
+        try {
+            let respaldados: number;
+            try {
+                respaldados = await respaldaRolVigente(datos);
+            } catch (error) {
+                if (!isConflict(error)) throw error;
+                if (!window.confirm(`El Rol Ya Fue Gravado ¿Desea Reemplazarlo?`)) {
+                    setSiguiente(false);
+                    return;
+                }
+                respaldados = await respaldaRolVigente({ ...datos, reemplaza: true });
+            }
+            window.alert(`Se respaldaron ${respaldados} lugares del Rol ${rol}.`);
+            recarga(recargaRows, recargaRolTaquilla)();
+        } catch (error) {
+            setSiguiente(false);
+            window.alert(apiErrorMessage(error, 'No se pudo respaldar el Rol Vigente.'));
         }
-        if (window.confirm(`El rol vigente ya fué rolado, a parir de este momento los cambios se guardarán en el Rol ${proximo.id_rol_anual} ¿Desea respaldar?`)) setSiguiente(proximo);
     };
 
     return (
@@ -88,11 +149,10 @@ export default function RespaldaRolVigente() {
             tabLabel="Respalda Rol Vigente"
             hideTabs
             statusLabel="Respaldo Base de Datos"
-            count={rows.reduce((total, r) => total + r.conta, 0)}
+            count={rolTaquilla.filter((r) => r.id_expediente > 0).length}
             reportButton="Grava Rol Vigente"
             onReportButton={respalda}
-            actions={busqueda.boton}
-            overlay={busqueda.overlay}
+            onActualizar={actualiza}
             fields={
                 <div className="stc-manual-fields">
                     <fieldset className="stc-campos-titulado">
@@ -106,7 +166,7 @@ export default function RespaldaRolVigente() {
                 </div>
             }
         >
-            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol stc-table-fit" rowHeader={2} columns={COLUMNS} rows={busqueda.filtradas} />
+            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol stc-table-fit" rowHeader={2} columns={COLUMNS} rows={rows} />
         </CatalogoLayout>
     );
 }

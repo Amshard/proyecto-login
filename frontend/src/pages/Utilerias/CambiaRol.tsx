@@ -18,6 +18,7 @@ import {
     codeField,
     dateField,
     layoutProps,
+    recarga,
     tablaProps,
     textField,
     useCatalogoForm,
@@ -76,7 +77,7 @@ const describe = (r: RolDelAnio) => `${r.nombre_rol} ${r.anio}`;
 
 export default function CambiaRol() {
     const { refreshUser } = useAuth();
-    const [rows, setRows] = useCatalogoRows(getRolesDelAnio);
+    const [rows, setRows, recargaRows] = useCatalogoRows(getRolesDelAnio);
     const catalogoForm = useCatalogoForm(EMPTY_FORM, {
         fields: FIELDS,
         checks: {
@@ -126,6 +127,7 @@ export default function CambiaRol() {
 
     return (
         <CatalogoLayout
+            onActualizar={recarga(recargaRows)}
             tabLabel="Catálogo de Roles en el Año"
             statusLabel="Roles en el Año"
             {...layoutProps(rows, catalogoForm, actions)}

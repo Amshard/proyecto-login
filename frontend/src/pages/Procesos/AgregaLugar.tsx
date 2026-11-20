@@ -44,6 +44,7 @@ export default function AgregaLugar() {
 
     return (
         <CatalogoLayout
+            onActualizar={() => {}}
             tabLabel="AGREGA UN LUGAR EN EL ROL"
             statusLabel="Agrega Registro Al Rol de Taquilla"
             hideTabs
