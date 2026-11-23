@@ -164,30 +164,49 @@ class RolesHistView(QueryView):
     )
 
 
+class _RolVigenteCambiado(Exception):
+    pass
+
+
+def _rolvigente(cursor):
+    cursor.execute('SELECT * FROM rolvigente ORDER BY id_rol_anual')
+    return cursor.fetchall()
+
+
 class RespaldaRolVigenteView(APIView):
     """POST {anio, rol_num, fecha_ini, fecha_fin, inc_cargadas, reemplaza}: copies every occupied rol_taquilla
     place into calif_roles_hist under that role, dated today. An existing backup of the role is deleted first
-    only when reemplaza is true; otherwise 409."""
+    only when reemplaza is true; otherwise 409. rolvigente must never change: it is compared before and after,
+    and any difference rolls the whole backup back."""
 
     def post(self, request):
         data = request.data
         anio, rol_num = data.get('anio'), data.get('rol_num')
         if not anio or not rol_num or not data.get('fecha_ini') or not data.get('fecha_fin'):
             return Response({'detail': 'Faltan datos del Rol Vigente.'}, status=status.HTTP_400_BAD_REQUEST)
-        with transaction.atomic(), connection.cursor() as cursor:
-            cursor.execute('SELECT COUNT(*) FROM calif_roles_hist WHERE [rol_año] = %s AND rol_num = %s', [anio, rol_num])
-            if cursor.fetchone()[0]:
-                if not data.get('reemplaza'):
-                    return Response({'detail': 'Ya existe un respaldo de ese rol.'}, status=status.HTTP_409_CONFLICT)
-                cursor.execute('DELETE FROM calif_roles_hist WHERE [rol_año] = %s AND rol_num = %s', [anio, rol_num])
-            cursor.execute(
-                'INSERT INTO calif_roles_hist (id_expediente, calificacion, [rol_año], rol_num, fec_ini_rol, fec_fin_rol, '
-                'fecha_respaldo, inc_cargadas, id_tramo, turno) '
-                'SELECT id_expediente, calificacion, %s, %s, %s, %s, CAST(GETDATE() AS date), %s, id_tramo, turno '
-                'FROM rol_taquilla WHERE id_expediente > 0',
-                [anio, rol_num, data['fecha_ini'], data['fecha_fin'], data.get('inc_cargadas') or ''],
+        try:
+            with transaction.atomic(), connection.cursor() as cursor:
+                vigente = _rolvigente(cursor)
+                cursor.execute('SELECT COUNT(*) FROM calif_roles_hist WHERE [rol_año] = %s AND rol_num = %s', [anio, rol_num])
+                if cursor.fetchone()[0]:
+                    if not data.get('reemplaza'):
+                        return Response({'detail': 'Ya existe un respaldo de ese rol.'}, status=status.HTTP_409_CONFLICT)
+                    cursor.execute('DELETE FROM calif_roles_hist WHERE [rol_año] = %s AND rol_num = %s', [anio, rol_num])
+                cursor.execute(
+                    'INSERT INTO calif_roles_hist (id_expediente, calificacion, [rol_año], rol_num, fec_ini_rol, fec_fin_rol, '
+                    'fecha_respaldo, inc_cargadas, id_tramo, turno) '
+                    'SELECT id_expediente, calificacion, %s, %s, %s, %s, CAST(GETDATE() AS date), %s, id_tramo, turno '
+                    'FROM rol_taquilla WHERE id_expediente > 0',
+                    [anio, rol_num, data['fecha_ini'], data['fecha_fin'], data.get('inc_cargadas') or ''],
+                )
+                respaldados = cursor.rowcount
+                if _rolvigente(cursor) != vigente:
+                    raise _RolVigenteCambiado
+        except _RolVigenteCambiado:
+            return Response(
+                {'detail': 'El respaldo modificaba el Rol Vigente; no se guardó nada.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-            respaldados = cursor.rowcount
         return Response({'respaldados': respaldados})
 
 
