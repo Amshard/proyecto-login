@@ -498,8 +498,8 @@
 
 .stc-table-frame:has(.stc-table-rol) {
   box-sizing: border-box;
-  width: 1360px;
-  max-width: 100%;
+  width: 80%;
+  min-inline-size: 0;
   margin-inline: auto;
 }
 

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
     apiErrorMessage,
     getRolesDelAnio,
     getRolesHist,
-    getRolTaquilla,
+    getLugaresOcupados,
     isConflict,
     respaldaRolVigente,
     type RolHist,
@@ -69,7 +69,11 @@ const COLUMNS: Column<RolHist>[] = [
 export default function RespaldaRolVigente() {
     const [rows, , recargaRows] = useCatalogoRows(getRolesHist);
     const [rolesDelAnio, , recargaRolesDelAnio] = useCatalogoRows(getRolesDelAnio);
-    const [rolTaquilla, , recargaRolTaquilla] = useCatalogoRows(getRolTaquilla);
+    const [ocupados, setOcupados] = useState(0);
+    const recargaOcupados = useCallback(() => getLugaresOcupados().then(setOcupados), []);
+    useEffect(() => {
+        recargaOcupados().catch(() => {});
+    }, [recargaOcupados]);
     const [siguiente, setSiguiente] = useState(false);
     const [progreso, setProgreso] = useState(0);
     const { user, refreshUser } = useAuth();
@@ -92,7 +96,7 @@ export default function RespaldaRolVigente() {
     const actualiza = () => {
         setSiguiente(false);
         setProgreso(0);
-        recarga(recargaRows, recargaRolTaquilla, recargaRolesDelAnio, refreshUser)();
+        recarga(recargaRows, recargaOcupados, recargaRolesDelAnio, refreshUser)();
     };
 
     const siguienteDeAlta = !!proximo && texto(proximo.estado).trim().toUpperCase() === 'ROLADO';
@@ -100,6 +104,7 @@ export default function RespaldaRolVigente() {
     const respaldos = rows.filter((r) => r.rol_anio === anio && r.rol_num === num);
     const existe = respaldos.length > 0;
     const reciente = respaldos.some((r) => texto(r.fecha_respaldo).slice(0, 10) === isoDate());
+    const hayRolAnioSiguiente = numSig === 1 && !!encontrado;
 
     const respalda = async () => {
         const faltan = [
@@ -116,15 +121,16 @@ export default function RespaldaRolVigente() {
             window.alert(`El Rol Vigente ${rol} no está ROLADO.`);
             return;
         }
-        // Respaldo reciente (de hoy): primer Grava muestra el Rol Siguiente, el segundo pregunta si reemplazar.
-        if (reciente) {
+        // Respaldo reciente (de hoy), o ya existe el Rol 1 del año siguiente: primer Grava muestra el Rol Siguiente,
+        // el segundo pregunta si guardar o reemplazar.
+        if (reciente || hayRolAnioSiguiente) {
             if (!siguiente) {
                 if (window.confirm(`El rol vigente ya fué rolado, a parir de este momento los cambios se guardarán en el Rol ${numSig} ¿Desea respaldar?`)) {
                     setSiguiente(true);
                 }
                 return;
             }
-            if (window.confirm(REEMPLAZO)) await guarda(true);
+            if (window.confirm(existe ? REEMPLAZO : `¿Desea Gravar el Rol Vigente ${rol}?`)) await guarda(existe);
             return;
         }
         // Sin respaldo, o con uno anterior: pregunta y guarda en un solo Grava.
@@ -176,7 +182,7 @@ export default function RespaldaRolVigente() {
         termina(100);
         await llenado();
         window.alert(`Se respaldaron ${respaldados} lugares del Rol.`);
-        recarga(recargaRows, recargaRolTaquilla)();
+        recarga(recargaRows, recargaOcupados)();
     };
 
     return (
@@ -184,7 +190,7 @@ export default function RespaldaRolVigente() {
             tabLabel="Respalda Rol Vigente"
             hideTabs
             statusLabel="Respaldo Base de Datos"
-            count={rolTaquilla.filter((r) => r.id_expediente > 0).length}
+            count={ocupados}
             reportButton="Grava Rol Vigente"
             onReportButton={respalda}
             onActualizar={actualiza}
@@ -201,7 +207,7 @@ export default function RespaldaRolVigente() {
                 </div>
             }
         >
-            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol stc-table-fit" rowHeader={2} columns={COLUMNS} rows={rows} />
+            <DataTable title="Roles Respaldados en el Historico" className="stc-table-rol" rowHeader={2} columns={COLUMNS} rows={rows} />
         </CatalogoLayout>
     );
 }

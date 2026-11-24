@@ -135,6 +135,8 @@ export const getTaquillasOperacion = getRows<TaquillaOperacion>('taquillas/opera
 export const getPersonalTaquilla = getRows<PersonalTaquilla>('personal-taquilla');
 export const getPersonalGaceta = getRows<PersonalGaceta>('personal-gaceta');
 export const getRolTaquilla = getRows<RolTaquilla>('rol-taquilla');
+export const getLugaresOcupados = async () =>
+    (await api.get<{ ocupados: number }>('/rol-taquilla/ocupados/')).data.ocupados;
 export const getSinCto = getRows<{ id_expediente: number; sincto: string }>('rol-taquilla/sincto');
 
 export interface RolHist {

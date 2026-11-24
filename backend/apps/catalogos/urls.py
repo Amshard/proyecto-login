@@ -25,6 +25,7 @@ urlpatterns = [
     path('roles-del-anio/cambia-vigente/', views.CambiaRolVigenteView.as_view(), name='cambia-rol-vigente'),
     path('taquillas/operacion/', views.TaquillaOperacionView.as_view(), name='taquillas-operacion'),
     path('rol-taquilla/', views.RolTaquillaView.as_view(), name='rol-taquilla'),
+    path('rol-taquilla/ocupados/', views.RolTaquillaOcupadosView.as_view(), name='rol-taquilla-ocupados'),
     path('rol-taquilla/sincto/', views.SinCtoView.as_view(), name='rol-taquilla-sincto'),
     path('roles-hist/', views.RolesHistView.as_view(), name='roles-hist'),
     path('rol-taquilla/respalda/', views.RespaldaRolVigenteView.as_view(), name='rol-taquilla-respalda'),
