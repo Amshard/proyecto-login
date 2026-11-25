@@ -89,11 +89,6 @@
   table-layout: auto;
 }
 
-.stc-table-provisional th,
-.stc-table-provisional td {
-  white-space: nowrap;
-}
-
 .stc-table-frame:has(.stc-table-narrow) {
   width: var(--stc-angosto);
   margin: 0 auto;

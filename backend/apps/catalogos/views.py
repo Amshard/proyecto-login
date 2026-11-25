@@ -184,35 +184,73 @@ def _rolvigente(cursor):
     return cursor.fetchall()
 
 
+class _Rechazo(Exception):
+    """Why the backup can't run; its text is shown to the user as is."""
+
+
+def _rol_a_respaldar(cursor):
+    """The rol Grava backs up, as the old FrmRespaldo/ModFunciones: the rol vigente, or once it is ROLADO the next
+    rol (1>2>3>4>1, with Rol 1 looked up in the next year). Its año is the year of its fecha_fin."""
+    cursor.execute('SELECT id_rol_anual, meses_q_califica, fecha_ini, fecha_fin, estatus_roldescansos FROM rolvigente')
+    vigente = cursor.fetchone()
+    if not vigente:
+        raise _Rechazo('No existe el registro del rol vigente, Haga su asignación ...')
+    rol_num, meses, fecha_ini, fecha_fin, estatus = vigente
+    if (estatus or '').strip().upper() == 'ROLADO':
+        anio, rol_num = (fecha_fin.year + 1, 1) if rol_num >= 4 else (fecha_fin.year, rol_num + 1)
+        cursor.execute(
+            'SELECT meses_q_califica, fecha_ini, fecha_fin FROM [cat_rolesdelaño] WHERE [id_año] = %s AND id_rol_anual = %s',
+            [anio, rol_num],
+        )
+        siguiente = cursor.fetchone()
+        if not siguiente:
+            raise _Rechazo('No esta dado de alta el ROL Siguiente')
+        meses, fecha_ini, fecha_fin = siguiente
+    return {
+        'anio': fecha_fin.year,
+        'rol_num': rol_num,
+        'fecha_ini': fecha_ini,
+        'fecha_fin': fecha_fin,
+        'meses': (meses or '').strip() or None,
+    }
+
+
 class RespaldaRolVigenteView(APIView):
-    """POST {anio, rol_num, fecha_ini, fecha_fin, inc_cargadas, reemplaza}: copies every occupied rol_taquilla
-    place into calif_roles_hist under that role, dated today. An existing backup of the role is deleted first
-    only when reemplaza is true; otherwise 409. rolvigente must never change: it is compared before and after,
-    and any difference rolls the whole backup back."""
+    """POST {anio, rol_num, reemplaza}: copies every occupied rol_taquilla place into calif_roles_hist under the rol
+    _rol_a_respaldar picks, dated today. anio and rol_num are the rol the page showed; if they no longer match, 400.
+    An existing backup of that rol is replaced only when reemplaza is true; otherwise 409. All of it runs in one
+    transaction, and rolvigente must never change: it is compared before and after."""
 
     def post(self, request):
         data = request.data
-        anio, rol_num = data.get('anio'), data.get('rol_num')
-        if not anio or not rol_num or not data.get('fecha_ini') or not data.get('fecha_fin'):
-            return Response({'detail': 'Faltan datos del Rol Vigente.'}, status=status.HTTP_400_BAD_REQUEST)
         try:
             with transaction.atomic(), connection.cursor() as cursor:
-                vigente = _rolvigente(cursor)
-                cursor.execute('SELECT COUNT(*) FROM calif_roles_hist WHERE [rol_año] = %s AND rol_num = %s', [anio, rol_num])
-                if cursor.fetchone()[0]:
+                antes = _rolvigente(cursor)
+                rol = _rol_a_respaldar(cursor)
+                clave = [rol['anio'], rol['rol_num']]
+                if [data.get('anio'), data.get('rol_num')] != clave:
+                    raise _Rechazo('El Rol Vigente cambió. Presione Actualizar e intente de nuevo.')
+                cursor.execute('SELECT COUNT(*) FROM rol_taquilla WHERE id_expediente > 0')
+                if not cursor.fetchone()[0]:
+                    raise _Rechazo('No existen registros vigentes (rol_taquilla)... Verifique')
+                cursor.execute('SELECT TOP 1 1 FROM calif_roles_hist WHERE [rol_año] = %s AND rol_num = %s', clave)
+                if cursor.fetchone():
                     if not data.get('reemplaza'):
-                        return Response({'detail': 'Ya existe un respaldo de ese rol.'}, status=status.HTTP_409_CONFLICT)
-                    cursor.execute('DELETE FROM calif_roles_hist WHERE [rol_año] = %s AND rol_num = %s', [anio, rol_num])
+                        return Response({'detail': 'El Rol Ya Fue Gravado.'}, status=status.HTTP_409_CONFLICT)
+                    cursor.execute('DELETE FROM calif_roles_hist WHERE [rol_año] = %s AND rol_num = %s', clave)
+                # As the old program: calificación to 2 decimals, and empty texts saved as NULL.
                 cursor.execute(
                     'INSERT INTO calif_roles_hist (id_expediente, calificacion, [rol_año], rol_num, fec_ini_rol, fec_fin_rol, '
                     'fecha_respaldo, inc_cargadas, id_tramo, turno) '
-                    'SELECT id_expediente, calificacion, %s, %s, %s, %s, CAST(GETDATE() AS date), %s, id_tramo, turno '
-                    'FROM rol_taquilla WHERE id_expediente > 0',
-                    [anio, rol_num, data['fecha_ini'], data['fecha_fin'], data.get('inc_cargadas') or ''],
+                    'SELECT id_expediente, ROUND(calificacion, 2), %s, %s, %s, %s, CAST(GETDATE() AS date), %s, '
+                    "NULLIF(id_tramo, ''), NULLIF(turno, '') FROM rol_taquilla WHERE id_expediente > 0",
+                    [*clave, rol['fecha_ini'], rol['fecha_fin'], rol['meses']],
                 )
                 respaldados = cursor.rowcount
-                if _rolvigente(cursor) != vigente:
+                if _rolvigente(cursor) != antes:
                     raise _RolVigenteCambiado
+        except _Rechazo as rechazo:
+            return Response({'detail': str(rechazo)}, status=status.HTTP_400_BAD_REQUEST)
         except _RolVigenteCambiado:
             return Response(
                 {'detail': 'El respaldo modificaba el Rol Vigente; no se guardó nada.'},

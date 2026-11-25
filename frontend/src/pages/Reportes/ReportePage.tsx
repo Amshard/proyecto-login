@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import { RadioOptions, SideButtons } from '../Procesos/ProcesoControls';
+import { useLugaresOcupados } from '../Procesos/useLugaresOcupados';
 import '../Procesos/Procesos.css';
 import './Reportes.css';
 
@@ -11,6 +12,7 @@ interface ReportePageProps {
     subtitulo?: string;
     opciones?: string[];
     bloqueadas?: string[];
+    /** Defaults to the occupied rol_taquilla places. */
     count?: number;
     anio?: boolean;
     onClear?: () => void;
@@ -29,7 +31,7 @@ export default function ReportePage({
     subtitulo,
     opciones,
     bloqueadas,
-    count = 0,
+    count,
     anio,
     onClear,
     botones = [],
@@ -40,6 +42,7 @@ export default function ReportePage({
     onOpcion,
 }: ReportePageProps) {
     const [opcionPropia, setOpcionPropia] = useState('');
+    const [ocupados] = useLugaresOcupados(count === undefined);
     const opcion = opcionDada ?? opcionPropia;
     const setOpcion = onOpcion ?? setOpcionPropia;
 
@@ -49,7 +52,7 @@ export default function ReportePage({
             hideTabs
             pageClassName="stc-sin-bordes"
             statusLabel={statusLabel}
-            count={count}
+            count={count ?? ocupados}
             anio={anio}
             onClear={onClear}
             actions={<SideButtons buttons={[...botones, { label: 'Ver Reporte' }]} />}

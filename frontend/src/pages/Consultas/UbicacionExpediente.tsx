@@ -2,8 +2,9 @@ import { useState } from 'react';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable from '../../components/DataTable';
 import { CamposOutline } from '../Catalogos/CatalogoCampos';
-import { codeField, dateField, textField } from '../Catalogos/useCatalogo';
+import { codeField, dateField, recarga, textField } from '../Catalogos/useCatalogo';
 import { headersOnly, onlyDigits, replaceAt, replaceIn, useForm } from '../Procesos/procesoFields';
+import { useLugaresOcupados } from '../Procesos/useLugaresOcupados';
 import './Consultas.css';
 
 const FIELDS = [
@@ -50,6 +51,7 @@ export default function UbicacionExpediente() {
     const [form, setField, resetForm] = useForm(FIELDS);
     const [sets, setSets] = useState(SETS_VACIOS);
     const [periodos, setPeriodos] = useState(PERIODOS_VACIOS);
+    const [ocupados, recargaOcupados] = useLugaresOcupados();
 
     const limpiar = () => {
         resetForm();
@@ -59,7 +61,8 @@ export default function UbicacionExpediente() {
 
     return (
         <CatalogoLayout
-            onActualizar={() => {}}
+            onActualizar={recarga(recargaOcupados)}
+            count={ocupados}
             tabLabel="UBICACIÓN POR EXPEDIENTE"
             hideTabs
             pageClassName="stc-consulta"

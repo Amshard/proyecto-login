@@ -8,8 +8,7 @@
   table-layout: auto;
 }
 
-.stc-table-fit th,
-.stc-table-fit td,
+/* Table cells wrap like the catalog tables, so the table shrinks with the window and rows grow to fit. */
 .stc-proceso-radio {
   white-space: nowrap;
 }

@@ -16,5 +16,5 @@ const OPCIONES: OpcionExcel[] = [
 ];
 
 export default function PersonalVacaciones() {
-    return <AExcelPage opcion="Personal Vacaciones" opciones={OPCIONES} />;
+    return <AExcelPage opcion="Personal Vacaciones" opciones={OPCIONES} lugares />;
 }

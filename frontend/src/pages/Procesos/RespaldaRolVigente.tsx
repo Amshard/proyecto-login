@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
     apiErrorMessage,
     getRolesDelAnio,
     getRolesHist,
-    getLugaresOcupados,
     isConflict,
     respaldaRolVigente,
+    type RespaldoRol,
     type RolHist,
 } from '../../api/catalogos';
 import CatalogoLayout from '../../components/CatalogoLayout';
@@ -13,10 +13,11 @@ import DataTable, { type Column } from '../../components/DataTable';
 import { ManualField, type ManualFieldConfig } from '../../components/ManualField';
 import { useAuth } from '../../context/useAuth';
 import type { RolVigente } from '../../types/auth.types';
-import { ddmmyyyy, isoDate } from '../../utils/fechas';
+import { ddmmyyyy } from '../../utils/fechas';
 import { codeField, dateField, recarga, textField, texto, useCatalogoRows } from '../Catalogos/useCatalogo';
 import { sameHeight } from './procesoFields';
 import ProgressBar from './ProgressBar';
+import { useLugaresOcupados } from './useLugaresOcupados';
 import '../Catalogos/Catalogos.css';
 import './Procesos.css';
 
@@ -69,11 +70,7 @@ const COLUMNS: Column<RolHist>[] = [
 export default function RespaldaRolVigente() {
     const [rows, , recargaRows] = useCatalogoRows(getRolesHist);
     const [rolesDelAnio, , recargaRolesDelAnio] = useCatalogoRows(getRolesDelAnio);
-    const [ocupados, setOcupados] = useState(0);
-    const recargaOcupados = useCallback(() => getLugaresOcupados().then(setOcupados), []);
-    useEffect(() => {
-        recargaOcupados().catch(() => {});
-    }, [recargaOcupados]);
+    const [ocupados, recargaOcupados] = useLugaresOcupados();
     const [siguiente, setSiguiente] = useState(false);
     const [progreso, setProgreso] = useState(0);
     const { user, refreshUser } = useAuth();
@@ -82,13 +79,12 @@ export default function RespaldaRolVigente() {
     const anio = Number(vigente.rol1);
     const num = Number(vigente.rol2);
     const [anioSig, numSig] = num >= 4 ? [anio + 1, 1] : [anio, num + 1];
-    const encontrado = rolesDelAnio.find((r) => r.anio === anioSig && r.id_rol_anual === numSig);
-    const proximo = encontrado && numSig === 1 ? { ...encontrado, estado: 'ROLADO' } : encontrado;
-    const form = !siguiente
-        ? vigente
-        : proximo
-          ? rolForm({ ...proximo, estatus_roldescansos: proximo.estado })
-          : { ...rolForm(null), rol1: String(anioSig), rol2: String(numSig), estado: 'NO ROLADO' };
+    const proximo = rolesDelAnio.find((r) => r.anio === anioSig && r.id_rol_anual === numSig);
+    // As the old FrmRespaldo: once the rol vigente is ROLADO, Grava shows and saves the next rol, marked ROLADO.
+    const siguienteForm = proximo
+        ? rolForm({ ...proximo, estatus_roldescansos: 'ROLADO' })
+        : { ...rolForm(null), rol1: String(anioSig), rol2: String(numSig), estado: 'NO ROLADO' };
+    const form = siguiente ? siguienteForm : vigente;
     const field = (config: ManualFieldConfig<RespaldoKey>) => (
         <ManualField key={config.key} config={config} value={form[config.key]} onChange={() => {}} readOnly />
     );
@@ -99,12 +95,7 @@ export default function RespaldaRolVigente() {
         recarga(recargaRows, recargaOcupados, recargaRolesDelAnio, refreshUser)();
     };
 
-    const siguienteDeAlta = !!proximo && texto(proximo.estado).trim().toUpperCase() === 'ROLADO';
     const rol = `${vigente.rol1} Rol ${vigente.rol2}`;
-    const respaldos = rows.filter((r) => r.rol_anio === anio && r.rol_num === num);
-    const existe = respaldos.length > 0;
-    const reciente = respaldos.some((r) => texto(r.fecha_respaldo).slice(0, 10) === isoDate());
-    const hayRolAnioSiguiente = numSig === 1 && !!encontrado;
 
     const respalda = async () => {
         const faltan = [
@@ -117,44 +108,20 @@ export default function RespaldaRolVigente() {
             window.alert(`Falta Seleccionar ${faltan.map(([campo]) => campo).join(', ')} del Rol.`);
             return;
         }
-        if (!rolado) {
-            window.alert(`El Rol Vigente ${rol} no está ROLADO.`);
-            return;
-        }
-        // Respaldo reciente (de hoy), o ya existe el Rol 1 del año siguiente: primer Grava muestra el Rol Siguiente,
-        // el segundo pregunta si guardar o reemplazar.
-        if (reciente || hayRolAnioSiguiente) {
-            if (!siguiente) {
-                if (window.confirm(`El rol vigente ya fué rolado, a parir de este momento los cambios se guardarán en el Rol ${numSig} ¿Desea respaldar?`)) {
-                    setSiguiente(true);
-                }
+        if (rolado) {
+            if (!window.confirm(`El rol vigente ya fué rolado, a parir de este momento los cambios se guardarán en el Rol ${numSig} ¿Desea respaldar?`)) return;
+            setSiguiente(true);
+            await pintado();
+            if (!proximo) {
+                window.alert('No esta dado de alta el ROL Siguiente');
                 return;
             }
-            if (window.confirm(existe ? REEMPLAZO : `¿Desea Gravar el Rol Vigente ${rol}?`)) await guarda(existe);
-            return;
-        }
-        // Sin respaldo, o con uno anterior: pregunta y guarda en un solo Grava.
-        const pregunta = existe
-            ? REEMPLAZO
-            : `El Rol Vigente ya fue rolado, a pertir de este momento los cambios se guardaran en el Rol ${numSig} ¿Desea respaldar?`;
-        if (window.confirm(pregunta)) await guarda(existe);
+        } else if (!window.confirm(`¿Desea respaldar el Rol Vigente ${rol}?`)) return;
+        const aRespaldar = rolado ? siguienteForm : vigente;
+        await guarda({ anio: Number(aRespaldar.rol1), rol_num: Number(aRespaldar.rol2), reemplaza: false });
     };
 
-    const guarda = async (reemplaza: boolean) => {
-        setSiguiente(true);
-        await pintado();
-        if (!siguienteDeAlta) {
-            window.alert('No esta dado de alta el ROL Siguiente');
-            return;
-        }
-        const datos = {
-            anio,
-            rol_num: num,
-            fecha_ini: vigente.fecha_inicial,
-            fecha_fin: vigente.fecha_final,
-            inc_cargadas: vigente.meses_califica,
-            reemplaza,
-        };
+    const guarda = async (datos: RespaldoRol) => {
         // The server answers in one request, so the bar creeps toward 90% while it works and fills on success.
         setProgreso(0);
         const avance = window.setInterval(() => setProgreso((p) => p + (90 - p) * 0.1), 100);
@@ -170,6 +137,8 @@ export default function RespaldaRolVigente() {
                 if (!isConflict(error)) throw error;
                 if (!window.confirm(REEMPLAZO)) {
                     termina(0);
+                    setSiguiente(false);
+                    window.alert('Proceso Cancelado...');
                     return;
                 }
                 respaldados = await respaldaRolVigente({ ...datos, reemplaza: true });

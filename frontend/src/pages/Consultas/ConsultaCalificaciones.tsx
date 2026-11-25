@@ -2,7 +2,9 @@ import { useState } from 'react';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import DataTable from '../../components/DataTable';
 import PorcentajesCalificacion from '../Procesos/ParaCalificacion/PorcentajesCalificacion';
+import { recarga } from '../Catalogos/useCatalogo';
 import { NO_ROWS, headersOnly } from '../Procesos/procesoFields';
+import { useLugaresOcupados } from '../Procesos/useLugaresOcupados';
 import './Consultas.css';
 
 const ALFABETICO_COLUMNAS = headersOnly([
@@ -35,10 +37,12 @@ const ALFABETICO_COLUMNAS = headersOnly([
 
 export default function ConsultaCalificaciones() {
     const [vacio, setVacio] = useState(0);
+    const [ocupados, recargaOcupados] = useLugaresOcupados();
 
     return (
         <CatalogoLayout
-            onActualizar={() => {}}
+            onActualizar={recarga(recargaOcupados)}
+            count={ocupados}
             tabLabel="CALIFICACION POR UN EXPEDIENTE"
             statusLabel="Consulta Calificaciones"
             onClear={() => setVacio((n) => n + 1)}

@@ -198,6 +198,11 @@
   min-inline-size: 0;
 }
 
+/* 25 columns with frozen ones on the left: kept on one line and scrolled sideways instead of squeezed. */
+.stc-table-calif :is(th, td) {
+  white-space: nowrap;
+}
+
 :is(.stc-content, .stc-content-square, .stc-tab-panel):has(.stc-table-calif) {
   min-width: 0;
 }

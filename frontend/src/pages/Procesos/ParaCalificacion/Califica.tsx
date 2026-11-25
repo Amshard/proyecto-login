@@ -3,10 +3,12 @@ import CatalogoLayout from '../../../components/CatalogoLayout';
 import { isoDate } from '../../../utils/fechas';
 import { SideButtons } from '../ProcesoControls';
 import ProgressBar from '../ProgressBar';
+import { useLugaresOcupados } from '../useLugaresOcupados';
 import '../Procesos.css';
 
 export default function Califica() {
     const [fecha, setFecha] = useState(isoDate);
+    const [ocupados] = useLugaresOcupados();
 
     return (
         <CatalogoLayout
@@ -14,7 +16,7 @@ export default function Califica() {
             hideTabs
             pageClassName="stc-para-calificacion"
             statusLabel="Califica Expedientes"
-            count={0}
+            count={ocupados}
             actions={<SideButtons buttons={[{ label: 'Califica' }]} />}
         >
             <fieldset className="stc-report-options stc-rol-options stc-rol-options-wide">

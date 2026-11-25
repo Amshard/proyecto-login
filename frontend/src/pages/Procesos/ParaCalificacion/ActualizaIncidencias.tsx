@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import CatalogoLayout from '../../../components/CatalogoLayout';
+import { useLugaresOcupados } from '../useLugaresOcupados';
 import PorcentajesCalificacion from './PorcentajesCalificacion';
 
 export default function ActualizaIncidencias() {
     const [vacio, setVacio] = useState(0);
+    const [ocupados] = useLugaresOcupados();
 
     const guardar = () => {};
 
@@ -13,7 +15,7 @@ export default function ActualizaIncidencias() {
             hideTabs
             pageClassName="stc-para-calificacion"
             statusLabel="Actualiza Incidencias X Expediente"
-            count={0}
+            count={ocupados}
             onClear={() => setVacio((n) => n + 1)}
             onSave={guardar}
         >

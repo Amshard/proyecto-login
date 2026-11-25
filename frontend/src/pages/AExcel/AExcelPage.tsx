@@ -2,6 +2,7 @@ import { useState } from 'react';
 import CatalogoLayout from '../../components/CatalogoLayout';
 import { RadioOption, SideButtons } from '../Procesos/ProcesoControls';
 import ProgressBar from '../Procesos/ProgressBar';
+import { useLugaresOcupados } from '../Procesos/useLugaresOcupados';
 import '../Procesos/Procesos.css';
 import './AExcel.css';
 
@@ -23,13 +24,16 @@ interface AExcelPageProps {
     opcion: string;
     anio?: boolean;
     opciones?: OpcionExcel[];
+    /** Shows the occupied rol_taquilla places in Registros instead of 0. */
+    lugares?: boolean;
 }
 
-export default function AExcelPage({ opcion, anio = true, opciones }: AExcelPageProps) {
+export default function AExcelPage({ opcion, anio = true, opciones, lugares = false }: AExcelPageProps) {
     const lista = opciones ?? [{ label: opcion, campos: anio ? [ANIO] : [] }];
     const [elegida, setElegida] = useState<number | null>(null);
     const [valores, setValores] = useState<Record<string, string>>({});
     const [mensaje] = useState('');
+    const [ocupados] = useLugaresOcupados(lugares);
 
     const campo = (c: CampoExcel, i: number, j: number) => {
         const key = `${i}-${j}`;
@@ -57,7 +61,7 @@ export default function AExcelPage({ opcion, anio = true, opciones }: AExcelPage
             hideTabs
             pageClassName="stc-para-calificacion"
             statusLabel="Menú A Excel"
-            count={0}
+            count={lugares ? ocupados : 0}
             actions={elegida !== null && <SideButtons buttons={[{ label: lista[elegida].boton ?? 'Genera en Excel' }]} />}
         >
             <fieldset className="stc-report-options stc-rol-options stc-rol-options-wide">

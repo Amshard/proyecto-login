@@ -216,12 +216,10 @@ export const cambiaRolVigente = async ({ anio, id_rol_anual }: RolDelAnio): Prom
     await api.post('/roles-del-anio/cambia-vigente/', { anio, id_rol_anual });
 };
 
+/** The rol the page shows as the one to back up; the server picks the dates and checks it still matches. */
 export interface RespaldoRol {
     anio: number;
     rol_num: number;
-    fecha_ini: string;
-    fecha_fin: string;
-    inc_cargadas: string;
     reemplaza: boolean;
 }
 

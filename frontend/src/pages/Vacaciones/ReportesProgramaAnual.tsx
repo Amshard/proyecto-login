@@ -30,6 +30,7 @@ export default function ReportesProgramaAnual() {
             titulo="Emisión de Reportes"
             subtitulo="Programa Anual de Vacaciones"
             opciones={OPCIONES}
+            count={0}
             anio
             opcion={opcion}
             onOpcion={setOpcion}
